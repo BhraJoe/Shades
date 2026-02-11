@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <rect width="400" height="200" fill="#2a1a2a"/>
+  <g transform="translate(100, 50)">
+    <!-- Oversized shape -->
+    <ellipse cx="70" cy="50" rx="60" ry="55" fill="none" stroke="#8b4513" stroke-width="4"/>
+    <ellipse cx="70" cy="50" rx="45" ry="40" fill="#1a1a1a" opacity="0.8"/>
+    <ellipse cx="130" cy="50" rx="60" ry="55" fill="none" stroke="#8b4513" stroke-width="4"/>
+    <ellipse cx="130" cy="50" rx="45" ry="40" fill="#1a1a1a" opacity="0.8"/>
+    <path d="M10,50 Q20,30 40,25 L40,75 Q20,70 10,50 Z" fill="#8b4513"/>
+    <path d="M190,50 Q180,30 160,25 L160,75 Q180,70 190,50 Z" fill="#8b4513"/>
+  </g>
+  <text x="200" y="170" fill="#fff" font-family="Arial" font-size="14" text-anchor="middle">Oversized</text>
+</svg>

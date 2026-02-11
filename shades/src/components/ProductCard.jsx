@@ -1,0 +1,147 @@
+import { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+
+export default function ProductCard({ product }) {
+    const { addToWishlist, isInWishlist, addToCart } = useCart();
+    const isWishlisted = isInWishlist(product.id);
+    const [isAdding, setIsAdding] = useState(false);
+    const lastClickRef = useRef(0);
+
+    const handleAddToCart = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const now = Date.now();
+        // Prevent clicks within 1000ms window
+        if (now - lastClickRef.current < 1000) {
+            return;
+        }
+        lastClickRef.current = now;
+
+        setIsAdding(true);
+
+        // Colors and sizes are strings from API, not objects
+        const firstColor = typeof product.colors[0] === 'object' ? product.colors[0].name : product.colors[0];
+        const firstSize = typeof product.sizes[0] === 'object' ? product.sizes[0].name : (product.sizes[0] || 'One Size');
+
+        // Add exactly 1 item
+        addToCart(product, firstColor, firstSize, 1);
+
+        // Reset after delay
+        setTimeout(() => {
+            setIsAdding(false);
+        }, 500);
+    };
+
+    return (
+        <div className="group">
+            {/* Image Container */}
+            <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f5] mb-4">
+                <Link to={`/product/${product.id}`}>
+                    <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                    />
+                </Link>
+
+                {/* Badges */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    {product.newArrival && (
+                        <span className="px-3 py-1 bg-[#dc2626] text-white text-[10px] tracking-widest uppercase font-bold">
+                            New
+                        </span>
+                    )}
+                    {product.bestseller && !product.newArrival && (
+                        <span className="px-3 py-1 bg-[#0a0a0a] text-white text-[10px] tracking-widest uppercase font-bold">
+                            Best Seller
+                        </span>
+                    )}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            addToWishlist(product);
+                        }}
+                        className={`p-2 bg-white shadow-md hover:bg-gray-50 transition-colors duration-200 ${isWishlisted ? 'text-[#dc2626]' : 'text-[#0a0a0a]'
+                            }`}
+                    >
+                        <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+                    </button>
+                </div>
+
+                {/* Add to Cart Button */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={isAdding}
+                        className={`w-full py-3 text-[10px] tracking-widest uppercase transition-colors duration-200 flex items-center justify-center gap-2 font-bold ${isAdding
+                            ? 'bg-green-600 text-white'
+                            : 'bg-[#0a0a0a] text-white hover:bg-[#dc2626]'
+                            }`}
+                    >
+                        <ShoppingBag size={16} />
+                        {isAdding ? 'Added!' : 'Add to Cart'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Product Info */}
+            <div>
+                <p className="text-[10px] text-gray-500 tracking-widest uppercase mb-1">{product.brand}</p>
+                <Link to={`/product/${product.id}`}>
+                    <h3 className="font-medium text-[#0a0a0a] group-hover:text-[#dc2626] transition-colors duration-200">
+                        {product.name}
+                    </h3>
+                </Link>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center text-[#dc2626]">
+                        {[...Array(5)].map((_, i) => (
+                            <Star
+                                key={i}
+                                size={12}
+                                fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
+                                className={i < Math.floor(product.rating) ? '' : 'text-gray-300'}
+                            />
+                        ))}
+                    </div>
+                    <span className="text-[10px] text-gray-500">({product.reviews})</span>
+                </div>
+
+                {/* Price */}
+                <div className="mt-2">
+                    <span className="font-medium text-[#0a0a0a]">₵{product.price.toLocaleString()}</span>
+                    {product.originalPrice && (
+                        <span className="ml-2 text-sm text-gray-400 line-through">₵{product.originalPrice.toLocaleString()}</span>
+                    )}
+                </div>
+
+                {/* Color Options */}
+                {product.colors.length > 1 && (
+                    <div className="flex items-center gap-1 mt-3">
+                        {product.colors.slice(0, 4).map((color, i) => (
+                            <div
+                                key={i}
+                                className="w-5 h-5 rounded-full border border-gray-200"
+                                style={{ backgroundColor: color.hex }}
+                                title={color.name}
+                            />
+                        ))}
+                        {product.colors.length > 4 && (
+                            <span className="text-[10px] text-gray-500 ml-1">+{product.colors.length - 4}</span>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

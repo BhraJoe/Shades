@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <rect width="400" height="200" fill="#1a1a2e"/>
+  <g transform="translate(100, 50)">
+    <!-- Round shape -->
+    <circle cx="70" cy="50" r="50" fill="none" stroke="#c9a962" stroke-width="4"/>
+    <circle cx="70" cy="50" r="35" fill="#1a1a1a" opacity="0.8"/>
+    <circle cx="130" cy="50" r="50" fill="none" stroke="#c9a962" stroke-width="4"/>
+    <circle cx="130" cy="50" r="35" fill="#1a1a1a" opacity="0.8"/>
+    <path d="M20,50 L10,45 L10,55 Z" fill="#c9a962"/>
+    <path d="M180" y1="50" x2="190" y2="45" stroke="#c9a962" stroke-width="3"/>
+  </g>
+  <text x="200" y="170" fill="#fff" font-family="Arial" font-size="14" text-anchor="middle">Round Metal</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <rect width="400" height="200" fill="#1a1a1a"/>
+  <g transform="translate(100, 50)">
+    <!-- Sport shape (wraparound) -->
+    <path d="M10,50 Q30,30 70,25 L130,25 Q170,30 190,50 Q170,70 130,70 L70,70 Q30,65 10,50 Z" fill="none" stroke="#ff4444" stroke-width="4"/>
+    <path d="M25,40 L145,40 Q160,50 145,60 L25,60 Q10,50 25,40 Z" fill="#1a1a1a" opacity="0.9"/>
+    <line x1="5" y1="45" x2="15" y2="45" stroke="#ff4444" stroke-width="3"/>
+    <line x1="5" y1="55" x2="15" y2="55" stroke="#ff4444" stroke-width="3"/>
+    <line x1="185" y1="45" x2="195" y2="45" stroke="#ff4444" stroke-width="3"/>
+    <line x1="185" y1="55" x2="195" y2="55" stroke="#ff4444" stroke-width="3"/>
+  </g>
+  <text x="200" y="170" fill="#fff" font-family="Arial" font-size="14" text-anchor="middle">Sport</text>
+</svg>

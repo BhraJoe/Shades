@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <rect width="400" height="200" fill="#1a2a1a"/>
+  <g transform="translate(100, 50)">
+    <!-- Rectangular shape -->
+    <rect x="10" y="25" width="180" height="50" rx="5" fill="none" stroke="#4a5568" stroke-width="4"/>
+    <rect x="30" y="35" width="140" height="30" fill="#1a1a1a" opacity="0.8"/>
+    <line x1="10" y1="35" x2="30" y2="35" stroke="#4a5568" stroke-width="3"/>
+    <line x1="170" y1="35" x2="190" y2="35" stroke="#4a5568" stroke-width="3"/>
+    <line x1="10" y1="65" x2="30" y2="65" stroke="#4a5568" stroke-width="3"/>
+    <line x1="170" y1="65" x2="190" y2="65" stroke="#4a5568" stroke-width="3"/>
+  </g>
+  <text x="200" y="170" fill="#fff" font-family="Arial" font-size="14" text-anchor="middle">Rectangular</text>
+</svg>

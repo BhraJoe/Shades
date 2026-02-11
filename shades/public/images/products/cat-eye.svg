@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" fill="none">
+  <rect width="400" height="200" fill="#2e1a1a"/>
+  <g transform="translate(100, 50)">
+    <!-- Cat-eye shape -->
+    <path d="M10,50 Q30,20 70,25 Q110,30 130,50 Q110,70 70,65 Q30,60 10,50 Z" fill="none" stroke="#d4af37" stroke-width="4"/>
+    <path d="M70,35 Q100,40 120,50 Q100,60 70,55 Q40,50 70,35 Z" fill="#1a1a1a" opacity="0.8"/>
+    <path d="M70,35 Q40,40 20,50 Q40,60 70,55 Q100,50 70,35 Z" fill="#1a1a1a" opacity="0.8"/>
+    <path d="M15,45 L5,40 L5,50 Z" fill="#d4af37"/>
+    <path d="M185,45 L195,40 L195,50 Z" fill="#d4af37"/>
+  </g>
+  <text x="200" y="170" fill="#fff" font-family="Arial" font-size="14" text-anchor="middle">Cat-Eye</text>
+</svg>
