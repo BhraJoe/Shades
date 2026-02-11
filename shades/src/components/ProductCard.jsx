@@ -64,13 +64,13 @@ export default function ProductCard({ product }) {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute top-4 right-4 flex flex-col gap-2">
                     <button
                         onClick={(e) => {
                             e.preventDefault();
                             addToWishlist(product);
                         }}
-                        className={`p-2 bg-white shadow-md hover:bg-gray-50 transition-colors duration-200 ${isWishlisted ? 'text-[#dc2626]' : 'text-[#0a0a0a]'
+                        className={`p-3 bg-white shadow-md hover:bg-gray-50 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${isWishlisted ? 'text-[#dc2626]' : 'text-[#0a0a0a]'
                             }`}
                     >
                         <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
@@ -78,11 +78,11 @@ export default function ProductCard({ product }) {
                 </div>
 
                 {/* Add to Cart Button */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
                     <button
                         onClick={handleAddToCart}
                         disabled={isAdding}
-                        className={`w-full py-3 text-[10px] tracking-widest uppercase transition-colors duration-200 flex items-center justify-center gap-2 font-bold ${isAdding
+                        className={`w-full py-4 md:py-3 text-xs tracking-widest uppercase transition-colors duration-200 flex items-center justify-center gap-2 font-bold ${isAdding
                             ? 'bg-green-600 text-white'
                             : 'bg-[#0a0a0a] text-white hover:bg-[#dc2626]'
                             }`}
@@ -127,11 +127,11 @@ export default function ProductCard({ product }) {
 
                 {/* Color Options */}
                 {product.colors.length > 1 && (
-                    <div className="flex items-center gap-1 mt-3">
+                    <div className="flex items-center gap-2 mt-3">
                         {product.colors.slice(0, 4).map((color, i) => (
                             <div
                                 key={i}
-                                className="w-5 h-5 rounded-full border border-gray-200"
+                                className="w-8 h-8 rounded-full border border-gray-200"
                                 style={{ backgroundColor: color.hex }}
                                 title={color.name}
                             />

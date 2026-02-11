@@ -21,16 +21,18 @@ export default function Register() {
     };
 
     return (
-        <div className="pt-[88px] md:pt-[104px] min-h-screen bg-[#f5f5f5]">
-            <div className="max-w-md mx-auto px-4 md:px-6 py-16">
-                <div className="bg-white p-8 rounded-lg shadow-sm">
-                    <h1 className="section-title text-center mb-2">Create Account</h1>
-                    <p className="text-gray-500 text-center mb-8 font-light">
+        <div className="pt-[130px] md:pt-[104px] min-h-screen bg-[#f5f5f5]">
+            <div className="max-w-md mx-auto px-4 md:px-6 py-8 md:py-16">
+                <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm">
+                    <h1 className="text-3xl md:text-4xl font-display text-center mb-2 tracking-wider">
+                        Create Account
+                    </h1>
+                    <p className="text-gray-500 text-center mb-6 md:mb-8 font-light text-sm md:text-base">
                         Join CITYSHADES for exclusive offers
                     </p>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
+                    <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs font-bold tracking-widest uppercase mb-2">
                                     First Name
@@ -40,7 +42,7 @@ export default function Register() {
                                     name="firstName"
                                     value={formData.firstName}
                                     onChange={handleChange}
-                                    className="input-field"
+                                    className="input-field w-full"
                                     placeholder="John"
                                     required
                                 />
@@ -54,7 +56,7 @@ export default function Register() {
                                     name="lastName"
                                     value={formData.lastName}
                                     onChange={handleChange}
-                                    className="input-field"
+                                    className="input-field w-full"
                                     placeholder="Doe"
                                     required
                                 />
@@ -70,7 +72,7 @@ export default function Register() {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="input-field"
+                                className="input-field w-full"
                                 placeholder="your@email.com"
                                 required
                             />
@@ -85,8 +87,8 @@ export default function Register() {
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="input-field"
-                                placeholder="••••••••"
+                                className="input-field w-full"
+                                placeholder="********"
                                 required
                             />
                         </div>
@@ -100,32 +102,32 @@ export default function Register() {
                                 name="confirmPassword"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className="input-field"
-                                placeholder="••••••••"
+                                className="input-field w-full"
+                                placeholder="********"
                                 required
                             />
                         </div>
 
-                        <div className="flex items-start">
-                            <input type="checkbox" className="mt-1 mr-2" required />
+                        <div className="flex items-start py-2 min-h-[48px]">
+                            <input
+                                type="checkbox"
+                                className="mr-3 w-5 h-5 rounded border-gray-300 mt-0.5 text-[#dc2626] focus:ring-[#dc2626]"
+                                required
+                            />
                             <span className="text-sm text-gray-600">
                                 I agree to the{' '}
-                                <Link to="/terms" className="text-[#dc2626] hover:underline">
-                                    Terms of Service
-                                </Link>{' '}
-                                and{' '}
-                                <Link to="/privacy" className="text-[#dc2626] hover:underline">
-                                    Privacy Policy
-                                </Link>
+                                <Link to="/terms" className="text-[#dc2626] hover:underline">Terms</Link>
+                                {' '}and{' '}
+                                <Link to="/privacy" className="text-[#dc2626] hover:underline">Privacy Policy</Link>
                             </span>
                         </div>
 
-                        <button type="submit" className="btn-primary w-full">
+                        <button type="submit" className="btn-primary w-full py-4 md:py-3 text-base font-bold tracking-widest">
                             Create Account
                         </button>
                     </form>
 
-                    <p className="text-center text-gray-500 mt-6 font-light">
+                    <p className="text-center text-gray-500 mt-6 font-light text-sm">
                         Already have an account?{' '}
                         <Link to="/login" className="text-[#dc2626] font-bold hover:underline">
                             Sign In

@@ -23,9 +23,9 @@ export default function About() {
     ];
 
     return (
-        <div className="pt-[130px] md:pt-[104px]">
+        <div className="pt-[100px] md:pt-[104px]">
             {/* Hero Section */}
-            <section className="relative h-[65vh] md:h-[85vh] min-h-[450px] md:min-h-[600px] overflow-hidden">
+            <section className="relative h-[55vh] md:h-[85vh] min-h-[380px] md:min-h-[600px] overflow-hidden">
                 <img
                     src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&fm=webp"
                     alt="About CITYSHADES"
@@ -41,25 +41,25 @@ export default function About() {
                     <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-3 md:mb-4">
                         Our Story
                     </span>
-                    <h1 className="animate-slideUp font-display text-4xl md:text-6xl lg:text-8xl text-white mb-4 md:mb-6 leading-none">
+                    <h1 className="animate-slideUp font-display text-3xl md:text-6xl lg:text-8xl text-white mb-3 md:mb-6 leading-none">
                         CITYSHADES
                     </h1>
-                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-md md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
+                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-xs md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
                         Born from a passion for exceptional design and uncompromising quality.
                     </p>
-                    <div className="animate-slideUp animation-delay-300 mb-8 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
+                    <div className="animate-slideUp animation-delay-300 mb-6 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm w-full max-w-[240px] md:max-w-none">
                         <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
-                            Premium Brands
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
+                            <span className="truncate">Premium Brands</span>
                         </div>
                         <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
-                            15+ Years Experience
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
+                            <span className="truncate">15+ Years Experience</span>
                         </div>
                     </div>
                     <Link
                         to="/shop"
-                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none text-sm md:text-base"
+                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none text-sm md:text-base w-full md:w-auto"
                     >
                         Explore Collection
                     </Link>
@@ -67,13 +67,13 @@ export default function About() {
             </section>
 
             {/* Story Section */}
-            <section className="py-12 md:py-24 bg-white">
+            <section className="py-10 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-start">
                         <div>
                             <span className="section-subtitle">Our Story</span>
-                            <h2 className="section-title mt-2 mb-6">Where Style Meets Vision</h2>
-                            <div className="space-y-4 text-gray-600 leading-relaxed font-light">
+                            <h2 className="section-title mt-2 mb-4 md:mb-6">Where Style Meets Vision</h2>
+                            <div className="space-y-4 text-gray-600 leading-relaxed font-light text-sm md:text-base">
                                 <p>
                                     Founded in 2009, CITYSHADES began with a simple yet ambitious goal: to make
                                     premium eyewear accessible to everyone without compromising on quality or style.
@@ -92,11 +92,11 @@ export default function About() {
                                 </p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                             <img
                                 src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80&fm=webp"
                                 alt="Our Collection"
-                                className="w-full h-64 object-cover"
+                                className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg"
                                 width="400"
                                 height="256"
                                 loading="lazy"
@@ -105,7 +105,7 @@ export default function About() {
                             <img
                                 src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=80&fm=webp"
                                 alt="Quality Craftsmanship"
-                                className="w-full h-64 object-cover mt-8"
+                                className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg sm:mt-4 md:mt-8"
                                 width="400"
                                 height="256"
                                 loading="lazy"
@@ -117,19 +117,19 @@ export default function About() {
             </section>
 
             {/* Values */}
-            <section className="py-12 md:py-24 bg-[#f5f5f5]">
+            <section className="py-10 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="text-center mb-12">
+                    <div className="text-center mb-8 md:mb-12">
                         <span className="section-subtitle">What We Stand For</span>
                         <h2 className="section-title mt-2">Our Values</h2>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                         {values.map((value, index) => (
-                            <div key={index} className="text-center p-6">
-                                <div className="w-16 h-16 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-sm">
-                                    <value.icon size={28} className="text-[#dc2626]" />
+                            <div key={index} className="text-center p-4 md:p-6">
+                                <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 md:mb-4 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                    <value.icon size={24} md:size={28} className="text-[#dc2626]" />
                                 </div>
-                                <h3 className="font-display text-xl mb-2">{value.title}</h3>
+                                <h3 className="font-display text-lg md:text-xl mb-2">{value.title}</h3>
                                 <p className="text-sm text-gray-500 font-light">{value.desc}</p>
                             </div>
                         ))}
@@ -138,12 +138,12 @@ export default function About() {
             </section>
 
             {/* Stats */}
-            <section className="py-12 md:py-24 bg-[#0a0a0a] text-white">
+            <section className="py-10 md:py-24 bg-[#0a0a0a] text-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                         {stats.map((stat, index) => (
                             <div key={index} className="text-center">
-                                <span className="text-4xl md:text-5xl font-display text-[#dc2626] block mb-2 tracking-wide">{stat.value}</span>
+                                <span className="text-3xl md:text-4xl lg:text-5xl font-display text-[#dc2626] block mb-2 tracking-wide">{stat.value}</span>
                                 <span className="text-xs tracking-[0.2em] uppercase text-gray-400">{stat.label}</span>
                             </div>
                         ))}
@@ -152,16 +152,16 @@ export default function About() {
             </section>
 
             {/* Team */}
-            <section className="py-12 md:py-24 bg-white">
+            <section className="py-10 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="text-center mb-12">
+                    <div className="text-center mb-8 md:mb-12">
                         <span className="section-subtitle">Meet The Team</span>
                         <h2 className="section-title mt-2">Our Leadership</h2>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto">
                         {team.map((member, index) => (
-                            <div key={index} className="text-center">
-                                <div className="w-48 h-48 mx-auto mb-4 overflow-hidden rounded-full">
+                            <div key={index} className="text-center px-2">
+                                <div className="w-36 h-36 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-4 overflow-hidden rounded-full">
                                     <img
                                         src={member.image}
                                         alt={member.name}
@@ -172,8 +172,8 @@ export default function About() {
                                         decoding="async"
                                     />
                                 </div>
-                                <h3 className="font-display text-xl">{member.name}</h3>
-                                <p className="text-[10px] tracking-[0.2em] uppercase text-gray-500 mt-1">{member.role}</p>
+                                <h3 className="font-display text-lg md:text-xl">{member.name}</h3>
+                                <p className="text-xs tracking-[0.2em] uppercase text-gray-500 mt-1">{member.role}</p>
                             </div>
                         ))}
                     </div>
@@ -181,13 +181,16 @@ export default function About() {
             </section>
 
             {/* CTA */}
-            <section className="py-12 md:py-24 bg-[#f5f5f5]">
+            <section className="py-10 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                    <h2 className="section-title mb-4">Ready to Find Your Perfect Pair?</h2>
-                    <p className="text-gray-500 mb-8 max-w-2xl mx-auto font-light">
+                    <h2 className="section-title mb-4 md:mb-6">Ready to Find Your Perfect Pair?</h2>
+                    <p className="text-gray-500 mb-6 md:mb-8 max-w-xl mx-auto font-light text-sm md:text-base">
                         Discover our curated collection of premium sunglasses from the world's most renowned designers.
                     </p>
-                    <Link to="/shop" className="btn-primary">
+                    <Link
+                        to="/shop"
+                        className="btn-primary inline-block w-full md:w-auto min-h-[48px] md:min-h-auto"
+                    >
                         Shop the Collection
                     </Link>
                 </div>

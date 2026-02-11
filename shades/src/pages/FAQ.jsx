@@ -53,31 +53,31 @@ export default function FAQ() {
     };
 
     return (
-        <div className="pt-[130px] md:pt-[104px]">
+        <div className="pt-[100px] md:pt-[104px]">
             {/* Hero */}
-            <section className="bg-[#f5f5f5] py-8 md:py-16">
+            <section className="bg-[#f5f5f5] py-6 md:py-16">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
                     <span className="section-subtitle">Help Center</span>
-                    <h1 className="section-title mt-2">Frequently Asked Questions</h1>
-                    <p className="text-gray-500 mt-4 max-w-2xl mx-auto font-light">
+                    <h1 className="section-title mt-2 text-2xl md:text-4xl">Frequently Asked Questions</h1>
+                    <p className="text-gray-500 mt-3 md:mt-4 max-w-2xl mx-auto font-light text-sm md:text-base">
                         Find answers to common questions about shipping, returns, payments, and more.
                     </p>
                 </div>
             </section>
 
             {/* FAQ Content */}
-            <section className="py-12 md:py-24 bg-white">
+            <section className="py-8 md:py-24 bg-white">
                 <div className="max-w-4xl mx-auto px-4 md:px-6">
-                    <div className="space-y-12">
+                    <div className="space-y-8 md:space-y-12">
                         {faqCategories.map((category, categoryIndex) => (
                             <div key={categoryIndex}>
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 bg-[#f5f5f5] rounded-full flex items-center justify-center">
+                                <div className="flex items-center gap-3 mb-4 md:mb-6">
+                                    <div className="w-10 h-10 bg-[#f5f5f5] rounded-full flex items-center justify-center flex-shrink-0">
                                         <category.icon size={20} className="text-[#dc2626]" />
                                     </div>
-                                    <h2 className="font-display text-2xl">{category.title}</h2>
+                                    <h2 className="font-display text-xl md:text-2xl">{category.title}</h2>
                                 </div>
-                                <div className="space-y-4">
+                                <div className="space-y-3 md:space-y-4">
                                     {category.faqs.map((faq, faqIndex) => {
                                         const key = `${categoryIndex}-${faqIndex}`;
                                         const isOpen = openFaqs[key];
@@ -88,17 +88,18 @@ export default function FAQ() {
                                             >
                                                 <button
                                                     onClick={() => toggleFaq(categoryIndex, faqIndex)}
-                                                    className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-[#f5f5f5] transition-colors duration-200"
+                                                    className="w-full px-4 md:px-6 py-4 text-left flex items-center justify-between hover:bg-[#f5f5f5] transition-colors duration-200 min-h-[48px] md:min-h-auto"
+                                                    aria-expanded={isOpen}
                                                 >
-                                                    <span className="font-medium text-[#0a0a0a] text-sm">{faq.question}</span>
+                                                    <span className="font-medium text-[#0a0a0a] text-sm md:text-sm pr-2">{faq.question}</span>
                                                     {isOpen ? (
-                                                        <ChevronUp size={20} className="text-[#dc2626]" />
+                                                        <ChevronUp size={24} className="text-[#dc2626] flex-shrink-0" />
                                                     ) : (
-                                                        <ChevronDown size={20} className="text-gray-400" />
+                                                        <ChevronDown size={24} className="text-gray-400 flex-shrink-0" />
                                                     )}
                                                 </button>
                                                 {isOpen && (
-                                                    <div className="px-6 py-4 bg-[#f5f5f5] text-gray-600 leading-relaxed animate-fade-in font-light text-sm">
+                                                    <div className="px-4 md:px-6 py-4 bg-[#f5f5f5] text-gray-600 leading-relaxed animate-fade-in font-light text-sm">
                                                         {faq.answer}
                                                     </div>
                                                 )}
@@ -113,13 +114,13 @@ export default function FAQ() {
             </section>
 
             {/* Contact CTA */}
-            <section className="py-12 md:py-24 bg-[#f5f5f5]">
+            <section className="py-10 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                    <h2 className="section-title mb-4">Still Have Questions?</h2>
-                    <p className="text-gray-500 mb-8 max-w-2xl mx-auto font-light">
+                    <h2 className="section-title mb-4 text-xl md:text-3xl">Still Have Questions?</h2>
+                    <p className="text-gray-500 mb-6 md:mb-8 max-w-2xl mx-auto font-light text-sm md:text-base">
                         Our customer service team is here to help you with any questions or concerns.
                     </p>
-                    <a href="/contact" className="btn-primary">
+                    <a href="/contact" className="btn-primary w-full md:w-auto inline-block min-h-[44px] md:min-h-auto">
                         Contact Us
                     </a>
                 </div>

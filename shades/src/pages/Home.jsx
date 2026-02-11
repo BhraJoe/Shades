@@ -89,7 +89,7 @@ export default function Home() {
     };
 
     return (
-        <div className="pt-[130px] md:pt-[104px]">
+        <div className="pt-[80px] md:pt-[104px]">
             {/* Hero Section */}
             <section className="relative h-[65vh] md:h-[85vh] min-h-[450px] md:min-h-[600px] overflow-hidden">
                 <img
@@ -132,41 +132,8 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Best Sellers Products */}
-            <section className="py-12 md:py-24 bg-[#f5f5f5]">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="flex items-center justify-between mb-8 md:mb-12">
-                        <h2 className="section-title">Best Sellers</h2>
-                        <Link to="/shop?bestseller=true" className="text-xs font-bold tracking-widest uppercase hover:text-[#dc2626] transition-colors duration-200">
-                            View All →
-                        </Link>
-                    </div>
-
-                    {loading ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                            {[...Array(4)].map((_, i) => (
-                                <div key={i} className="product-card">
-                                    <div className="aspect-[3/4] skeleton" />
-                                    <div className="p-3 md:p-4 space-y-2">
-                                        <div className="h-2 md:h-3 skeleton w-1/3" />
-                                        <div className="h-3 md:h-4 skeleton w-2/3" />
-                                        <div className="h-3 md:h-4 skeleton w-1/4" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                            {displayedBestsellers.slice(0, 4).map((product) => (
-                                <ProductCard key={product.id} product={product} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </section>
-
             {/* Featured Collections */}
-            <section className="py-12 md:py-24 bg-white">
+            <section className="py-8 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <h2 className="section-title text-center mb-8 md:mb-16">Collections</h2>
 
@@ -233,12 +200,12 @@ export default function Home() {
             </section>
 
             {/* Categories */}
-            <section className="py-12 md:py-24 bg-white">
+            <section className="py-8 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <h2 className="section-title text-center mb-4">Shop by Style</h2>
                     <p className="text-gray-500 text-center mb-8 md:mb-12 font-light">Find your perfect look</p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
                         {/* Aviators */}
                         <Link to="/shop?category=aviators" className="group">
                             <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3">
@@ -387,9 +354,9 @@ export default function Home() {
             </section>
 
             {/* Best Sellers */}
-            <section className="py-24 bg-[#f5f5f5]">
+            <section className="py-8 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="flex items-center justify-between mb-12">
+                    <div className="flex items-center justify-between mb-8 md:mb-12">
                         <h2 className="section-title">Best Sellers</h2>
                         <Link to="/shop?bestseller=true" className="text-xs font-bold tracking-widest uppercase hover:text-[#dc2626] transition-colors duration-200">
                             View All →
@@ -397,21 +364,21 @@ export default function Home() {
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                             {[...Array(4)].map((_, i) => (
                                 <div key={i} className="product-card">
                                     <div className="aspect-[3/4] skeleton" />
-                                    <div className="p-4 space-y-2">
-                                        <div className="h-3 skeleton w-1/3" />
-                                        <div className="h-4 skeleton w-2/3" />
-                                        <div className="h-4 skeleton w-1/4" />
+                                    <div className="p-3 md:p-4 space-y-2">
+                                        <div className="h-2 md:h-3 skeleton w-1/3" />
+                                        <div className="h-3 md:h-4 skeleton w-2/3" />
+                                        <div className="h-3 md:h-4 skeleton w-1/4" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {displayedBestsellers.map((product) => (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            {displayedBestsellers.slice(0, 4).map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
@@ -433,9 +400,9 @@ export default function Home() {
             </section>
 
             {/* New Arrivals */}
-            <section className="py-24 bg-white">
+            <section className="py-8 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="flex items-center justify-between mb-12">
+                    <div className="flex items-center justify-between mb-8 md:mb-12">
                         <div>
                             <h2 className="section-title">New Arrivals</h2>
                             <p className="text-gray-500 mt-2 text-sm font-light">Fresh styles just dropped</p>
@@ -446,20 +413,20 @@ export default function Home() {
                     </div>
 
                     {loading ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                             {[...Array(4)].map((_, i) => (
                                 <div key={i} className="product-card">
                                     <div className="aspect-[3/4] skeleton" />
-                                    <div className="p-4 space-y-2">
-                                        <div className="h-3 skeleton w-1/3" />
-                                        <div className="h-4 skeleton w-2/3" />
-                                        <div className="h-4 skeleton w-1/4" />
+                                    <div className="p-3 md:p-4 space-y-2">
+                                        <div className="h-2 md:h-3 skeleton w-1/3" />
+                                        <div className="h-3 md:h-4 skeleton w-2/3" />
+                                        <div className="h-3 md:h-4 skeleton w-1/4" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                             {displayedNewArrivals.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
@@ -482,7 +449,7 @@ export default function Home() {
             </section>
 
             {/* Brand Story */}
-            <section className="py-12 md:py-24 bg-[#0a0a0a] text-white">
+            <section className="py-8 md:py-24 bg-[#0a0a0a] text-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="order-2 lg:order-1">
@@ -527,7 +494,7 @@ export default function Home() {
             </section>
 
             {/* Newsletter */}
-            <section className="py-12 md:py-24 bg-white">
+            <section className="py-8 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="max-w-2xl mx-auto text-center">
                         <h2 className="section-title mb-4">Join the Club</h2>

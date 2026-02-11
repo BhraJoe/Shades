@@ -22,33 +22,33 @@ export default function Wishlist() {
     };
 
     return (
-        <div className="min-h-screen bg-white pt-32 pb-16">
+        <div className="pt-[130px] md:pt-[104px] min-h-screen bg-white pb-8">
             <div className="max-w-7xl mx-auto px-4 md:px-6">
                 {/* Page Header */}
-                <div className="text-center mb-16">
-                    <h1 className="font-display text-4xl md:text-5xl tracking-wider mb-4">
+                <div className="text-center mb-8 md:mb-16">
+                    <h1 className="font-display text-3xl md:text-4xl tracking-wider mb-2 md:mb-4">
                         WISHLIST
                     </h1>
-                    <p className="text-gray-500 tracking-wide">
-                        Your saved favorites
+                    <p className="text-gray-500 tracking-wide text-sm md:text-base">
+                        {wishlistProducts.length} {wishlistProducts.length === 1 ? 'item' : 'items'} saved
                     </p>
                 </div>
 
                 {wishlistProducts.length === 0 ? (
                     /* Empty State */
-                    <div className="text-center py-16">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
-                            <Heart size={32} className="text-gray-400" />
+                    <div className="text-center py-12 md:py-16">
+                        <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-full mb-6">
+                            <Heart size={28} className="text-gray-400 md:w-8 md:h-8" />
                         </div>
                         <h2 className="font-display text-2xl tracking-wide mb-4">
                             Your wishlist is empty
                         </h2>
-                        <p className="text-gray-500 mb-8 tracking-wide">
+                        <p className="text-gray-500 mb-8 tracking-wide text-sm md:text-base">
                             Save your favorite styles to purchase later
                         </p>
                         <Link
                             to="/shop"
-                            className="inline-flex items-center gap-2 btn-primary"
+                            className="inline-flex items-center justify-center gap-2 btn-primary w-full sm:w-auto"
                         >
                             Continue Shopping
                             <ArrowRight size={16} />
@@ -57,7 +57,7 @@ export default function Wishlist() {
                 ) : (
                     <>
                         {/* Wishlist Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
                             {wishlistProducts.map((product) => (
                                 <div key={product.id} className="product-card group">
                                     {/* Product Image */}
@@ -68,35 +68,36 @@ export default function Wishlist() {
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         />
 
-                                        {/* Remove Button */}
+                                        {/* Remove Button - Larger touch target on mobile */}
                                         <button
                                             onClick={() => removeFromWishlist(product.id)}
-                                            className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors"
+                                            className="absolute top-3 right-3 w-9 h-9 md:w-8 md:h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100 transition-colors touch-manipulation"
+                                            aria-label="Remove from wishlist"
                                         >
                                             <Trash2 size={14} className="text-gray-600" />
                                         </button>
 
-                                        {/* Quick Add Button */}
+                                        {/* Quick Add Button - Always visible on mobile */}
                                         <button
                                             onClick={() => {
                                                 addToCart(product);
                                                 removeFromWishlist(product.id);
                                             }}
-                                            className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm py-3 text-xs font-bold tracking-[0.1em] uppercase opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-[#dc2626]"
+                                            className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-sm py-2.5 md:py-3 text-xs font-bold tracking-[0.1em] uppercase transition-all duration-300 hover:bg-white hover:text-[#dc2626] touch-manipulation opacity-100"
                                         >
                                             Add to Bag
                                         </button>
                                     </div>
 
                                     {/* Product Info */}
-                                    <div className="p-4">
+                                    <div className="p-3 md:p-4">
                                         <p className="text-xs text-gray-500 tracking-wider mb-1">
                                             {product.subcategory || product.category}
                                         </p>
-                                        <h3 className="font-medium tracking-wide mb-2">
+                                        <h3 className="font-medium tracking-wide mb-1 text-sm md:text-base">
                                             {product.name}
                                         </h3>
-                                        <p className="font-display text-lg tracking-wide">
+                                        <p className="font-display text-base md:text-lg tracking-wide">
                                             ₵{product.price.toLocaleString()}
                                         </p>
                                     </div>
@@ -105,10 +106,10 @@ export default function Wishlist() {
                         </div>
 
                         {/* Proceed to Checkout Button */}
-                        <div className="mt-12 text-center">
+                        <div className="mt-8 md:mt-12 text-center">
                             <button
                                 onClick={handleProceedToCheckout}
-                                className="inline-flex items-center gap-2 btn-primary"
+                                className="inline-flex items-center justify-center gap-2 btn-primary w-full sm:w-auto py-3 md:py-3"
                             >
                                 <ShoppingBag size={18} />
                                 Proceed to Checkout
