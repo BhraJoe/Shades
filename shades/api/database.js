@@ -9,10 +9,12 @@ const __dirname = dirname(__filename);
 // Data file paths - use /tmp for writable storage on Vercel
 const isVercel = process.env.VERCEL === '1';
 const DATA_DIR = isVercel ? '/tmp/data' : join(__dirname, '../server/data');
-const PRODUCTS_FILE = join(DATA_DIR, 'products.json');
-const ORDERS_FILE = join(DATA_DIR, 'orders.json');
-const SUBSCRIBERS_FILE = join(DATA_DIR, 'subscribers.json');
-const MESSAGES_FILE = join(DATA_DIR, 'messages.json');
+const DATA_DIR_LOCAL = join(__dirname, './data'); // For Vercel deployment
+const FINAL_DATA_DIR = isVercel ? DATA_DIR : DATA_DIR_LOCAL;
+const PRODUCTS_FILE = join(FINAL_DATA_DIR, 'products.json');
+const ORDERS_FILE = join(FINAL_DATA_DIR, 'orders.json');
+const SUBSCRIBERS_FILE = join(FINAL_DATA_DIR, 'subscribers.json');
+const MESSAGES_FILE = join(FINAL_DATA_DIR, 'messages.json');
 
 // Local sunglasses images
 const localImages = {
@@ -61,7 +63,7 @@ const localImages = {
 // Ensure data directory exists
 export async function ensureDataDir() {
     try {
-        await fs.mkdir(DATA_DIR, { recursive: true });
+        await fs.mkdir(FINAL_DATA_DIR, { recursive: true });
     } catch (e) {
         // Directory exists
     }
