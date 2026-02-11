@@ -9,7 +9,12 @@ export default async function handler(req, res) {
         let products = await readData(PRODUCTS_FILE);
 
         if (category) {
-            products = products.filter(p => p.category === category);
+            // Check both category and subcategory (case-insensitive)
+            const catLower = category.toLowerCase();
+            products = products.filter(p =>
+                p.category?.toLowerCase() === catLower ||
+                p.subcategory?.toLowerCase() === catLower
+            );
         }
 
         if (gender) {

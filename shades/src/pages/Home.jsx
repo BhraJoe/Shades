@@ -334,6 +334,54 @@ export default function Home() {
                             </div>
                             <span className="text-xs tracking-widest uppercase font-medium text-gray-700 group-hover:text-[#dc2626] transition-colors duration-300">Retro</span>
                         </Link>
+
+                        {/* Pilot */}
+                        <Link to="/shop?category=pilot" className="group">
+                            <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3">
+                                <img
+                                    src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80&fm=webp"
+                                    alt="Pilot"
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    width="400"
+                                    height="533"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            </div>
+                            <span className="text-xs tracking-widest uppercase font-medium text-gray-700 group-hover:text-[#dc2626] transition-colors duration-300">Pilot</span>
+                        </Link>
+
+                        {/* Oversized */}
+                        <Link to="/shop?category=oversized" className="group">
+                            <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3">
+                                <img
+                                    src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80&fm=webp"
+                                    alt="Oversized"
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    width="400"
+                                    height="533"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            </div>
+                            <span className="text-xs tracking-widest uppercase font-medium text-gray-700 group-hover:text-[#dc2626] transition-colors duration-300">Oversized</span>
+                        </Link>
+
+                        {/* Rectangular */}
+                        <Link to="/shop?category=rectangular" className="group">
+                            <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3">
+                                <img
+                                    src="https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=80&fm=webp"
+                                    alt="Rectangular"
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    width="400"
+                                    height="533"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            </div>
+                            <span className="text-xs tracking-widest uppercase font-medium text-gray-700 group-hover:text-[#dc2626] transition-colors duration-300">Rectangular</span>
+                        </Link>
                     </div>
                 </div>
             </section>
