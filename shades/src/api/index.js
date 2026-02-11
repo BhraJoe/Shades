@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3001/api';
+// Use relative paths for Vercel deployment, localhost for development
+const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
 
 export async function fetchProducts(params = {}) {
     const queryString = new URLSearchParams(params).toString();
@@ -14,13 +15,13 @@ export async function fetchProduct(id) {
 }
 
 export async function fetchBestsellers() {
-    const response = await fetch(`${API_BASE}/products/featured/bestsellers`);
+    const response = await fetch(`${API_BASE}/bestsellers`);
     if (!response.ok) throw new Error('Failed to fetch best sellers');
     return response.json();
 }
 
 export async function fetchNewArrivals() {
-    const response = await fetch(`${API_BASE}/products/featured/new`);
+    const response = await fetch(`${API_BASE}/newarrivals`);
     if (!response.ok) throw new Error('Failed to fetch new arrivals');
     return response.json();
 }

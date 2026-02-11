@@ -108,7 +108,7 @@ export default function Footer() {
                 {/* Bottom */}
                 <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-gray-500 text-xs font-light">
-                        © 2024 CITYSHADES. All rights reserved.
+                        © 2026 CITYSHADES. All rights reserved.
                     </p>
                     <div className="flex gap-6">
                         <a href="#" className="footer-link text-xs">Privacy Policy</a>
