@@ -197,11 +197,11 @@ export default function Checkout() {
                                                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                                     <div>
                                                         <label className="block text-xs sm:text-sm font-bold tracking-wider uppercase mb-2 text-gray-700">State</label>
-                                                        <input type="text" name="state" value={formData.state} onChange={handleInputChange} className="input-field min-h-[48px] text-base" required />
+                                                        <input type="text" name="state" value={formData.state} onChange={handleInputChange} className="input-field h-10 text-sm" required />
                                                     </div>
                                                     <div>
                                                         <label className="block text-xs sm:text-sm font-bold tracking-wider uppercase mb-2 text-gray-700">ZIP Code</label>
-                                                        <input type="text" name="zip" value={formData.zip} onChange={handleInputChange} className="input-field min-h-[48px] text-base" required />
+                                                        <input type="text" name="zip" value={formData.zip} onChange={handleInputChange} className="input-field h-10 text-sm" required />
                                                     </div>
                                                 </div>
                                                 <div className="sm:col-span-2">
