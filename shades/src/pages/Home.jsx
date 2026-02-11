@@ -89,9 +89,9 @@ export default function Home() {
     };
 
     return (
-        <div className="pt-[88px] md:pt-[104px]">
+        <div className="pt-[130px] md:pt-[104px]">
             {/* Hero Section */}
-            <section className="relative h-[70vh] md:h-[85vh] min-h-[500px] md:min-h-[600px] overflow-hidden">
+            <section className="relative h-[65vh] md:h-[85vh] min-h-[450px] md:min-h-[600px] overflow-hidden">
                 <img
                     src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&fm=webp"
                     alt="CITYSHADES Collection"
@@ -101,7 +101,7 @@ export default function Home() {
                     fetchpriority="high"
                     decoding="async"
                 />
-                <div className="hero-overlay" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
 
                 <div className="relative z-10 h-full flex flex-col justify-center items-start max-w-7xl mx-auto px-4 md:px-6">
                     <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-3 md:mb-4">
@@ -132,12 +132,45 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Featured Collections */}
-            <section className="py-24 bg-white">
+            {/* Best Sellers Products */}
+            <section className="py-12 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <h2 className="section-title text-center mb-16">Collections</h2>
+                    <div className="flex items-center justify-between mb-8 md:mb-12">
+                        <h2 className="section-title">Best Sellers</h2>
+                        <Link to="/shop?bestseller=true" className="text-xs font-bold tracking-widest uppercase hover:text-[#dc2626] transition-colors duration-200">
+                            View All →
+                        </Link>
+                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {loading ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="product-card">
+                                    <div className="aspect-[3/4] skeleton" />
+                                    <div className="p-3 md:p-4 space-y-2">
+                                        <div className="h-2 md:h-3 skeleton w-1/3" />
+                                        <div className="h-3 md:h-4 skeleton w-2/3" />
+                                        <div className="h-3 md:h-4 skeleton w-1/4" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            {displayedBestsellers.slice(0, 4).map((product) => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Featured Collections */}
+            <section className="py-12 md:py-24 bg-white">
+                <div className="max-w-7xl mx-auto px-4 md:px-6">
+                    <h2 className="section-title text-center mb-8 md:mb-16">Collections</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                         {/* Men's Collection */}
                         <Link to="/shop?gender=men" className="collection-card aspect-[3/4] group">
                             <img
@@ -200,10 +233,10 @@ export default function Home() {
             </section>
 
             {/* Categories */}
-            <section className="py-24 bg-white">
+            <section className="py-12 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <h2 className="section-title text-center mb-4">Shop by Style</h2>
-                    <p className="text-gray-500 text-center mb-12 font-light">Find your perfect look</p>
+                    <p className="text-gray-500 text-center mb-8 md:mb-12 font-light">Find your perfect look</p>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         {/* Aviators */}
@@ -401,7 +434,7 @@ export default function Home() {
             </section>
 
             {/* Brand Story */}
-            <section className="py-24 bg-[#0a0a0a] text-white">
+            <section className="py-12 md:py-24 bg-[#0a0a0a] text-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="order-2 lg:order-1">
@@ -446,7 +479,7 @@ export default function Home() {
             </section>
 
             {/* Newsletter */}
-            <section className="py-24 bg-white">
+            <section className="py-12 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="max-w-2xl mx-auto text-center">
                         <h2 className="section-title mb-4">Join the Club</h2>

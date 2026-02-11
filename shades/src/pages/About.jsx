@@ -23,7 +23,7 @@ export default function About() {
     ];
 
     return (
-        <div className="pt-[88px] md:pt-[104px]">
+        <div className="pt-[130px] md:pt-[104px]">
             {/* Hero Section */}
             <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
                 <div className="absolute inset-0">
@@ -52,7 +52,7 @@ export default function About() {
             </section>
 
             {/* Story Section */}
-            <section className="py-16 md:py-24 bg-white">
+            <section className="py-12 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center">
                         <div>
@@ -102,7 +102,7 @@ export default function About() {
             </section>
 
             {/* Values */}
-            <section className="py-16 md:py-24 bg-[#f5f5f5]">
+            <section className="py-12 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="text-center mb-12">
                         <span className="section-subtitle">What We Stand For</span>
@@ -123,7 +123,7 @@ export default function About() {
             </section>
 
             {/* Stats */}
-            <section className="py-16 md:py-24 bg-[#0a0a0a] text-white">
+            <section className="py-12 md:py-24 bg-[#0a0a0a] text-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {stats.map((stat, index) => (
@@ -137,7 +137,7 @@ export default function About() {
             </section>
 
             {/* Team */}
-            <section className="py-16 md:py-24 bg-white">
+            <section className="py-12 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <div className="text-center mb-12">
                         <span className="section-subtitle">Meet The Team</span>
@@ -166,7 +166,7 @@ export default function About() {
             </section>
 
             {/* CTA */}
-            <section className="py-16 md:py-24 bg-[#f5f5f5]">
+            <section className="py-12 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
                     <h2 className="section-title mb-4">Ready to Find Your Perfect Pair?</h2>
                     <p className="text-gray-500 mb-8 max-w-2xl mx-auto font-light">

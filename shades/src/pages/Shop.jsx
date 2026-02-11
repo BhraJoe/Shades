@@ -97,9 +97,9 @@ export default function Shop() {
     };
 
     return (
-        <div className="pt-[88px] md:pt-[104px]">
+        <div className="pt-[130px] md:pt-[104px]">
             {/* Header */}
-            <div className="bg-[#f5f5f5] py-12">
+            <div className="bg-[#f5f5f5] py-8 md:py-12">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
                     <h1 className="section-title">
                         {filters.search ? `Search: "${filters.search}"` : 'Shop'}
@@ -123,7 +123,7 @@ export default function Shop() {
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
                 {/* Filters */}
                 <div className="flex flex-col lg:flex-row gap-8 mb-12">
                     {/* Categories */}

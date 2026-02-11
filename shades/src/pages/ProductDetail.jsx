@@ -62,7 +62,7 @@ export default function ProductDetail() {
 
     if (loading) {
         return (
-            <div className="pt-[88px] md:pt-[104px] min-h-screen">
+            <div className="pt-[130px] md:pt-[104px] min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         <div className="aspect-[3/4] skeleton" />
@@ -81,7 +81,7 @@ export default function ProductDetail() {
 
     if (!product) {
         return (
-            <div className="pt-[88px] md:pt-[104px] min-h-screen flex items-center justify-center">
+            <div className="pt-[130px] md:pt-[104px] min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="font-display text-3xl mb-4">Product Not Found</h1>
                     <Link to="/shop" className="btn-primary">Shop Now</Link>
@@ -91,7 +91,7 @@ export default function ProductDetail() {
     }
 
     return (
-        <div className="pt-[88px] md:pt-[104px]">
+        <div className="pt-[130px] md:pt-[104px]">
             {/* Breadcrumb */}
             <div className="bg-[#f5f5f5] py-4">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -103,7 +103,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Product Details */}
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Image Gallery */}
                     <div className="space-y-4">

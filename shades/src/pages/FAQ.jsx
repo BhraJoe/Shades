@@ -53,9 +53,9 @@ export default function FAQ() {
     };
 
     return (
-        <div className="pt-[88px] md:pt-[104px]">
+        <div className="pt-[130px] md:pt-[104px]">
             {/* Hero */}
-            <section className="bg-[#f5f5f5] py-12 md:py-16">
+            <section className="bg-[#f5f5f5] py-8 md:py-16">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
                     <span className="section-subtitle">Help Center</span>
                     <h1 className="section-title mt-2">Frequently Asked Questions</h1>
@@ -66,7 +66,7 @@ export default function FAQ() {
             </section>
 
             {/* FAQ Content */}
-            <section className="py-16 md:py-24 bg-white">
+            <section className="py-12 md:py-24 bg-white">
                 <div className="max-w-4xl mx-auto px-4 md:px-6">
                     <div className="space-y-12">
                         {faqCategories.map((category, categoryIndex) => (
@@ -113,7 +113,7 @@ export default function FAQ() {
             </section>
 
             {/* Contact CTA */}
-            <section className="py-16 md:py-24 bg-[#f5f5f5]">
+            <section className="py-12 md:py-24 bg-[#f5f5f5]">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
                     <h2 className="section-title mb-4">Still Have Questions?</h2>
                     <p className="text-gray-500 mb-8 max-w-2xl mx-auto font-light">
