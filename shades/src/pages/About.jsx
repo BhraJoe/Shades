@@ -25,29 +25,44 @@ export default function About() {
     return (
         <div className="pt-[130px] md:pt-[104px]">
             {/* Hero Section */}
-            <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
-                <div className="absolute inset-0">
-                    <img
-                        src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&fm=webp"
-                        alt="About CITYSHADES"
-                        className="w-full h-full object-cover"
-                        width="1920"
-                        height="1080"
-                        fetchpriority="high"
-                        decoding="async"
-                    />
-                    <div className="absolute inset-0 bg-black/50" />
-                </div>
-                <div className="relative h-full max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-center text-center">
-                    <div className="max-w-2xl">
-                        <span className="text-white/80 text-xs tracking-[0.3em] uppercase mb-4 block font-bold">Our Story</span>
-                        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-white mb-6 leading-tight tracking-wide">
-                            WHERE STYLE<br /><span className="text-[#dc2626]">MEETS VISION</span>
-                        </h1>
-                        <p className="text-white/90 text-lg font-light">
-                            Born from a passion for exceptional design and uncompromising quality.
-                        </p>
+            <section className="relative h-[65vh] md:h-[85vh] min-h-[450px] md:min-h-[600px] overflow-hidden">
+                <img
+                    src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&fm=webp"
+                    alt="About CITYSHADES"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    width="1920"
+                    height="1080"
+                    fetchpriority="high"
+                    decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+
+                <div className="relative z-10 h-full flex flex-col justify-center items-start max-w-7xl mx-auto px-4 md:px-6">
+                    <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-3 md:mb-4">
+                        Our Story
+                    </span>
+                    <h1 className="animate-slideUp font-display text-4xl md:text-6xl lg:text-8xl text-white mb-4 md:mb-6 leading-none">
+                        CITYSHADES
+                    </h1>
+                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-md md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
+                        Born from a passion for exceptional design and uncompromising quality.
+                    </p>
+                    <div className="animate-slideUp animation-delay-300 mb-8 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
+                        <div className="flex items-center gap-2 text-white/80">
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
+                            Premium Brands
+                        </div>
+                        <div className="flex items-center gap-2 text-white/80">
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
+                            15+ Years Experience
+                        </div>
                     </div>
+                    <Link
+                        to="/shop"
+                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none text-sm md:text-base"
+                    >
+                        Explore Collection
+                    </Link>
                 </div>
             </section>
 
