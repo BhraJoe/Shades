@@ -171,6 +171,26 @@ export default function Header() {
                                 {item.name}
                             </NavLink>
                         ))}
+
+                        {/* Mobile User Links */}
+                        <div className="pt-4 border-t space-y-3">
+                            <Link
+                                to="/login"
+                                className="flex items-center gap-2 py-3 text-xs font-bold tracking-[0.15em] uppercase text-[#0a0a0a]"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <User size={18} />
+                                Login
+                            </Link>
+                            <Link
+                                to="/register"
+                                className="flex items-center gap-2 py-3 text-xs font-bold tracking-[0.15em] uppercase text-[#dc2626]"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                                <UserPlus size={18} />
+                                Register
+                            </Link>
+                        </div>
                     </nav>
                 </div>
             )}

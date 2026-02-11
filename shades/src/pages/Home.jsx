@@ -91,7 +91,7 @@ export default function Home() {
     return (
         <div className="pt-[88px] md:pt-[104px]">
             {/* Hero Section */}
-            <section className="relative h-[90vh] min-h-[600px] overflow-hidden">
+            <section className="relative h-[70vh] md:h-[85vh] min-h-[500px] md:min-h-[600px] overflow-hidden">
                 <img
                     src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&fm=webp"
                     alt="CITYSHADES Collection"
@@ -104,27 +104,19 @@ export default function Home() {
                 <div className="hero-overlay" />
 
                 <div className="relative z-10 h-full flex flex-col justify-center items-start max-w-7xl mx-auto px-4 md:px-6">
-                    <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-4">
+                    <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-3 md:mb-4">
                         Premium Eyewear
                     </span>
-                    <h1 className="animate-slideUp font-display text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-none">
+                    <h1 className="animate-slideUp font-display text-4xl md:text-6xl lg:text-8xl text-white mb-4 md:mb-6 leading-none">
                         CITYSHADES
                     </h1>
-                    <p className="animate-slideUp animation-delay-200 text-white/90 text-lg md:text-xl max-w-xl mb-6 font-light leading-relaxed">
-                        Your destination for designer sunglasses and premium eyewear. We offer a curated collection of Ray-Ban, Oakley, Versace, and more. Find the perfect pair for every style and occasion.
+                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-md md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
+                        Your destination for designer sunglasses and premium eyewear.
                     </p>
-                    <div className="animate-slideUp animation-delay-300 mb-10 grid grid-cols-2 gap-4 text-sm">
+                    <div className="animate-slideUp animation-delay-300 mb-8 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
                         <div className="flex items-center gap-2 text-white/80">
                             <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
-                            Aviator & Wayfarer
-                        </div>
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
-                            Cat-Eye & Round
-                        </div>
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
-                            Sport & Retro
+                            Designer Brands
                         </div>
                         <div className="flex items-center gap-2 text-white/80">
                             <span className="w-2 h-2 bg-[#dc2626] rounded-full"></span>
@@ -133,7 +125,7 @@ export default function Home() {
                     </div>
                     <Link
                         to="/shop"
-                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none"
+                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none text-sm md:text-base"
                     >
                         Shop the Collection
                     </Link>
