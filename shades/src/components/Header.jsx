@@ -17,6 +17,7 @@ export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { cartCount, wishlist } = useCart();
     const navigate = useNavigate();
@@ -137,15 +138,18 @@ export default function Header() {
                         </Link>
 
                         {/* User Icon with Dropdown */}
-                        <div className="relative group ml-8">
-                            <button className="p-2 hover:text-[#dc2626] transition-colors duration-200">
+                        <div className="relative group">
+                            <button
+                                className="p-2 hover:text-[#dc2626] transition-colors duration-200"
+                                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                            >
                                 <User size={20} />
                             </button>
-                            <div className="absolute right-0 top-full mt-2 w-40 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <Link to="/login" className="block px-4 py-2 text-xs font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:text-[#dc2626] hover:bg-[#f5f5f5] transition-colors duration-200">
+                            <div className={`absolute right-0 top-full mt-2 w-40 bg-white shadow-lg rounded-lg z-50 transition-all duration-200 ${isUserMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'} md:group-hover:opacity-100 md:group-hover:visible`}>
+                                <Link to="/login" className="block px-4 py-2 text-xs font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:text-[#dc2626] hover:bg-[#f5f5f5] transition-colors duration-200" onClick={() => setIsUserMenuOpen(false)}>
                                     Login
                                 </Link>
-                                <Link to="/register" className="block px-4 py-2 text-xs font-bold tracking-[0.15em] uppercase text-[#dc2626] hover:bg-[#f5f5f5] transition-colors duration-200">
+                                <Link to="/register" className="block px-4 py-2 text-xs font-bold tracking-[0.15em] uppercase text-[#dc2626] hover:bg-[#f5f5f5] transition-colors duration-200" onClick={() => setIsUserMenuOpen(false)}>
                                     Register
                                 </Link>
                             </div>
