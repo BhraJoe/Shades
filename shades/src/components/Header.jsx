@@ -7,7 +7,7 @@ const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
     // { name: 'Wishlist', path: '/wishlist' },
-    { name: 'Bag', path: '/cart' },
+    // { name: 'Bag', path: '/cart' },
     { name: 'About', path: '/about' },
     { name: 'FAQ', path: '/faq' },
     { name: 'Contact', path: '/contact' },
