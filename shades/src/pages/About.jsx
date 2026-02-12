@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Star, Award, Heart, Eye } from 'lucide-react';
 
 export default function About() {
@@ -24,48 +23,6 @@ export default function About() {
 
     return (
         <div className="pt-[100px] md:pt-[104px]">
-            {/* Hero Section */}
-            <section className="relative h-[55vh] md:h-[85vh] min-h-[380px] md:min-h-[600px] overflow-hidden">
-                <img
-                    src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&fm=webp"
-                    alt="About CITYSHADES"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    width="1920"
-                    height="1080"
-                    fetchpriority="high"
-                    decoding="async"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
-
-                <div className="relative z-10 h-full flex flex-col justify-center items-start max-w-7xl mx-auto px-4 md:px-6">
-                    <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-3 md:mb-4">
-                        Our Story
-                    </span>
-                    <h1 className="animate-slideUp font-display text-3xl md:text-6xl lg:text-8xl text-white mb-3 md:mb-6 leading-none">
-                        CITYSHADES
-                    </h1>
-                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-xs md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
-                        Born from a passion for exceptional design and uncompromising quality.
-                    </p>
-                    <div className="animate-slideUp animation-delay-300 mb-6 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm w-full max-w-[240px] md:max-w-none">
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="truncate">Premium Brands</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="truncate">15+ Years Experience</span>
-                        </div>
-                    </div>
-                    <Link
-                        to="/shop"
-                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none text-sm md:text-base w-full md:w-auto"
-                    >
-                        Explore Collection
-                    </Link>
-                </div>
-            </section>
-
             {/* Story Section */}
             <section className="py-10 md:py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 md:px-6">
