@@ -1,490 +1,255 @@
-import fs from 'fs/promises';
+import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import fs from 'fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Data file paths
 const DATA_DIR = join(__dirname, 'data');
-const PRODUCTS_FILE = join(DATA_DIR, 'products.json');
-const ORDERS_FILE = join(DATA_DIR, 'orders.json');
-const SUBSCRIBERS_FILE = join(DATA_DIR, 'subscribers.json');
-const MESSAGES_FILE = join(__dirname, 'data/messages.json');
-
-// Local sunglasses images
-const localImages = {
-    aviator: [
-        '/images/products/aviator.svg',
-        '/images/products/aviator.svg',
-        '/images/products/aviator.svg'
-    ],
-    wayfarer: [
-        '/images/products/wayfarer.svg',
-        '/images/products/wayfarer.svg',
-        '/images/products/wayfarer.svg'
-    ],
-    round: [
-        '/images/products/round.svg',
-        '/images/products/round.svg',
-        '/images/products/round.svg'
-    ],
-    catEye: [
-        '/images/products/cat-eye.svg',
-        '/images/products/cat-eye.svg',
-        '/images/products/cat-eye.svg'
-    ],
-    sport: [
-        '/images/products/sport.svg',
-        '/images/products/sport.svg',
-        '/images/products/sport.svg'
-    ],
-    oversized: [
-        '/images/products/oversized.svg',
-        '/images/products/oversized.svg',
-        '/images/products/oversized.svg'
-    ],
-    clubmaster: [
-        '/images/products/clubmaster.svg',
-        '/images/products/clubmaster.svg',
-        '/images/products/clubmaster.svg'
-    ],
-    rectangular: [
-        '/images/products/rectangular.svg',
-        '/images/products/rectangular.svg',
-        '/images/products/rectangular.svg'
-    ]
-};
 
 // Ensure data directory exists
-export async function ensureDataDir() {
-    try {
-        await fs.mkdir(DATA_DIR, { recursive: true });
-    } catch (e) {
-        // Directory exists
+await fs.mkdir(DATA_DIR, { recursive: true });
+
+const DB_PATH = join(DATA_DIR, 'shades.db');
+const db = new Database(DB_PATH);
+
+// Initialize database tables
+db.exec(`
+    CREATE TABLE IF NOT EXISTS products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        brand TEXT NOT NULL,
+        description TEXT NOT NULL,
+        price REAL NOT NULL,
+        category TEXT NOT NULL,
+        gender TEXT NOT NULL,
+        images TEXT NOT NULL,
+        colors TEXT NOT NULL,
+        sizes TEXT NOT NULL,
+        stock INTEGER NOT NULL DEFAULT 0,
+        is_bestseller INTEGER DEFAULT 0,
+        is_new INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_number TEXT NOT NULL UNIQUE,
+        customer_email TEXT NOT NULL,
+        customer_name TEXT NOT NULL,
+        shipping_address TEXT,
+        shipping_city TEXT,
+        shipping_state TEXT,
+        shipping_zip TEXT,
+        shipping_country TEXT,
+        shipping_phone TEXT,
+        subtotal REAL NOT NULL,
+        shipping REAL NOT NULL,
+        tax REAL NOT NULL,
+        total REAL NOT NULL,
+        status TEXT DEFAULT 'confirmed',
+        items TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS subscribers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        message TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+`);
+
+// Initialize products if empty
+const productCount = db.prepare('SELECT COUNT(*) as count FROM products').get();
+if (productCount.count === 0) {
+    const initialProducts = [
+        {
+            name: 'Aviator Classic',
+            brand: 'Ray-Ban',
+            description: 'The iconic aviator design that has been a symbol of cool for decades.',
+            price: 169.00,
+            category: 'aviator',
+            gender: 'unisex',
+            images: JSON.stringify(['/images/products/aviator.svg', '/images/products/aviator.svg', '/images/products/aviator.svg']),
+            colors: JSON.stringify(['Gold/Green', 'Silver/Blue', 'Black/Grey']),
+            sizes: JSON.stringify(['M', 'L']),
+            stock: 25,
+            is_bestseller: 1,
+            is_new: 0
+        },
+        {
+            name: 'Wayfarer Original',
+            brand: 'Ray-Ban',
+            description: 'The definitive style icon that changed everything.',
+            price: 159.00,
+            category: 'wayfarer',
+            gender: 'unisex',
+            images: JSON.stringify(['/images/products/wayfarer.svg', '/images/products/wayfarer.svg', '/images/products/wayfarer.svg']),
+            colors: JSON.stringify(['Black', 'Tortoise', 'Demi Blue']),
+            sizes: JSON.stringify(['S', 'M', 'L']),
+            stock: 30,
+            is_bestseller: 1,
+            is_new: 0
+        },
+        {
+            name: 'Clubmaster Acetate',
+            brand: 'Ray-Ban',
+            description: 'A sophisticated blend of retro and contemporary.',
+            price: 189.00,
+            category: 'clubmaster',
+            gender: 'unisex',
+            images: JSON.stringify(['/images/products/clubmaster.svg', '/images/products/clubmaster.svg', '/images/products/clubmaster.svg']),
+            colors: JSON.stringify(['Black', 'Tortoise', 'Clear']),
+            sizes: JSON.stringify(['M', 'L']),
+            stock: 20,
+            is_bestseller: 1,
+            is_new: 1
+        },
+        {
+            name: 'Round Metal',
+            brand: 'Ray-Ban',
+            description: 'Nostalgic yet unmistakably modern.',
+            price: 149.00,
+            category: 'round',
+            gender: 'unisex',
+            images: JSON.stringify(['/images/products/round.svg', '/images/products/round.svg', '/images/products/round.svg']),
+            colors: JSON.stringify(['Gold', 'Silver', 'Gunmetal']),
+            sizes: JSON.stringify(['S', 'M']),
+            stock: 18,
+            is_bestseller: 0,
+            is_new: 1
+        },
+        {
+            name: 'Erika Gradient',
+            brand: 'Ray-Ban',
+            description: 'Bold and feminine, the Erika features oversized frames with gradient lenses.',
+            price: 159.00,
+            category: 'cat-eye',
+            gender: 'women',
+            images: JSON.stringify(['/images/products/cat-eye.svg', '/images/products/cat-eye.svg', '/images/products/cat-eye.svg']),
+            colors: JSON.stringify(['Pink', 'Purple', 'Black']),
+            sizes: JSON.stringify(['M', 'L']),
+            stock: 22,
+            is_bestseller: 0,
+            is_new: 1
+        },
+        {
+            name: 'Justin Matte',
+            brand: 'Oakley',
+            description: 'A fresh take on the classic rectangular shape with a modern matte finish.',
+            price: 145.00,
+            category: 'rectangular',
+            gender: 'men',
+            images: JSON.stringify(['/images/products/rectangular.svg', '/images/products/rectangular.svg', '/images/products/rectangular.svg']),
+            colors: JSON.stringify(['Matte Black', 'Matte Navy', 'Matte Grey']),
+            sizes: JSON.stringify(['M', 'L']),
+            stock: 28,
+            is_bestseller: 1,
+            is_new: 0
+        }
+    ];
+
+    const insert = db.prepare(`
+        INSERT INTO products (name, brand, description, price, category, gender, images, colors, sizes, stock, is_bestseller, is_new)
+        VALUES (@name, @brand, @description, @price, @category, @gender, @images, @colors, @sizes, @stock, @is_bestseller, @is_new)
+    `);
+
+    for (const product of initialProducts) {
+        insert.run(product);
     }
+    console.log('Initial products added to database');
 }
 
-// Read data files
-export async function readData(file) {
-    try {
-        const data = await fs.readFile(file, 'utf-8');
-        return JSON.parse(data);
-    } catch (e) {
-        return [];
+// Product operations
+export const productOperations = {
+    getAll: () => db.prepare('SELECT * FROM products ORDER BY created_at DESC').all(),
+
+    getById: (id) => db.prepare('SELECT * FROM products WHERE id = ?').get(id),
+
+    create: (product) => {
+        const stmt = db.prepare(`
+            INSERT INTO products (name, brand, description, price, category, gender, images, colors, sizes, stock, is_bestseller, is_new)
+            VALUES (@name, @brand, @description, @price, @category, @gender, @images, @colors, @sizes, @stock, @is_bestseller, @is_new)
+        `);
+        const result = stmt.run(product);
+        return { id: result.lastInsertRowid, ...product };
+    },
+
+    update: (id, product) => {
+        const stmt = db.prepare(`
+            UPDATE products SET
+                name = @name,
+                brand = @brand,
+                description = @description,
+                price = @price,
+                category = @category,
+                gender = @gender,
+                images = @images,
+                colors = @colors,
+                sizes = @sizes,
+                stock = @stock,
+                is_bestseller = @is_bestseller,
+                is_new = @is_new,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = @id
+        `);
+        stmt.run({ id, ...product });
+        return productOperations.getById(id);
+    },
+
+    delete: (id) => {
+        const stmt = db.prepare('DELETE FROM products WHERE id = ?');
+        const result = stmt.run(id);
+        return result.changes > 0;
     }
-}
-
-// Write data files
-export async function writeData(file, data) {
-    await fs.writeFile(file, JSON.stringify(data, null, 2));
-}
-
-// Initialize products
-export async function initProducts() {
-    await ensureDataDir();
-
-    try {
-        await fs.access(PRODUCTS_FILE);
-        console.log('Products already exist');
-        return;
-    } catch {
-        const products = [
-            {
-                id: 1,
-                name: 'Aviator Classic',
-                brand: 'Ray-Ban',
-                description: 'The iconic aviator design that has been a symbol of cool for decades. Features precision metal frames, crystal lenses, and the unmistakable teardrop shape that flatters every face shape.',
-                price: 169.00,
-                category: 'aviator',
-                gender: 'unisex',
-                images: localImages.aviator,
-                colors: ['Gold/Green', 'Silver/Blue', 'Black/Grey'],
-                sizes: ['M', 'L'],
-                stock: 25,
-                is_bestseller: 1,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 2,
-                name: 'Wayfarer Original',
-                brand: 'Ray-Ban',
-                description: 'The definitive style icon that changed everything. Wayfarers have graced the faces of rebels, icons, and visionaries for over 60 years.',
-                price: 159.00,
-                category: 'wayfarer',
-                gender: 'unisex',
-                images: localImages.wayfarer,
-                colors: ['Black', 'Tortoise', 'Demi Blue'],
-                sizes: ['S', 'M', 'L'],
-                stock: 30,
-                is_bestseller: 1,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 3,
-                name: 'Clubmaster Acetate',
-                brand: 'Ray-Ban',
-                description: 'A sophisticated blend of retro and contemporary. The brow bar design with acetate rims creates a bold statement.',
-                price: 189.00,
-                category: 'clubmaster',
-                gender: 'unisex',
-                images: localImages.clubmaster,
-                colors: ['Black', 'Tortoise', 'Clear'],
-                sizes: ['M', 'L'],
-                stock: 20,
-                is_bestseller: 1,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 4,
-                name: 'Round Metal',
-                brand: 'Ray-Ban',
-                description: 'Nostalgic yet unmistakably modern. The round metal frames evoke a vintage aesthetic while maintaining contemporary appeal.',
-                price: 149.00,
-                category: 'round',
-                gender: 'unisex',
-                images: localImages.round,
-                colors: ['Gold', 'Silver', 'Gunmetal'],
-                sizes: ['S', 'M'],
-                stock: 18,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 5,
-                name: 'Erika Gradient',
-                brand: 'Ray-Ban',
-                description: 'Bold and feminine, the Erika features oversized frames with gradient lenses for a glamorous yet functional look.',
-                price: 159.00,
-                category: 'cat-eye',
-                gender: 'women',
-                images: localImages.catEye,
-                colors: ['Pink', 'Purple', 'Black'],
-                sizes: ['M', 'L'],
-                stock: 22,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 6,
-                name: 'Justin Matte',
-                brand: 'Oakley',
-                description: 'A fresh take on the classic rectangular shape with a modern matte finish. Designed for those who appreciate comfort without compromising style.',
-                price: 145.00,
-                category: 'rectangular',
-                gender: 'men',
-                images: localImages.rectangular,
-                colors: ['Matte Black', 'Matte Navy', 'Matte Grey'],
-                sizes: ['M', 'L'],
-                stock: 28,
-                is_bestseller: 1,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 7,
-                name: 'Holbrook Active',
-                brand: 'Oakley',
-                description: "Performance eyewear for the active lifestyle. Features Oakley's patented Three-Point Fit and HDO technology for unmatched clarity.",
-                price: 155.00,
-                category: 'sport',
-                gender: 'men',
-                images: localImages.sport,
-                colors: ['Black', 'Polished White', 'Tortoise'],
-                sizes: ['M', 'L'],
-                stock: 24,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 8,
-                name: 'Spatula Speed',
-                brand: 'Oakley',
-                description: 'Aerodynamic design meets maximum performance. The Spatula is engineered for speed with a wraparound profile.',
-                price: 175.00,
-                category: 'sport',
-                gender: 'unisex',
-                images: localImages.sport,
-                colors: ['Matte Black', 'Silver', 'Team Red'],
-                sizes: ['M', 'L'],
-                stock: 15,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 9,
-                name: 'The General',
-                brand: 'Warby Parker',
-                description: 'A modern interpretation of military-issue goggles from WWII. Bold, rectangular, and unapologetically stylish.',
-                price: 145.00,
-                category: 'rectangular',
-                gender: 'unisex',
-                images: localImages.rectangular,
-                colors: ['Black', 'Tortoise', 'Olive'],
-                sizes: ['M', 'L'],
-                stock: 26,
-                is_bestseller: 1,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 10,
-                name: 'Dresden Acetate',
-                brand: 'Warby Parker',
-                description: 'A soft rectangular shape crafted from premium Italian acetate. Hand-finished details showcase exceptional craftsmanship.',
-                price: 165.00,
-                category: 'rectangular',
-                gender: 'women',
-                images: localImages.rectangular,
-                colors: ['Black', 'Cognac', 'Midnight Blue'],
-                sizes: ['S', 'M'],
-                stock: 20,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 11,
-                name: 'Jacques Monocle',
-                brand: 'Warby Parker',
-                description: 'A sophisticated single-lens design inspired by mid-century intellectuals. Perfect for making a bold fashion statement.',
-                price: 135.00,
-                category: 'round',
-                gender: 'unisex',
-                images: localImages.round,
-                colors: ['Gold', 'Silver', 'Rose Gold'],
-                sizes: ['M'],
-                stock: 12,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 12,
-                name: 'Daphne Cat-Eye',
-                brand: 'Warby Parker',
-                description: 'Flattering cat-eye shape with a retro feel. Features acetate frames and subtle hardware details for a touch of elegance.',
-                price: 155.00,
-                category: 'cat-eye',
-                gender: 'women',
-                images: localImages.catEye,
-                colors: ['Black', 'Tortoise', 'Blonde'],
-                sizes: ['M', 'L'],
-                stock: 22,
-                is_bestseller: 1,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 13,
-                name: 'Julianna Oversized',
-                brand: 'Maui Jim',
-                description: 'Luxurious oversized frames with polarized lenses that cut glare and enhance colors. The ultimate statement piece.',
-                price: 279.00,
-                category: 'oversized',
-                gender: 'women',
-                images: localImages.oversized,
-                colors: ['Black', 'Tortoise', 'Burgundy'],
-                sizes: ['L'],
-                stock: 18,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 14,
-                name: 'Bamboo Reef',
-                brand: 'Maui Jim',
-                description: 'Inspired by the beauty of Hawaiian reefs. Features lightweight frames and advanced polarization technology.',
-                price: 259.00,
-                category: 'aviator',
-                gender: 'unisex',
-                images: localImages.aviator,
-                colors: ['Black', 'Tortoise', 'Rose'],
-                sizes: ['M', 'L'],
-                stock: 16,
-                is_bestseller: 1,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 15,
-                name: 'Wellington Classic',
-                brand: 'Persol',
-                description: 'Italian craftsmanship meets timeless design. The Wellington features the iconic arrow symbol and handcrafted acetate.',
-                price: 295.00,
-                category: 'wayfarer',
-                gender: 'unisex',
-                images: localImages.wayfarer,
-                colors: ['Black', 'Havana', 'Crystal Grey'],
-                sizes: ['M', 'L'],
-                stock: 14,
-                is_bestseller: 1,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 16,
-                name: '649 Classic',
-                brand: 'Persol',
-                description: "The original 649 was designed for tram drivers in 1957. Today, it's a symbol of Italian style and engineering excellence.",
-                price: 265.00,
-                category: 'round',
-                gender: 'unisex',
-                images: localImages.round,
-                colors: ['Black', 'Havana', 'Green'],
-                sizes: ['M', 'L'],
-                stock: 16,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 17,
-                name: 'Wayfarer Folding',
-                brand: 'Ray-Ban',
-                description: 'The iconic Wayfarer design, now foldable. Perfect for travel and on-the-go lifestyles.',
-                price: 189.00,
-                category: 'wayfarer',
-                gender: 'unisex',
-                images: localImages.wayfarer,
-                colors: ['Black', 'Demi Brown'],
-                sizes: ['M'],
-                stock: 20,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 18,
-                name: 'Twist 304',
-                brand: 'Persol',
-                description: 'The iconic arrow motif meets modern style. Features the signature Meflecto temples for all-day comfort.',
-                price: 245.00,
-                category: 'round',
-                gender: 'unisex',
-                images: localImages.round,
-                colors: ['Black', 'Havana', 'Blue'],
-                sizes: ['M'],
-                stock: 18,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 19,
-                name: 'Gauge 8',
-                brand: 'Maui Jim',
-                description: 'Ultra-lightweight performance with maximum coverage. Features polarized Plus+ technology.',
-                price: 289.00,
-                category: 'sport',
-                gender: 'men',
-                images: localImages.sport,
-                colors: ['Matte Black', 'Shiny Black', 'Tortoise'],
-                sizes: ['M', 'L'],
-                stock: 22,
-                is_bestseller: 1,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 20,
-                name: 'Cathedral',
-                brand: 'Warby Parker',
-                description: 'A bold rectangular shape inspired by Gothic architecture. Features premium acetate construction.',
-                price: 155.00,
-                category: 'rectangular',
-                gender: 'unisex',
-                images: localImages.rectangular,
-                colors: ['Black', 'Tortoise', 'Crystal'],
-                sizes: ['M', 'L'],
-                stock: 24,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 21,
-                name: 'Wick',
-                brand: 'Oakley',
-                description: 'Sleek half-rim design with Unobtanium earsocks. Perfect for high-performance activities.',
-                price: 165.00,
-                category: 'sport',
-                gender: 'men',
-                images: localImages.sport,
-                colors: ['Black', 'White', 'Red'],
-                sizes: ['M', 'L'],
-                stock: 20,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 22,
-                name: 'Knox',
-                brand: 'Warby Parker',
-                description: 'A bold cat-eye shape with a modern twist. Features vintage-inspired details and premium materials.',
-                price: 145.00,
-                category: 'cat-eye',
-                gender: 'women',
-                images: localImages.catEye,
-                colors: ['Black', 'Tortoise', 'Burgundy'],
-                sizes: ['S', 'M'],
-                stock: 18,
-                is_bestseller: 1,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 23,
-                name: 'Large Metal',
-                brand: 'Ray-Ban',
-                description: 'A oversized take on the classic round shape. Features signature Ray-Ban craftsmanship.',
-                price: 175.00,
-                category: 'round',
-                gender: 'women',
-                images: localImages.round,
-                colors: ['Gold', 'Silver', 'Rose Gold'],
-                sizes: ['L'],
-                stock: 15,
-                is_bestseller: 0,
-                is_new: 0,
-                created_at: new Date().toISOString()
-            },
-            {
-                id: 24,
-                name: 'Drop 2.0',
-                brand: 'Maui Jim',
-                description: 'Modern cat-eye shape with island-inspired styling. Features SuperThin glass lenses.',
-                price: 249.00,
-                category: 'cat-eye',
-                gender: 'women',
-                images: localImages.catEye,
-                colors: ['Black', 'Tortoise', 'Pink'],
-                sizes: ['M'],
-                stock: 16,
-                is_bestseller: 0,
-                is_new: 1,
-                created_at: new Date().toISOString()
-            }
-        ];
-
-        await writeData(PRODUCTS_FILE, products);
-        console.log('Products data initialized with', products.length, 'products');
-    }
-}
-
-// Export file paths for use in server.js
-export const paths = {
-    PRODUCTS_FILE,
-    ORDERS_FILE,
-    SUBSCRIBERS_FILE,
-    MESSAGES_FILE
 };
+
+// Order operations
+export const orderOperations = {
+    getAll: () => db.prepare('SELECT * FROM orders ORDER BY created_at DESC').all(),
+    getByNumber: (orderNumber) => db.prepare('SELECT * FROM orders WHERE order_number = ?').get(orderNumber),
+    create: (order) => {
+        const stmt = db.prepare(`
+            INSERT INTO orders (order_number, customer_email, customer_name, shipping_address, shipping_city, shipping_state, shipping_zip, shipping_country, shipping_phone, subtotal, shipping, tax, total, status, items)
+            VALUES (@order_number, @customer_email, @customer_name, @shipping_address, @shipping_city, @shipping_state, @shipping_zip, @shipping_country, @shipping_phone, @subtotal, @shipping, @tax, @total, @status, @items)
+        `);
+        const result = stmt.run(order);
+        return { id: result.lastInsertRowid, ...order };
+    }
+};
+
+// Subscriber operations
+export const subscriberOperations = {
+    getAll: () => db.prepare('SELECT * FROM subscribers ORDER BY created_at DESC').all(),
+    create: (email) => {
+        const stmt = db.prepare('INSERT INTO subscribers (email) VALUES (?)');
+        const result = stmt.run(email);
+        return { id: result.lastInsertRowid, email };
+    },
+    exists: (email) => db.prepare('SELECT id FROM subscribers WHERE email = ?').get(email)
+};
+
+// Message operations
+export const messageOperations = {
+    getAll: () => db.prepare('SELECT * FROM messages ORDER BY created_at DESC').all(),
+    create: (message) => {
+        const stmt = db.prepare(`
+            INSERT INTO messages (name, email, subject, message)
+            VALUES (@name, @email, @subject, @message)
+        `);
+        const result = stmt.run(message);
+        return { id: result.lastInsertRowid, ...message };
+    }
+};
+
+export default db;

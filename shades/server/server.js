@@ -3,12 +3,13 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import {
+import db, {
     ensureDataDir,
-    readData,
-    writeData,
     initProducts,
-    paths
+    productOperations,
+    orderOperations,
+    subscriberOperations,
+    messageOperations
 } from './database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,9 +17,6 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
-// Destructure paths from database module
-const { PRODUCTS_FILE, ORDERS_FILE, SUBSCRIBERS_FILE, MESSAGES_FILE } = paths;
 
 // Middleware
 app.use(cors());
@@ -33,7 +31,15 @@ app.use(express.static(join(__dirname, '../dist')));
 app.get('/api/products', async (req, res) => {
     try {
         const { category, gender, bestseller, new: isNew, search, sort } = req.query;
-        let products = await readData(PRODUCTS_FILE);
+        let products = productOperations.getAll();
+
+        // Parse JSON fields
+        products = products.map(p => ({
+            ...p,
+            images: JSON.parse(p.images || '[]'),
+            colors: JSON.parse(p.colors || '[]'),
+            sizes: JSON.parse(p.sizes || '[]')
+        }));
 
         if (category) {
             products = products.filter(p => p.category === category);
@@ -82,12 +88,16 @@ app.get('/api/products', async (req, res) => {
 app.get('/api/products/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const products = await readData(PRODUCTS_FILE);
-        const product = products.find(p => p.id === parseInt(id));
+        const product = productOperations.getById(parseInt(id));
 
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
+
+        // Parse JSON fields
+        product.images = JSON.parse(product.images || '[]');
+        product.colors = JSON.parse(product.colors || '[]');
+        product.sizes = JSON.parse(product.sizes || '[]');
 
         res.json(product);
     } catch (error) {
@@ -99,9 +109,16 @@ app.get('/api/products/:id', async (req, res) => {
 // GET best sellers
 app.get('/api/products/featured/bestsellers', async (req, res) => {
     try {
-        const products = await readData(PRODUCTS_FILE);
-        const bestsellers = products.filter(p => p.is_bestseller === 1).slice(0, 4);
-        res.json(bestsellers);
+        const products = productOperations.getAll()
+            .filter(p => p.is_bestseller === 1)
+            .slice(0, 4)
+            .map(p => ({
+                ...p,
+                images: JSON.parse(p.images || '[]'),
+                colors: JSON.parse(p.colors || '[]'),
+                sizes: JSON.parse(p.sizes || '[]')
+            }));
+        res.json(products);
     } catch (error) {
         console.error('Error fetching best sellers:', error);
         res.status(500).json({ error: 'Failed to fetch best sellers' });
@@ -111,9 +128,16 @@ app.get('/api/products/featured/bestsellers', async (req, res) => {
 // GET new arrivals
 app.get('/api/products/featured/new', async (req, res) => {
     try {
-        const products = await readData(PRODUCTS_FILE);
-        const newArrivals = products.filter(p => p.is_new === 1).slice(0, 4);
-        res.json(newArrivals);
+        const products = productOperations.getAll()
+            .filter(p => p.is_new === 1)
+            .slice(0, 4)
+            .map(p => ({
+                ...p,
+                images: JSON.parse(p.images || '[]'),
+                colors: JSON.parse(p.colors || '[]'),
+                sizes: JSON.parse(p.sizes || '[]')
+            }));
+        res.json(products);
     } catch (error) {
         console.error('Error fetching new arrivals:', error);
         res.status(500).json({ error: 'Failed to fetch new arrivals' });
@@ -123,7 +147,7 @@ app.get('/api/products/featured/new', async (req, res) => {
 // GET product categories with counts
 app.get('/api/categories', async (req, res) => {
     try {
-        const products = await readData(PRODUCTS_FILE);
+        const products = productOperations.getAll();
         const categories = {};
 
         products.forEach(product => {
@@ -156,10 +180,7 @@ app.post('/api/orders', async (req, res) => {
 
         const orderNumber = `SHADES-${uuidv4().substring(0, 8).toUpperCase()}`;
 
-        const orders = await readData(ORDERS_FILE);
-
         const newOrder = {
-            id: orders.length + 1,
             order_number: orderNumber,
             customer_email: customer.email,
             customer_name: customer.firstName + ' ' + customer.lastName,
@@ -174,19 +195,17 @@ app.post('/api/orders', async (req, res) => {
             tax,
             total,
             status: 'confirmed',
-            items: cart.map(item => ({
+            items: JSON.stringify(cart.map(item => ({
                 product_id: item.id,
                 product_name: item.name,
                 product_color: item.color,
                 product_size: item.size,
                 quantity: item.quantity,
                 price: item.price
-            })),
-            created_at: new Date().toISOString()
+            })))
         };
 
-        orders.push(newOrder);
-        await writeData(ORDERS_FILE, orders);
+        orderOperations.create(newOrder);
 
         res.json({
             success: true,
@@ -203,12 +222,14 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders/:orderNumber', async (req, res) => {
     try {
         const { orderNumber } = req.params;
-        const orders = await readData(ORDERS_FILE);
-        const order = orders.find(o => o.order_number === orderNumber);
+        const order = orderOperations.getByNumber(orderNumber);
 
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
+
+        // Parse JSON fields
+        order.items = JSON.parse(order.items || '[]');
 
         res.json(order);
     } catch (error) {
@@ -226,20 +247,13 @@ app.post('/api/subscribe', async (req, res) => {
             return res.status(400).json({ error: 'Email is required' });
         }
 
-        const subscribers = await readData(SUBSCRIBERS_FILE);
-
-        const existing = subscribers.find(s => s.email === email);
+        const existing = subscriberOperations.exists(email);
         if (existing) {
             return res.status(400).json({ error: 'Already subscribed' });
         }
 
-        subscribers.push({
-            id: subscribers.length + 1,
-            email,
-            created_at: new Date().toISOString()
-        });
+        subscriberOperations.create(email);
 
-        await writeData(SUBSCRIBERS_FILE, subscribers);
         res.json({ success: true, message: 'Successfully subscribed' });
     } catch (error) {
         console.error('Error subscribing:', error);
@@ -256,22 +270,126 @@ app.post('/api/contact', async (req, res) => {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        const messages = await readData(MESSAGES_FILE);
+        messageOperations.create({ name, email, subject, message });
 
-        messages.push({
-            id: messages.length + 1,
-            name,
-            email,
-            subject,
-            message,
-            created_at: new Date().toISOString()
-        });
-
-        await writeData(MESSAGES_FILE, messages);
         res.json({ success: true, message: 'Message sent successfully' });
     } catch (error) {
         console.error('Error sending message:', error);
         res.status(500).json({ error: 'Failed to send message' });
+    }
+});
+
+// ==================== ADMIN API ROUTES ====================
+
+// GET all products (admin)
+app.get('/api/admin/products', async (req, res) => {
+    try {
+        const products = productOperations.getAll().map(p => ({
+            ...p,
+            images: JSON.parse(p.images || '[]'),
+            colors: JSON.parse(p.colors || '[]'),
+            sizes: JSON.parse(p.sizes || '[]')
+        }));
+        res.json(products);
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
+// POST create product (admin)
+app.post('/api/admin/products', async (req, res) => {
+    try {
+        const product = req.body;
+
+        // Ensure JSON fields are strings
+        const productData = {
+            name: product.name,
+            brand: product.brand,
+            description: product.description,
+            price: product.price,
+            category: product.category,
+            gender: product.gender,
+            images: JSON.stringify(product.images || []),
+            colors: JSON.stringify(product.colors || []),
+            sizes: JSON.stringify(product.sizes || []),
+            stock: product.stock,
+            is_bestseller: product.is_bestseller || 0,
+            is_new: product.is_new || 0
+        };
+
+        const newProduct = productOperations.create(productData);
+
+        // Return parsed fields
+        newProduct.images = JSON.parse(newProduct.images || '[]');
+        newProduct.colors = JSON.parse(newProduct.colors || '[]');
+        newProduct.sizes = JSON.parse(newProduct.sizes || '[]');
+
+        res.status(201).json(newProduct);
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: 'Failed to create product' });
+    }
+});
+
+// PUT update product (admin)
+app.put('/api/admin/products', async (req, res) => {
+    try {
+        const product = req.body;
+
+        // Ensure JSON fields are strings
+        const productData = {
+            name: product.name,
+            brand: product.brand,
+            description: product.description,
+            price: product.price,
+            category: product.category,
+            gender: product.gender,
+            images: JSON.stringify(product.images || []),
+            colors: JSON.stringify(product.colors || []),
+            sizes: JSON.stringify(product.sizes || []),
+            stock: product.stock,
+            is_bestseller: product.is_bestseller || 0,
+            is_new: product.is_new || 0
+        };
+
+        const updatedProduct = productOperations.update(product.id, productData);
+
+        if (!updatedProduct) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Return parsed fields
+        updatedProduct.images = JSON.parse(updatedProduct.images || '[]');
+        updatedProduct.colors = JSON.parse(updatedProduct.colors || '[]');
+        updatedProduct.sizes = JSON.parse(updatedProduct.sizes || '[]');
+
+        res.json(updatedProduct);
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ error: 'Failed to update product' });
+    }
+});
+
+// DELETE product (admin)
+app.delete('/api/admin/products', async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ error: 'Product ID required' });
+        }
+
+        const deleted = productOperations.delete(parseInt(id));
+
+        if (!deleted) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ error: 'Failed to delete product' });
     }
 });
 
@@ -280,20 +398,8 @@ app.get('*', (req, res) => {
     res.sendFile(join(__dirname, '../dist/index.html'));
 });
 
-// Initialize data and start server
-async function startServer() {
-    try {
-        await ensureDataDir();
-        await initProducts();
-        console.log('Database initialized successfully');
-
-        app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
-        });
-    } catch (err) {
-        console.error('Failed to initialize data:', err);
-        process.exit(1);
-    }
-}
-
-startServer();
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log('SQLite database initialized');
+});

@@ -113,6 +113,7 @@ export default function Footer() {
                     <div className="flex gap-6">
                         <a href="#" className="footer-link text-xs">Privacy Policy</a>
                         <a href="#" className="footer-link text-xs">Terms of Service</a>
+                        <Link to="/admin" className="footer-link text-xs text-gray-600">Admin</Link>
                     </div>
                 </div>
             </div>

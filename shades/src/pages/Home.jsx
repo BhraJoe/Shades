@@ -101,50 +101,42 @@ export default function Home() {
                     fetchpriority="high"
                     decoding="async"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
 
-                <div className="relative z-10 h-full flex flex-col justify-center items-start max-w-7xl mx-auto px-4 sm:px-6 py-6">
-                    <div className="animate-fadeIn mb-2">
-                        <span className="inline-block px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white text-[10px] xs:text-xs tracking-[0.2em] uppercase">
-                            Premium Eyewear
-                        </span>
-                    </div>
-                    <h1 className="animate-slideUp font-display text-3.5xl xs:text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-white mb-2 sm:mb-3 leading-tight tracking-tight">
-                        CITY<span className="text-[#dc2626]">SHADES</span>
+                <div className="relative z-10 h-full flex flex-col justify-start md:justify-center items-start max-w-7xl mx-auto px-4 md:px-6 pt-16 md:pt-0">
+                    <span className="animate-fadeIn text-white text-xs tracking-[0.3em] uppercase mb-3 md:mb-4">
+                        Premium Eyewear
+                    </span>
+                    <h1 className="animate-slideUp font-display text-3xl md:text-6xl lg:text-8xl text-white mb-3 md:mb-6 leading-none">
+                        CITYSHADES
                     </h1>
-                    <p className="animate-slideUp animation-delay-200 text-white/90 text-xs xs:text-sm sm:text-base md:text-xl max-w-[280px] xs:max-w-[320px] sm:max-w-lg mb-4 sm:mb-6 font-light leading-relaxed">
-                        Discover the finest collection of designer sunglasses crafted for those who dare to stand out.
+                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-xs md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
+                        Discover our curated collection of designer sunglasses and premium eyewear. From iconic classics to the latest trends, find the perfect pair that defines your style.
                     </p>
-                    <div className="animate-slideUp animation-delay-300 mb-4 sm:mb-8 flex flex-wrap gap-x-3 gap-y-2 sm:gap-4">
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-white/90">
-                            <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-light truncate">50+ Designer Brands</span>
+                    <div className="animate-slideUp animation-delay-300 mb-6 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm w-full max-w-[240px] md:max-w-none">
+                        <div className="flex items-center gap-2 text-white/80">
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
+                            <span className="truncate">Premium Brands</span>
                         </div>
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-white/90">
-                            <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-light truncate">100% UV Protection</span>
+                        <div className="flex items-center gap-2 text-white/80">
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
+                            <span className="truncate">100% UV Protection</span>
                         </div>
-                        <div className="flex items-center gap-1.5 sm:gap-2 text-white/90">
-                            <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="text-[10px] xs:text-xs sm:text-sm font-light truncate">Free Shipping</span>
+                        <div className="flex items-center gap-2 text-white/80">
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
+                            <span className="truncate">Free Shipping $150+</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-white/80">
+                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
+                            <span className="truncate">2-Year Warranty</span>
                         </div>
                     </div>
                     <Link
                         to="/shop"
-                        className="animate-slideUp animation-delay-400 group relative inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white transition-all duration-300 text-xs sm:text-sm md:text-base font-medium tracking-wide"
+                        className="animate-slideUp animation-delay-400 btn-primary bg-white text-[#0a0a0a] hover:bg-[#dc2626] hover:text-white border-none text-sm md:text-base w-full md:w-auto"
                     >
-                        <span>Shop Collection</span>
-                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
+                        Shop the Collection
                     </Link>
-                </div>
-
-                {/* Scroll Indicator */}
-                <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 animate-bounce hidden sm:block">
-                    <div className="w-5 h-8 sm:w-6 sm:h-10 border-2 border-white/50 rounded-full flex items-start justify-center p-1">
-                        <div className="w-1.5 h-2 sm:h-3 bg-white/80 rounded-full animate-pulse"></div>
-                    </div>
                 </div>
             </section>
 
