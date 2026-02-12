@@ -110,8 +110,8 @@ export default function Home() {
                     <h1 className="animate-slideUp font-display text-3xl md:text-6xl lg:text-8xl text-white mb-3 md:mb-6 leading-none">
                         CITYSHADES
                     </h1>
-                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-xs md:max-w-xl mb-5 md:mb-6 font-light leading-relaxed">
-                        Discover our curated collection of designer sunglasses and premium eyewear. From iconic classics to the latest trends, find the perfect pair that defines your style.
+                    <p className="animate-slideUp animation-delay-200 text-white/90 text-sm md:text-lg max-w-xs md:max-w-2xl mb-5 md:mb-8 font-light leading-relaxed">
+                        Welcome to CITYSHADES, your ultimate destination for premium designer sunglasses and eyewear. We curate the finest collection from world-renowned brands including Ray-Ban, Oakley, Versace, Tom Ford, and many more. Whether you're looking for timeless aviator classics, sleek wayfarers, elegant cat-eyes, or modern oversized frames, we have the perfect pair for every style and personality. Each piece in our collection is carefully selected for its exceptional quality, craftsmanship, and UV protection. Our expert team is dedicated to helping you find sunglasses that not only protect your eyes but also define your unique look. With competitive prices, fast shipping, and exceptional customer service, finding your perfect shades has never been easier.
                     </p>
                     <div className="animate-slideUp animation-delay-300 mb-6 md:mb-10 grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm w-full max-w-[240px] md:max-w-none">
                         <div className="flex items-center gap-2 text-white/80">
@@ -121,14 +121,6 @@ export default function Home() {
                         <div className="flex items-center gap-2 text-white/80">
                             <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
                             <span className="truncate">100% UV Protection</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="truncate">Free Shipping $150+</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-white/80">
-                            <span className="w-2 h-2 bg-[#dc2626] rounded-full flex-shrink-0"></span>
-                            <span className="truncate">2-Year Warranty</span>
                         </div>
                     </div>
                     <Link
