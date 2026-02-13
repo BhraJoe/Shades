@@ -7,6 +7,7 @@ import { Plus, Search, Filter, Edit2, Trash2 } from 'lucide-react';
 const AdminDashboard = () => {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -14,11 +15,24 @@ const AdminDashboard = () => {
     }, []);
 
     const fetchProducts = async () => {
+        // Timeout after 10 seconds
+        const timeoutId = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+                setError('Connection timeout - please refresh');
+            }
+        }, 10000);
+
         try {
-            const res = await axios.get('/api/admin/products');
-            setProducts(res.data);
+            console.log('Fetching products from /api/products...');
+            const res = await axios.get('/api/products');
+            console.log('Products loaded:', res.data.length);
+            setProducts(res.data || []);
+            clearTimeout(timeoutId);
         } catch (err) {
-            toast.error('Failed to load products');
+            console.error('Error loading products:', err);
+            clearTimeout(timeoutId);
+            setError('Failed to load products - API may be unreachable');
         } finally {
             setIsLoading(false);
         }
@@ -90,70 +104,94 @@ const AdminDashboard = () => {
 
             {/* Inventory List */}
             <div className="bg-white border-y sm:border border-gray-100 shadow-sm mx-0 md:mx-0 overflow-hidden">
+                {/* Loading State */}
+                {isLoading && (
+                    <div className="px-4 py-16 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-8 h-8 border-2 border-gray-200 border-t-[#dc2626] rounded-full animate-spin" />
+                            <span className="text-[10px] font-bold tracking-[0.5em] text-gray-400 uppercase">Synchronizing...</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Error State */}
+                {error && (
+                    <div className="px-4 py-16 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-12 h-1 bg-red-100" />
+                            <span className="text-[10px] font-bold tracking-[0.3em] text-red-400 uppercase">{error}</span>
+                            <button
+                                onClick={fetchProducts}
+                                className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#dc2626] hover:underline"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {!isLoading && !error && filteredProducts.length === 0 && (
+                    <div className="px-4 py-12 text-center">
+                        <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300">Archive matches zero nodes.</p>
+                    </div>
+                )}
+
                 {/* Mobile Card View */}
-                <div className="md:hidden divide-y divide-gray-50">
-                    {isLoading ? (
-                        <div className="px-4 py-12 text-center">
-                            <div className="animate-pulse flex flex-col items-center gap-4">
-                                <div className="w-12 h-1 bg-gray-100" />
-                                <span className="text-[10px] font-bold tracking-[0.5em] text-gray-300 uppercase">Synchronizing...</span>
-                            </div>
-                        </div>
-                    ) : filteredProducts.length === 0 ? (
-                        <div className="px-4 py-12 text-center">
-                            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300">Archive matches zero nodes.</p>
-                        </div>
-                    ) : filteredProducts.map((p) => (
-                        <div key={p.id} className="p-4 space-y-4">
-                            <div className="flex gap-4">
-                                <div className="w-16 h-20 bg-gray-50 border border-gray-100 relative overflow-hidden flex-shrink-0">
-                                    {p.images?.[0] ? (
-                                        <img src={p.images[0]} alt="" className="w-full h-full object-cover grayscale opacity-70" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 font-bold bg-gray-50">NULL</div>
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0 space-y-2">
-                                    <div>
-                                        <p className="font-bold text-[#0a0a0a] text-base tracking-tighter leading-none truncate">{p.name}</p>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[9px] font-mono text-gray-400 uppercase tracking-tighter">{p.sku || 'SKU-NONE'}</span>
-                                            <span className="w-2 h-[1px] bg-gray-200" />
-                                            <span className="text-[8px] font-bold text-gray-300 uppercase tracking-widest">{p.brand}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 bg-gray-50 px-2 py-1">{p.category}</span>
-                                        <span className="text-lg font-display text-[#0a0a0a]">₵{p.price?.toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
-                                        <span className="text-[9px] font-black tracking-widest text-[#0a0a0a] uppercase">{p.stock} Units</span>
-                                        {p.is_bestseller === 1 && (
-                                            <span className="text-[7px] font-black tracking-[0.2em] text-[#dc2626] uppercase ml-auto">High Covet</span>
+                {!isLoading && !error && filteredProducts.length > 0 && (
+                    <div className="md:hidden divide-y divide-gray-50">
+                        {filteredProducts.map((p) => (
+                            <div key={p.id} className="p-4 space-y-4">
+                                <div className="flex gap-4">
+                                    <div className="w-16 h-20 bg-gray-50 border border-gray-100 relative overflow-hidden flex-shrink-0">
+                                        {p.images?.[0] ? (
+                                            <img src={p.images[0]} alt="" className="w-full h-full object-cover grayscale opacity-70" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 font-bold bg-gray-50">NULL</div>
                                         )}
                                     </div>
+                                    <div className="flex-1 min-w-0 space-y-2">
+                                        <div>
+                                            <p className="font-bold text-[#0a0a0a] text-base tracking-tighter leading-none truncate">{p.name}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-[9px] font-mono text-gray-400 uppercase tracking-tighter">{p.sku || 'SKU-NONE'}</span>
+                                                <span className="w-2 h-[1px] bg-gray-200" />
+                                                <span className="text-[8px] font-bold text-gray-300 uppercase tracking-widest">{p.brand}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 bg-gray-50 px-2 py-1">{p.category}</span>
+                                            <span className="text-lg font-display text-[#0a0a0a]">₵{p.price?.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-1.5 h-1.5 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
+                                            <span className="text-[9px] font-black tracking-widest text-[#0a0a0a] uppercase">{p.stock} Units</span>
+                                            {p.is_bestseller === 1 && (
+                                                <span className="text-[7px] font-black tracking-[0.2em] text-[#dc2626] uppercase ml-auto">High Covet</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Link
+                                        to={`/admin/products/edit/${p.id}`}
+                                        className="flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50 border border-gray-200 transition-all rounded"
+                                    >
+                                        <Edit2 size={14} />
+                                        Modify
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(p.id)}
+                                        className="flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-[#dc2626] hover:bg-gray-50 border border-gray-200 transition-all rounded"
+                                    >
+                                        <Trash2 size={14} />
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Link
-                                    to={`/admin/products/edit/${p.id}`}
-                                    className="flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50 border border-gray-200 transition-all rounded"
-                                >
-                                    <Edit2 size={14} />
-                                    Modify
-                                </Link>
-                                <button
-                                    onClick={() => handleDelete(p.id)}
-                                    className="flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-[#dc2626] hover:bg-gray-50 border border-gray-200 transition-all rounded"
-                                >
-                                    <Trash2 size={14} />
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Desktop Table View */}
                 <div className="hidden md:block overflow-x-auto">
@@ -248,7 +286,7 @@ const AdminDashboard = () => {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

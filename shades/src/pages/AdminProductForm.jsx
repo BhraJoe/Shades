@@ -97,27 +97,17 @@ const AdminProductForm = () => {
         setIsLoading(true);
 
         try {
-            const data = new FormData();
-            Object.keys(formData).forEach(key => {
-                if (Array.isArray(formData[key])) {
-                    data.append(key, JSON.stringify(formData[key]));
-                } else {
-                    data.append(key, formData[key]);
-                }
-            });
-
-            images.forEach(img => data.append('images[]', img));
-            newFiles.forEach(file => data.append('images', file));
+            // Send as JSON (no file uploads supported on Vercel)
+            const data = {
+                ...formData,
+                images: images, // Use existing image URLs
+            };
 
             if (isEditing) {
-                await axios.put(`/api/admin/products/${id}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await axios.put(`/api/admin/products/${id}`, data);
                 toast.success('Product updated successfully');
             } else {
-                await axios.post('/api/admin/products', data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await axios.post('/api/admin/products', data);
                 toast.success('Product added to inventory');
             }
             navigate('/admin/products');

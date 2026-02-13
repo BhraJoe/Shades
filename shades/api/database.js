@@ -6,15 +6,13 @@ import { existsSync } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Data file paths - use /tmp for writable storage on Vercel
-const isVercel = process.env.VERCEL === '1';
-const DATA_DIR = isVercel ? '/tmp/data' : join(__dirname, '../server/data');
-const DATA_DIR_LOCAL = join(__dirname, './data'); // For Vercel deployment
-const FINAL_DATA_DIR = isVercel ? DATA_DIR : DATA_DIR_LOCAL;
-const PRODUCTS_FILE = join(FINAL_DATA_DIR, 'products.json');
-const ORDERS_FILE = join(FINAL_DATA_DIR, 'orders.json');
-const SUBSCRIBERS_FILE = join(FINAL_DATA_DIR, 'subscribers.json');
-const MESSAGES_FILE = join(FINAL_DATA_DIR, 'messages.json');
+// Data file paths - always use local data folder for Vercel serverless
+const DATA_DIR = join(__dirname, './data');
+const PRODUCTS_FILE = join(DATA_DIR, 'products.json');
+const ORDERS_FILE = join(DATA_DIR, 'orders.json');
+const SUBSCRIBERS_FILE = join(DATA_DIR, 'subscribers.json');
+const MESSAGES_FILE = join(DATA_DIR, 'messages.json');
+const USERS_FILE = join(DATA_DIR, 'users.json');
 
 // Local sunglasses images
 const localImages = {
@@ -60,24 +58,17 @@ const localImages = {
     ]
 };
 
-// Ensure data directory exists
-export async function ensureDataDir() {
-    try {
-        await fs.mkdir(FINAL_DATA_DIR, { recursive: true });
-    } catch (e) {
-        // Directory exists
-    }
-}
-
 // Read data files
 export async function readData(file) {
     try {
         if (!existsSync(file)) {
+            console.log('File not found:', file);
             return [];
         }
         const data = await fs.readFile(file, 'utf-8');
         return JSON.parse(data);
     } catch (e) {
+        console.error('Error reading file:', file, e.message);
         return [];
     }
 }
@@ -92,7 +83,8 @@ export const paths = {
     PRODUCTS_FILE,
     ORDERS_FILE,
     SUBSCRIBERS_FILE,
-    MESSAGES_FILE
+    MESSAGES_FILE,
+    USERS_FILE
 };
 
 // Export localImages for use in product initialization

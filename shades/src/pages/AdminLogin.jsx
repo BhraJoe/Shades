@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Eye, EyeOff, Lock, User } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const AdminLogin = () => {
     const [username, setUsername] = useState('');
@@ -49,30 +49,28 @@ const AdminLogin = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black tracking-[0.2em] uppercase text-gray-400 px-1">Identity</label>
+                            <label className="text-[9px] font-black tracking-[0.2em] uppercase text-gray-400 px-1">Username</label>
                             <div className="relative group">
-                                <User className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0a0a0a] transition-colors" size={16} />
                                 <input
                                     type="text"
                                     required
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full bg-transparent border-b border-gray-100 focus:border-[#0a0a0a] py-4 pl-8 pr-4 text-sm focus:outline-none transition-all placeholder:text-gray-200 font-medium"
-                                    placeholder="Username"
+                                    className="w-full bg-transparent border-b border-gray-100 focus:border-[#0a0a0a] py-4 pr-4 text-sm focus:outline-none transition-all placeholder:text-gray-200 font-medium"
+                                    placeholder="Enter username"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[9px] font-black tracking-[0.2em] uppercase text-gray-400 px-1">Credential</label>
+                            <label className="text-[9px] font-black tracking-[0.2em] uppercase text-gray-400 px-1">Password</label>
                             <div className="relative group">
-                                <Lock className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#0a0a0a] transition-colors" size={16} />
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-transparent border-b border-gray-100 focus:border-[#0a0a0a] py-4 pl-8 pr-12 text-sm focus:outline-none transition-all placeholder:text-gray-200 font-mono tracking-tighter"
+                                    className="w-full bg-transparent border-b border-gray-100 focus:border-[#0a0a0a] py-4 pr-12 text-sm focus:outline-none transition-all placeholder:text-gray-200 font-mono tracking-tighter"
                                     placeholder="••••••••"
                                 />
                                 <button
@@ -90,13 +88,13 @@ const AdminLogin = () => {
                             disabled={isLoading}
                             className="w-full bg-[#0a0a0a] text-white py-5 font-bold tracking-[0.3em] uppercase hover:bg-[#dc2626] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-[10px] shadow-lg hover:-translate-y-1 active:translate-y-0"
                         >
-                            {isLoading ? 'Decrypting...' : 'Verify & Enter'}
+                            {isLoading ? 'Accessing...' : 'Access Dashboard'}
                         </button>
                     </form>
 
                     <div className="pt-6 text-center border-t border-gray-50">
                         <p className="text-[8px] text-gray-300 uppercase tracking-[0.5em] font-bold">
-                            Restricted Access Node
+                            Secure Encrypted Session
                         </p>
                     </div>
                 </div>

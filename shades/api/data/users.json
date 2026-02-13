@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password_hash": "$2b$10$dhFh1NLGwn6kpxLgeFpDneylkrCBMCm8XlQQNH6kyZh0j1g4ssQ1i",
+        "email": "admin@cshades.com",
+        "role": "admin"
+    }
+]
