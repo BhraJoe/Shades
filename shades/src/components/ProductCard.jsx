@@ -7,7 +7,6 @@ export default function ProductCard({ product }) {
     const { addToWishlist, isInWishlist, addToCart } = useCart();
     const isWishlisted = isInWishlist(product.id);
     const [isAdding, setIsAdding] = useState(false);
-    const [imageLoaded, setImageLoaded] = useState(false);
     const lastClickRef = useRef(0);
 
     // Safe data extraction
@@ -39,18 +38,11 @@ export default function ProductCard({ product }) {
             {/* Image Container */}
             <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f5] mb-4">
                 <Link to={`/product/${product.id}`}>
-                    {/* Placeholder shimmer */}
-                    {!imageLoaded && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
-                    )}
                     <img
                         src={images[0] || '/images/placeholder.svg'}
                         alt={product.name}
-                        className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'
-                            }`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
-                        decoding="async"
-                        onLoad={() => setImageLoaded(true)}
                     />
                 </Link>
 
@@ -87,59 +79,59 @@ export default function ProductCard({ product }) {
                     <button
                         onClick={handleAddToCart}
                         disabled={isAdding}
-                        className={`w-full py-4 md:py-3 text-xs tracking-widest uppercase transition-colors duration-200 flex items-center justify-center gap-2 font-bold ${isAdding
-                            ? 'bg-green-600 text-white'
-                            : 'bg-[#0a0a0a] text-white hover:bg-[#dc2626]'
+                        className={`w-full py-4 bg-[#0a0a0a] text-white text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-3 hover:bg-[#dc2626] disabled:opacity-70 disabled:cursor-not-allowed shadow-xl ${isAdding ? 'translate-y-0' : 'translate-y-16 group-hover:translate-y-0'
                             }`}
                     >
-                        <ShoppingBag size={16} />
-                        {isAdding ? 'Added!' : 'Add to Cart'}
+                        {isAdding ? (
+                            <>
+                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Adding...</span>
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingBag size={16} />
+                                <span>Add to Cart</span>
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
 
             {/* Product Info */}
-            <div>
-                <p className="text-[10px] text-gray-500 tracking-widest uppercase mb-1">{product.brand}</p>
-                <Link to={`/product/${product.id}`}>
-                    <h3 className="font-medium text-[#0a0a0a] group-hover:text-[#dc2626] transition-colors duration-200">
-                        {product.name}
-                    </h3>
-                </Link>
-
-                {/* Rating */}
-                <div className="flex items-center gap-2 mt-2">
-                    <div className="flex items-center text-[#dc2626]">
-                        {[...Array(5)].map((_, i) => (
-                            <Star
-                                key={i}
-                                size={12}
-                                fill={i < Math.floor(product.rating || 5) ? 'currentColor' : 'none'}
-                                className={i < Math.floor(product.rating || 5) ? '' : 'text-gray-300'}
-                            />
-                        ))}
+            <div className="space-y-3">
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 className="font-bold text-[#0a0a0a] text-lg tracking-tight leading-none group-hover:text-[#dc2626] transition-colors">
+                            {product.name}
+                        </h3>
+                        <p className="text-[#0a0a0a] text-xs tracking-widest uppercase mt-1 opacity-60">
+                            {product.brand}
+                        </p>
                     </div>
-                    <span className="text-[10px] text-gray-500">({product.reviews || 0})</span>
-                </div>
-
-                {/* Price */}
-                <div className="mt-2 text-sm">
-                    <span className="font-medium text-[#0a0a0a]">₵{price.toLocaleString()}</span>
+                    <div className="text-right flex-shrink-0">
+                        <span className="block font-display text-2xl text-[#0a0a0a] tracking-tight">
+                            ₵{price.toFixed(2)}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Color Options */}
-                {colors.length > 1 && (
-                    <div className="flex items-center gap-2 mt-3">
+                {colors.length > 0 && (
+                    <div className="flex items-center gap-2">
                         {colors.slice(0, 4).map((color, i) => (
                             <div
                                 key={i}
-                                className="w-4 h-4 rounded-full border border-gray-200"
-                                style={{ backgroundColor: typeof color === 'object' ? color.hex : '#eee' }}
+                                className="w-5 h-5 rounded-full border border-gray-200 shadow-sm"
+                                style={{
+                                    backgroundColor: typeof color === 'object' ? color.hex : '#' + Math.floor(Math.random() * 16777215).toString(16),
+                                }}
                                 title={typeof color === 'object' ? color.name : color}
                             />
                         ))}
                         {colors.length > 4 && (
-                            <span className="text-[10px] text-gray-500 ml-1">+{colors.length - 4}</span>
+                            <span className="text-[8px] uppercase tracking-wider text-gray-400 ml-1">
+                                +{colors.length - 4} more
+                            </span>
                         )}
                     </div>
                 )}

@@ -3,429 +3,120 @@
     "id": 1,
     "name": "Aviator Classic",
     "brand": "Ray-Ban",
-    "description": "The iconic aviator design that has been a symbol of cool for decades. Features precision metal frames, crystal lenses, and the unmistakable teardrop shape that flatters every face shape.",
-    "price": 169,
+    "price": 2535,
     "category": "aviator",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Gold/Green",
-      "Silver/Blue",
-      "Black/Grey"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 25,
+    "gender": "men",
+    "description": "The iconic aviator style that defined a generation. Featuring precision-crafted metal frames and premium crystal lenses with superior UV protection.",
+    "images": "[\"https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80\",\"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80\",\"https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80\"]",
+    "colors": "[\"Gold/Green\",\"Silver/Blue\",\"Black/Grey\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 15,
     "is_bestseller": 1,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.791Z"
+    "is_new": 0
   },
   {
     "id": 2,
     "name": "Wayfarer Original",
     "brand": "Ray-Ban",
-    "description": "The definitive style icon that changed everything. Wayfarers have graced the faces of rebels, icons, and visionaries for over 60 years.",
-    "price": 159,
+    "price": 2385,
     "category": "wayfarer",
     "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Tortoise",
-      "Demi Blue"
-    ],
-    "sizes": [
-      "S",
-      "M",
-      "L"
-    ],
-    "stock": 30,
+    "description": "The unmistakable design that revolutionized eyewear. A timeless silhouette that has graced the faces of icons for decades.",
+    "images": "[\"https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80\",\"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80\"]",
+    "colors": "[\"Black/Green\",\"Tortoise/Green\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 20,
     "is_bestseller": 1,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "is_new": 0
   },
   {
     "id": 3,
-    "name": "Clubmaster Acetate",
+    "name": "Clubmaster",
     "brand": "Ray-Ban",
-    "description": "A sophisticated blend of retro and contemporary. The brow bar design with acetate rims creates a bold statement.",
-    "price": 189,
+    "price": 2835,
     "category": "clubmaster",
     "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Tortoise",
-      "Clear"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 20,
-    "is_bestseller": 1,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "description": "A bold fusion of retro appeal and modern sophistication. The brow bar design makes a distinctive statement.",
+    "images": "[\"https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80\",\"https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80\"]",
+    "colors": "[\"Black/Green\",\"Tortoise/Grey\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 10,
+    "is_bestseller": 0,
+    "is_new": 0
   },
   {
     "id": 4,
     "name": "Round Metal",
     "brand": "Ray-Ban",
-    "description": "Nostalgic yet unmistakably modern. The round metal frames evoke a vintage aesthetic.",
-    "price": 149,
+    "price": 2185,
     "category": "round",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Gold",
-      "Silver",
-      "Gunmetal"
-    ],
-    "sizes": [
-      "S",
-      "M"
-    ],
-    "stock": 18,
+    "gender": "women",
+    "description": "A refined interpretation of the classic round shape. Ultra-thin metal frames offer a lightweight, comfortable fit.",
+    "images": "[\"https://images.unsplash.com/photo-1577803645773-f96470509666?w=800&q=80\",\"https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80\"]",
+    "colors": "[\"Gold/Green\",\"Silver/Grey\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 8,
     "is_bestseller": 0,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "is_new": 1
   },
   {
     "id": 5,
-    "name": "Erika Gradient",
+    "name": "Cat Eye",
     "brand": "Ray-Ban",
-    "description": "Bold and feminine, the Erika features oversized frames with gradient lenses.",
-    "price": 159,
+    "price": 2635,
     "category": "cat-eye",
     "gender": "women",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Pink",
-      "Purple",
-      "Black"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 22,
-    "is_bestseller": 0,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "description": "Exquisitely feminine with upswept edges. The cat eye shape has been a symbol of glamour since the 1950s.",
+    "images": "[\"https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80\",\"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80\"]",
+    "colors": "[\"Black\",\"Tortoise\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 12,
+    "is_bestseller": 1,
+    "is_new": 0
   },
   {
     "id": 6,
-    "name": "Justin Matte",
+    "name": "Sport Performance",
     "brand": "Oakley",
-    "description": "A fresh take on the classic rectangular shape with a modern matte finish.",
-    "price": 145,
-    "category": "rectangular",
+    "price": 2935,
+    "category": "sport",
     "gender": "men",
-    "images": [
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
-    ],
-    "colors": [
-      "Matte Black",
-      "Matte Navy",
-      "Matte Grey"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 28,
+    "description": "Engineered for athletes who demand the best. Impact-resistant lenses and secure grip technology.",
+    "images": "[\"https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=800&q=80\",\"https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=800&q=80\"]",
+    "colors": "[\"Matte Black\",\"Team Red\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 18,
     "is_bestseller": 1,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "is_new": 0
   },
   {
     "id": 7,
-    "name": "Holbrook Active",
-    "brand": "Oakley",
-    "description": "Performance eyewear for the active lifestyle with HDO technology.",
-    "price": 155,
-    "category": "sport",
-    "gender": "men",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Polished White",
-      "Tortoise"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 24,
+    "name": "Oversized",
+    "brand": "Prada",
+    "price": 4535,
+    "category": "oversized",
+    "gender": "women",
+    "description": "Making a bold statement with maximum coverage. Premium Italian craftsmanship meets contemporary fashion.",
+    "images": "[\"https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=800&q=80\",\"https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80\"]",
+    "colors": "[\"Black\",\"Havana\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 5,
     "is_bestseller": 0,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "is_new": 1
   },
   {
     "id": 8,
-    "name": "Spatula Speed",
-    "brand": "Oakley",
-    "description": "Aerodynamic design meets maximum performance.",
-    "price": 175,
-    "category": "sport",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Matte Black",
-      "Silver",
-      "Team Red"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 15,
-    "is_bestseller": 0,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 9,
-    "name": "The General",
-    "brand": "Warby Parker",
-    "description": "A modern interpretation of military-issue goggles from WWII.",
-    "price": 145,
+    "name": "Rectangular",
+    "brand": "Persol",
+    "price": 3835,
     "category": "rectangular",
     "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Tortoise",
-      "Olive"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 26,
-    "is_bestseller": 1,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 10,
-    "name": "Dresden Acetate",
-    "brand": "Warby Parker",
-    "description": "A soft rectangular shape crafted from premium Italian acetate.",
-    "price": 165,
-    "category": "rectangular",
-    "gender": "women",
-    "images": [
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Cognac",
-      "Midnight Blue"
-    ],
-    "sizes": [
-      "S",
-      "M"
-    ],
-    "stock": 20,
+    "description": "Italian elegance with the signature arrow motif. A sophisticated choice for the modern professional.",
+    "images": "[\"https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80\",\"https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80\"]",
+    "colors": "[\"Black\",\"Havana\"]",
+    "sizes": "[\"One Size\"]",
+    "stock": 7,
     "is_bestseller": 0,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 11,
-    "name": "Jacques Monocle",
-    "brand": "Warby Parker",
-    "description": "A sophisticated single-lens design inspired by mid-century intellectuals.",
-    "price": 135,
-    "category": "round",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Gold",
-      "Silver",
-      "Rose Gold"
-    ],
-    "sizes": [
-      "M"
-    ],
-    "stock": 12,
-    "is_bestseller": 0,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 12,
-    "name": "Daphne Cat-Eye",
-    "brand": "Warby Parker",
-    "description": "Flattering cat-eye shape with a retro feel.",
-    "price": 155,
-    "category": "cat-eye",
-    "gender": "women",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Tortoise",
-      "Blonde"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 22,
-    "is_bestseller": 1,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 13,
-    "name": "Julianna Oversized",
-    "brand": "Maui Jim",
-    "description": "Luxurious oversized frames with polarized lenses.",
-    "price": 279,
-    "category": "oversized",
-    "gender": "women",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Tortoise",
-      "Burgundy"
-    ],
-    "sizes": [
-      "L"
-    ],
-    "stock": 18,
-    "is_bestseller": 0,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 14,
-    "name": "Wellington Classic",
-    "brand": "Persol",
-    "description": "Italian craftsmanship meets timeless design.",
-    "price": 295,
-    "category": "wayfarer",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Havana",
-      "Crystal Grey"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 14,
-    "is_bestseller": 1,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 15,
-    "name": "649 Classic",
-    "brand": "Persol",
-    "description": "The original 649 was designed for tram drivers in 1957.",
-    "price": 265,
-    "category": "round",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80",
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Havana",
-      "Green"
-    ],
-    "sizes": [
-      "M",
-      "L"
-    ],
-    "stock": 16,
-    "is_bestseller": 0,
-    "is_new": 0,
-    "created_at": "2026-02-10T18:26:34.792Z"
-  },
-  {
-    "id": 16,
-    "name": "Wayfarer Folding",
-    "brand": "Ray-Ban",
-    "description": "The iconic Wayfarer design, now foldable.",
-    "price": 189,
-    "category": "wayfarer",
-    "gender": "unisex",
-    "images": [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80"
-    ],
-    "colors": [
-      "Black",
-      "Demi Brown"
-    ],
-    "sizes": [
-      "M"
-    ],
-    "stock": 20,
-    "is_bestseller": 0,
-    "is_new": 1,
-    "created_at": "2026-02-10T18:26:34.792Z"
+    "is_new": 0
   }
 ]

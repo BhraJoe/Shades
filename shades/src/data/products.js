@@ -16,15 +16,15 @@ export const products = [
             "Includes case and cleaning cloth"
         ],
         colors: [
-            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=70" },
-            { name: "Silver/Blue", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70" },
-            { name: "Black/Grey", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70" }
+            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" },
+            { name: "Silver/Blue", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80" },
+            { name: "Black/Grey", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=70",
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70",
-            "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70"
+            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
+            "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80"
         ],
         rating: 4.8,
         reviews: 1243,
@@ -49,13 +49,13 @@ export const products = [
             "Includes case and cleaning cloth"
         ],
         colors: [
-            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70" },
-            { name: "Tortoise/Green", hex: "#8b6914", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70" }
+            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80" },
+            { name: "Tortoise/Green", hex: "#8b6914", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70",
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70"
+            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
         ],
         rating: 4.9,
         reviews: 2156,
@@ -80,13 +80,13 @@ export const products = [
             "Iconic brow bar design"
         ],
         colors: [
-            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70" },
-            { name: "Tortoise/Grey", hex: "#8b6914", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=70" }
+            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80" },
+            { name: "Tortoise/Grey", hex: "#8b6914", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70",
-            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=70"
+            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80",
+            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80"
         ],
         rating: 4.7,
         reviews: 892,
@@ -111,13 +111,13 @@ export const products = [
             "Classic round silhouette"
         ],
         colors: [
-            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=70" },
-            { name: "Silver/Grey", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&q=70" }
+            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1577803645773-f96470509666?w=800&q=80" },
+            { name: "Silver/Grey", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=70",
-            "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&q=70"
+            "https://images.unsplash.com/photo-1577803645773-f96470509666?w=800&q=80",
+            "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80"
         ],
         rating: 4.6,
         reviews: 543,
@@ -142,13 +142,13 @@ export const products = [
             "Flattering silhouette"
         ],
         colors: [
-            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70" },
-            { name: "Tortoise", hex: "#8b6914", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70" }
+            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80" },
+            { name: "Tortoise", hex: "#8b6914", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70",
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70"
+            "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
         ],
         rating: 4.8,
         reviews: 756,
@@ -173,13 +173,13 @@ export const products = [
             "Lightweight frame"
         ],
         colors: [
-            { name: "Matte Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=400&q=70" },
-            { name: "Team Red", hex: "#dc2626", image: "https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=400&q=70" }
+            { name: "Matte Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=800&q=80" },
+            { name: "Team Red", hex: "#dc2626", image: "https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=400&q=70",
-            "https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=400&q=70"
+            "https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=800&q=80",
+            "https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=800&q=80"
         ],
         rating: 4.9,
         reviews: 1023,
@@ -204,13 +204,13 @@ export const products = [
             "Maximum coverage"
         ],
         colors: [
-            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=400&q=70" },
-            { name: "Havana", hex: "#8b4513", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70" }
+            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=800&q=80" },
+            { name: "Havana", hex: "#8b4513", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=400&q=70",
-            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70"
+            "https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=800&q=80",
+            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80"
         ],
         rating: 4.7,
         reviews: 334,
@@ -235,13 +235,13 @@ export const products = [
             "Handmade in Italy"
         ],
         colors: [
-            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70" },
-            { name: "Havana", hex: "#8b4513", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70" }
+            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80" },
+            { name: "Havana", hex: "#8b4513", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70",
-            "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70"
+            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80",
+            "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80"
         ],
         rating: 4.8,
         reviews: 445,
@@ -250,17 +250,3 @@ export const products = [
         featured: false
     }
 ];
-
-// Optimized image URLs helper
-export const getOptimizedImage = (url, width = 400, quality = 70) => {
-    if (!url) return '';
-    // If already optimized, return as is
-    if (url.includes('w=') && url.includes('q=')) {
-        return url.replace(/w=\d+/, `w=${width}`).replace(/q=\d+/, `q=${quality}`);
-    }
-    // Add optimization params for Unsplash images
-    if (url.includes('unsplash.com')) {
-        return `${url.split('?')[0]}?w=${width}&q=${quality}`;
-    }
-    return url;
-};
