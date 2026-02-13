@@ -73,21 +73,27 @@ export default function About() {
                                 </p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <img
-                                src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80&fm=webp"
-                                alt="Our Collection"
-                                className="w-full h-56 md:h-72 object-cover"
-                                loading="lazy"
-                                decoding="async"
-                            />
-                            <img
-                                src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=80&fm=webp"
-                                alt="Quality Craftsmanship"
-                                className="w-full h-56 md:h-72 object-cover mt-6 md:mt-10"
-                                loading="lazy"
-                                decoding="async"
-                            />
+                        <div className="grid grid-cols-2 gap-6 items-start">
+                            <div className="relative group overflow-hidden rounded-2xl shadow-xl">
+                                <img
+                                    src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
+                                    alt="Our Collection"
+                                    className="w-full h-80 md:h-96 object-cover group-hover:scale-110 transition-transform duration-1000"
+                                />
+                                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+                                    <span className="text-white text-[10px] font-bold tracking-widest uppercase font-bold">Our Collection</span>
+                                </div>
+                            </div>
+                            <div className="relative group overflow-hidden rounded-2xl shadow-xl mt-12 md:mt-20">
+                                <img
+                                    src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80"
+                                    alt="Quality Craftsmanship"
+                                    className="w-full h-80 md:h-96 object-cover group-hover:scale-110 transition-transform duration-1000"
+                                />
+                                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+                                    <span className="text-white text-[10px] font-bold tracking-widest uppercase font-bold">Quality Craftsmanship</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
