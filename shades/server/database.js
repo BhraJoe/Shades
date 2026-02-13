@@ -19,6 +19,7 @@ db.exec(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         brand TEXT NOT NULL,
+        sku TEXT UNIQUE,
         description TEXT NOT NULL,
         price REAL NOT NULL,
         category TEXT NOT NULL,
@@ -31,6 +32,15 @@ db.exec(`
         is_new INTEGER DEFAULT 0,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'editor',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS orders (
@@ -76,6 +86,7 @@ if (productCount.count === 0) {
         {
             name: 'Aviator Classic',
             brand: 'Ray-Ban',
+            sku: 'RB-AV-001',
             description: 'The iconic aviator design that has been a symbol of cool for decades.',
             price: 169.00,
             category: 'aviator',
@@ -90,6 +101,7 @@ if (productCount.count === 0) {
         {
             name: 'Wayfarer Original',
             brand: 'Ray-Ban',
+            sku: 'RB-WF-001',
             description: 'The definitive style icon that changed everything.',
             price: 159.00,
             category: 'wayfarer',
@@ -104,6 +116,7 @@ if (productCount.count === 0) {
         {
             name: 'Clubmaster Acetate',
             brand: 'Ray-Ban',
+            sku: 'RB-CM-001',
             description: 'A sophisticated blend of retro and contemporary.',
             price: 189.00,
             category: 'clubmaster',
@@ -118,6 +131,7 @@ if (productCount.count === 0) {
         {
             name: 'Round Metal',
             brand: 'Ray-Ban',
+            sku: 'RB-RM-001',
             description: 'Nostalgic yet unmistakably modern.',
             price: 149.00,
             category: 'round',
@@ -132,6 +146,7 @@ if (productCount.count === 0) {
         {
             name: 'Erika Gradient',
             brand: 'Ray-Ban',
+            sku: 'RB-EG-001',
             description: 'Bold and feminine, the Erika features oversized frames with gradient lenses.',
             price: 159.00,
             category: 'cat-eye',
@@ -146,6 +161,7 @@ if (productCount.count === 0) {
         {
             name: 'Justin Matte',
             brand: 'Oakley',
+            sku: 'OK-JM-001',
             description: 'A fresh take on the classic rectangular shape with a modern matte finish.',
             price: 145.00,
             category: 'rectangular',
@@ -160,14 +176,31 @@ if (productCount.count === 0) {
     ];
 
     const insert = db.prepare(`
-        INSERT INTO products (name, brand, description, price, category, gender, images, colors, sizes, stock, is_bestseller, is_new)
-        VALUES (@name, @brand, @description, @price, @category, @gender, @images, @colors, @sizes, @stock, @is_bestseller, @is_new)
+        INSERT INTO products (name, brand, sku, description, price, category, gender, images, colors, sizes, stock, is_bestseller, is_new)
+        VALUES (@name, @brand, @sku, @description, @price, @category, @gender, @images, @colors, @sizes, @stock, @is_bestseller, @is_new)
     `);
 
     for (const product of initialProducts) {
         insert.run(product);
     }
     console.log('Initial products added to database');
+}
+
+// Seed admin user
+import bcrypt from 'bcryptjs';
+
+const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
+if (userCount.count === 0) {
+    const salt = bcrypt.genSaltSync(10);
+    const passwordHash = bcrypt.hashSync('admin123', salt);
+
+    db.prepare('INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)').run(
+        'admin',
+        'admin@cityshades.com',
+        passwordHash,
+        'admin'
+    );
+    console.log('Admin user seeded (admin / admin123)');
 }
 
 // Product operations
@@ -178,8 +211,8 @@ export const productOperations = {
 
     create: (product) => {
         const stmt = db.prepare(`
-            INSERT INTO products (name, brand, description, price, category, gender, images, colors, sizes, stock, is_bestseller, is_new)
-            VALUES (@name, @brand, @description, @price, @category, @gender, @images, @colors, @sizes, @stock, @is_bestseller, @is_new)
+            INSERT INTO products (name, brand, sku, description, price, category, gender, images, colors, sizes, stock, is_bestseller, is_new)
+            VALUES (@name, @brand, @sku, @description, @price, @category, @gender, @images, @colors, @sizes, @stock, @is_bestseller, @is_new)
         `);
         const result = stmt.run(product);
         return { id: result.lastInsertRowid, ...product };
@@ -190,6 +223,7 @@ export const productOperations = {
             UPDATE products SET
                 name = @name,
                 brand = @brand,
+                sku = @sku,
                 description = @description,
                 price = @price,
                 category = @category,
@@ -211,6 +245,20 @@ export const productOperations = {
         const stmt = db.prepare('DELETE FROM products WHERE id = ?');
         const result = stmt.run(id);
         return result.changes > 0;
+    }
+};
+
+// User operations
+export const userOperations = {
+    getByUsername: (username) => db.prepare('SELECT * FROM users WHERE username = ?').get(username),
+    getById: (id) => db.prepare('SELECT id, username, email, role, created_at FROM users WHERE id = ?').get(id),
+    create: (user) => {
+        const stmt = db.prepare(`
+            INSERT INTO users (username, email, password_hash, role)
+            VALUES (@username, @email, @password_hash, @role)
+        `);
+        const result = stmt.run(user);
+        return { id: result.lastInsertRowid, username: user.username, email: user.email, role: user.role };
     }
 };
 

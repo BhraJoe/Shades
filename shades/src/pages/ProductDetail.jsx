@@ -39,6 +39,12 @@ export default function ProductDetail() {
         loadProduct();
     }, [id]);
 
+    // Safe data extraction
+    const images = Array.isArray(product?.images) ? product.images : [];
+    const colors = Array.isArray(product?.colors) ? product.colors : [];
+    const sizes = Array.isArray(product?.sizes) ? product.sizes : [];
+    const price = typeof product?.price === 'number' ? product.price : parseFloat(product?.price) || 0;
+
     const handleAddToCart = () => {
         if (!selectedColor || !selectedSize) return;
         if (isAddingRef.current) return;
@@ -110,42 +116,41 @@ export default function ProductDetail() {
                     <div className="space-y-4">
                         <div className="aspect-square md:aspect-[3/4] bg-[#f5f5f5] overflow-hidden group">
                             <img
-                                src={product.images[mainImage]}
+                                src={images[mainImage] || '/images/placeholder.svg'}
                                 alt={product.name}
                                 className="w-full h-full object-cover cursor-zoom-in transition-transform duration-700 group-hover:scale-105"
                                 fetchpriority="high"
-                                decoding="async"
                             />
                         </div>
                         {/* Mobile thumbnail strip */}
                         <div className="md:hidden overflow-x-auto -mx-4 px-4">
                             <div className="flex gap-3 min-w-max pb-2">
-                                {product.images.map((img, index) => (
+                                {images.map((img, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setMainImage(index)}
                                         className={`w-16 h-16 flex-shrink-0 overflow-hidden transition-all duration-200 ${mainImage === index
-                                                ? 'ring-2 ring-[#0a0a0a] ring-offset-2'
-                                                : 'opacity-60 hover:opacity-100'
+                                            ? 'ring-2 ring-[#0a0a0a] ring-offset-2'
+                                            : 'opacity-60 hover:opacity-100'
                                             }`}
                                     >
-                                        <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                        <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
                                     </button>
                                 ))}
                             </div>
                         </div>
                         {/* Desktop thumbnails */}
                         <div className="hidden md:flex gap-3">
-                            {product.images.map((img, index) => (
+                            {images.map((img, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setMainImage(index)}
                                     className={`w-20 h-20 flex-shrink-0 overflow-hidden transition-all duration-200 ${mainImage === index
-                                            ? 'ring-2 ring-[#0a0a0a] ring-offset-2'
-                                            : 'opacity-50 hover:opacity-100'
+                                        ? 'ring-2 ring-[#0a0a0a] ring-offset-2'
+                                        : 'opacity-50 hover:opacity-100'
                                         }`}
                                 >
-                                    <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                                    <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" />
                                 </button>
                             ))}
                         </div>
@@ -158,49 +163,57 @@ export default function ProductDetail() {
                             <h1 className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight tracking-wider">{product.name}</h1>
                         </div>
 
-                        <p className="text-2xl md:text-3xl font-display tracking-wider">₵{product.price.toLocaleString()}</p>
+                        <p className="text-2xl md:text-3xl font-display tracking-wider">₵{price.toLocaleString()}</p>
 
                         <p className="text-sm md:text-base text-gray-500 leading-relaxed font-light">{product.description}</p>
 
                         {/* Colors */}
                         <div>
                             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-3">
-                                Color: <span className="font-normal text-gray-500">{selectedColor}</span>
+                                Color: <span className="font-normal text-gray-500">{typeof selectedColor === 'object' ? selectedColor.name : selectedColor}</span>
                             </p>
                             <div className="flex flex-wrap gap-2">
-                                {product.colors.map((color) => (
-                                    <button
-                                        key={color}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={`px-5 py-2.5 text-sm border transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${selectedColor === color
+                                {colors.map((color, idx) => {
+                                    const colorName = typeof color === 'object' ? color.name : color;
+                                    const isSelected = (typeof selectedColor === 'object' ? selectedColor.name : selectedColor) === colorName;
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setSelectedColor(color)}
+                                            className={`px-5 py-2.5 text-sm border transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${isSelected
                                                 ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
                                                 : 'border-gray-200 text-gray-600 hover:border-[#0a0a0a]'
-                                            }`}
-                                    >
-                                        {color}
-                                    </button>
-                                ))}
+                                                }`}
+                                        >
+                                            {colorName}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
                         {/* Sizes */}
                         <div>
                             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-3">
-                                Size: <span className="font-normal text-gray-500">{selectedSize}</span>
+                                Size: <span className="font-normal text-gray-500">{typeof selectedSize === 'object' ? selectedSize.name : selectedSize}</span>
                             </p>
                             <div className="flex flex-wrap gap-2">
-                                {product.sizes.map((size) => (
-                                    <button
-                                        key={size}
-                                        onClick={() => setSelectedSize(size)}
-                                        className={`px-5 py-2.5 text-sm border transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${selectedSize === size
+                                {sizes.map((size, idx) => {
+                                    const sizeName = typeof size === 'object' ? size.name : size;
+                                    const isSelected = (typeof selectedSize === 'object' ? selectedSize.name : selectedSize) === sizeName;
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setSelectedSize(size)}
+                                            className={`px-5 py-2.5 text-sm border transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${isSelected
                                                 ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
                                                 : 'border-gray-200 text-gray-600 hover:border-[#0a0a0a]'
-                                            }`}
-                                    >
-                                        {size}
-                                    </button>
-                                ))}
+                                                }`}
+                                        >
+                                            {sizeName}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -209,8 +222,8 @@ export default function ProductDetail() {
                             onClick={handleAddToCart}
                             disabled={added}
                             className={`w-full py-4 text-sm font-bold tracking-[0.15em] uppercase transition-all duration-300 min-h-[52px] ${added
-                                    ? 'bg-emerald-500 text-white cursor-not-allowed'
-                                    : 'bg-[#0a0a0a] text-white hover:bg-[#dc2626]'
+                                ? 'bg-emerald-500 text-white cursor-not-allowed'
+                                : 'bg-[#0a0a0a] text-white hover:bg-[#dc2626]'
                                 }`}
                         >
                             {added ? (
@@ -221,6 +234,7 @@ export default function ProductDetail() {
                                 'Add to Bag'
                             )}
                         </button>
+
 
                         {/* Wishlist */}
                         <button className="w-full py-4 border border-gray-200 text-sm font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:border-[#0a0a0a] transition-all duration-200 flex items-center justify-center gap-2 min-h-[52px]">

@@ -9,30 +9,28 @@ export default function ProductCard({ product }) {
     const [isAdding, setIsAdding] = useState(false);
     const lastClickRef = useRef(0);
 
+    // Safe data extraction
+    const images = Array.isArray(product.images) ? product.images : [];
+    const colors = Array.isArray(product.colors) ? product.colors : [];
+    const sizes = Array.isArray(product.sizes) ? product.sizes : [];
+    const price = typeof product.price === 'number' ? product.price : parseFloat(product.price) || 0;
+
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
 
         const now = Date.now();
-        // Prevent clicks within 1000ms window
-        if (now - lastClickRef.current < 1000) {
-            return;
-        }
+        if (now - lastClickRef.current < 1000) return;
         lastClickRef.current = now;
 
         setIsAdding(true);
 
-        // Colors and sizes are strings from API, not objects
-        const firstColor = typeof product.colors[0] === 'object' ? product.colors[0].name : product.colors[0];
-        const firstSize = typeof product.sizes[0] === 'object' ? product.sizes[0].name : (product.sizes[0] || 'One Size');
+        const firstColor = colors[0] ? (typeof colors[0] === 'object' ? colors[0].name : colors[0]) : 'Default';
+        const firstSize = sizes[0] ? (typeof sizes[0] === 'object' ? sizes[0].name : sizes[0]) : 'M';
 
-        // Add exactly 1 item
         addToCart(product, firstColor, firstSize, 1);
 
-        // Reset after delay
-        setTimeout(() => {
-            setIsAdding(false);
-        }, 500);
+        setTimeout(() => setIsAdding(false), 500);
     };
 
     return (
@@ -41,22 +39,21 @@ export default function ProductCard({ product }) {
             <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f5] mb-4">
                 <Link to={`/product/${product.id}`}>
                     <img
-                        src={product.images[0]}
+                        src={images[0] || '/images/placeholder.svg'}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
-                        decoding="async"
                     />
                 </Link>
 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {product.newArrival && (
+                    {product.is_new === 1 && (
                         <span className="px-3 py-1 bg-[#dc2626] text-white text-[10px] tracking-widest uppercase font-bold">
                             New
                         </span>
                     )}
-                    {product.bestseller && !product.newArrival && (
+                    {product.is_bestseller === 1 && (
                         <span className="px-3 py-1 bg-[#0a0a0a] text-white text-[10px] tracking-widest uppercase font-bold">
                             Best Seller
                         </span>
@@ -109,35 +106,32 @@ export default function ProductCard({ product }) {
                             <Star
                                 key={i}
                                 size={12}
-                                fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
-                                className={i < Math.floor(product.rating) ? '' : 'text-gray-300'}
+                                fill={i < Math.floor(product.rating || 5) ? 'currentColor' : 'none'}
+                                className={i < Math.floor(product.rating || 5) ? '' : 'text-gray-300'}
                             />
                         ))}
                     </div>
-                    <span className="text-[10px] text-gray-500">({product.reviews})</span>
+                    <span className="text-[10px] text-gray-500">({product.reviews || 0})</span>
                 </div>
 
                 {/* Price */}
-                <div className="mt-2">
-                    <span className="font-medium text-[#0a0a0a]">₵{product.price.toLocaleString()}</span>
-                    {product.originalPrice && (
-                        <span className="ml-2 text-sm text-gray-400 line-through">₵{product.originalPrice.toLocaleString()}</span>
-                    )}
+                <div className="mt-2 text-sm">
+                    <span className="font-medium text-[#0a0a0a]">₵{price.toLocaleString()}</span>
                 </div>
 
                 {/* Color Options */}
-                {product.colors.length > 1 && (
+                {colors.length > 1 && (
                     <div className="flex items-center gap-2 mt-3">
-                        {product.colors.slice(0, 4).map((color, i) => (
+                        {colors.slice(0, 4).map((color, i) => (
                             <div
                                 key={i}
-                                className="w-8 h-8 rounded-full border border-gray-200"
-                                style={{ backgroundColor: color.hex }}
-                                title={color.name}
+                                className="w-4 h-4 rounded-full border border-gray-200"
+                                style={{ backgroundColor: typeof color === 'object' ? color.hex : '#eee' }}
+                                title={typeof color === 'object' ? color.name : color}
                             />
                         ))}
-                        {product.colors.length > 4 && (
-                            <span className="text-[10px] text-gray-500 ml-1">+{product.colors.length - 4}</span>
+                        {colors.length > 4 && (
+                            <span className="text-[10px] text-gray-500 ml-1">+{colors.length - 4}</span>
                         )}
                     </div>
                 )}

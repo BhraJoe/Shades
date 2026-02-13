@@ -10,7 +10,7 @@ export default function CartDrawer({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[1000]">
+        <div className="fixed inset-0 z-[1000] w-full max-w-full overflow-x-hidden">
             {/* Overlay */}
             <div
                 className="absolute inset-0 bg-black/50 transition-opacity duration-300"
