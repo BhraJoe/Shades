@@ -55,8 +55,6 @@ export default function Footer() {
                         <h3 className="text-xs font-bold tracking-widest uppercase mb-4">Shop</h3>
                         <ul className="space-y-3">
                             <li><Link to="/shop" className="footer-link">All Sunglasses</Link></li>
-                            <li><Link to="/shop?gender=men" className="footer-link">Men's Collection</Link></li>
-                            <li><Link to="/shop?gender=women" className="footer-link">Women's Collection</Link></li>
                             <li><Link to="/shop?new=true" className="footer-link">New Arrivals</Link></li>
                             <li><Link to="/shop?bestseller=true" className="footer-link">Best Sellers</Link></li>
                         </ul>
@@ -113,7 +111,6 @@ export default function Footer() {
                     <div className="flex gap-6">
                         <a href="#" className="footer-link text-xs">Privacy Policy</a>
                         <a href="#" className="footer-link text-xs">Terms of Service</a>
-                        <Link to="/admin" className="footer-link text-xs text-gray-600">Admin</Link>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { fetchProduct, fetchProducts } from '../api';
 import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ProductCard';
-import { ChevronLeft, Heart, Check } from 'lucide-react';
+import { ChevronLeft, Heart, Check, Shield, RefreshCw, Truck } from 'lucide-react';
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -28,7 +28,6 @@ export default function ProductDetail() {
                 setSelectedColor(data.colors[0]);
                 setSelectedSize(data.sizes[0]);
 
-                // Load related products
                 const related = await fetchProducts({ category: data.category });
                 setRelatedProducts(related.filter(p => p.id !== data.id).slice(0, 4));
             } catch (error) {
@@ -42,16 +41,12 @@ export default function ProductDetail() {
 
     const handleAddToCart = () => {
         if (!selectedColor || !selectedSize) return;
-
-        // Double protection against double clicks
         if (isAddingRef.current) return;
         isAddingRef.current = true;
 
-        // Extract color and size values (handle both string and object formats)
         const colorValue = typeof selectedColor === 'object' ? selectedColor.name : selectedColor;
         const sizeValue = typeof selectedSize === 'object' ? selectedSize.name : selectedSize;
 
-        // Call addToCart with correct 4 parameters
         addToCart(product, colorValue, sizeValue, quantity);
 
         setAdded(true);
@@ -64,15 +59,15 @@ export default function ProductDetail() {
     if (loading) {
         return (
             <div className="pt-20 md:pt-[104px] min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                        <div className="aspect-square md:aspect-[3/4] skeleton" />
-                        <div className="space-y-4">
-                            <div className="h-3 skeleton w-1/4" />
-                            <div className="h-8 md:h-10 skeleton w-3/4" />
-                            <div className="h-6 skeleton w-1/4" />
-                            <div className="h-24 md:h-32 skeleton" />
-                            <div className="h-12 skeleton w-1/3" />
+                <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+                        <div className="aspect-square md:aspect-[3/4] bg-gray-100 animate-pulse" />
+                        <div className="space-y-5">
+                            <div className="h-3 bg-gray-100 animate-pulse w-1/4" />
+                            <div className="h-10 bg-gray-100 animate-pulse w-3/4" />
+                            <div className="h-7 bg-gray-100 animate-pulse w-1/4" />
+                            <div className="h-28 bg-gray-100 animate-pulse" />
+                            <div className="h-14 bg-gray-100 animate-pulse w-1/3" />
                         </div>
                     </div>
                 </div>
@@ -84,7 +79,7 @@ export default function ProductDetail() {
         return (
             <div className="pt-20 md:pt-[104px] min-h-screen flex items-center justify-center">
                 <div className="text-center px-4">
-                    <h1 className="font-display text-2xl md:text-3xl mb-4">Product Not Found</h1>
+                    <h1 className="font-display text-3xl md:text-4xl mb-4">Product Not Found</h1>
                     <Link to="/shop" className="btn-primary inline-block">Shop Now</Link>
                 </div>
             </div>
@@ -93,10 +88,12 @@ export default function ProductDetail() {
 
     return (
         <div className="pt-20 md:pt-[104px]">
-            {/* Breadcrumb */}
-            <div className="bg-[#f5f5f5] py-3 md:py-4">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <Link to="/shop" className="flex items-center gap-2 text-xs md:text-sm text-gray-500 hover:text-[#dc2626] transition-colors duration-200">
+            {/* ════════════════════════════════════════════
+                Breadcrumb
+            ════════════════════════════════════════════ */}
+            <div className="bg-[#0a0a0a] py-3 md:py-4">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <Link to="/shop" className="flex items-center gap-2 text-xs md:text-sm text-white/50 hover:text-[#dc2626] transition-colors duration-200">
                         <ChevronLeft size={14} />
                         <span className="hidden md:inline">Back to Shop</span>
                         <span className="md:hidden">Back</span>
@@ -104,81 +101,80 @@ export default function ProductDetail() {
                 </div>
             </div>
 
-            {/* Product Details */}
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            {/* ════════════════════════════════════════════
+                Product Section
+            ════════════════════════════════════════════ */}
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
                     {/* Image Gallery */}
-                    <div className="space-y-3 md:space-y-4">
-                        <div className="aspect-square md:aspect-[3/4] bg-[#f5f5f5] overflow-hidden touch-none">
+                    <div className="space-y-4">
+                        <div className="aspect-square md:aspect-[3/4] bg-[#f5f5f5] overflow-hidden group">
                             <img
                                 src={product.images[mainImage]}
                                 alt={product.name}
-                                className="w-full h-full object-cover cursor-zoom-in"
+                                className="w-full h-full object-cover cursor-zoom-in transition-transform duration-700 group-hover:scale-105"
                                 fetchpriority="high"
                                 decoding="async"
                             />
                         </div>
-                        {/* Scrollable thumbnail gallery on mobile */}
+                        {/* Mobile thumbnail strip */}
                         <div className="md:hidden overflow-x-auto -mx-4 px-4">
                             <div className="flex gap-3 min-w-max pb-2">
                                 {product.images.map((img, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setMainImage(index)}
-                                        className={`w-16 h-16 flex-shrink-0 overflow-hidden border-2 transition-colors duration-200 rounded-md ${mainImage === index ? 'border-[#0a0a0a]' : 'border-transparent'
+                                        className={`w-16 h-16 flex-shrink-0 overflow-hidden transition-all duration-200 ${mainImage === index
+                                                ? 'ring-2 ring-[#0a0a0a] ring-offset-2'
+                                                : 'opacity-60 hover:opacity-100'
                                             }`}
                                     >
-                                        <img
-                                            src={img}
-                                            alt={`View ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                            loading="lazy"
-                                            decoding="async"
-                                        />
+                                        <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                     </button>
                                 ))}
                             </div>
                         </div>
-                        {/* Desktop thumbnail gallery */}
-                        <div className="hidden md:flex gap-4">
+                        {/* Desktop thumbnails */}
+                        <div className="hidden md:flex gap-3">
                             {product.images.map((img, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setMainImage(index)}
-                                    className={`w-20 h-20 flex-shrink-0 overflow-hidden border-2 transition-colors duration-200 ${mainImage === index ? 'border-[#0a0a0a]' : 'border-transparent'
+                                    className={`w-20 h-20 flex-shrink-0 overflow-hidden transition-all duration-200 ${mainImage === index
+                                            ? 'ring-2 ring-[#0a0a0a] ring-offset-2'
+                                            : 'opacity-50 hover:opacity-100'
                                         }`}
                                 >
-                                    <img
-                                        src={img}
-                                        alt={`View ${index + 1}`}
-                                        className="w-full h-full object-cover"
-                                        loading="lazy"
-                                        decoding="async"
-                                    />
+                                    <img src={img} alt={`View ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {/* Product Info */}
-                    <div className="space-y-5 md:space-y-6">
+                    <div className="space-y-6 md:space-y-8">
                         <div>
-                            <p className="text-xs md:text-[10px] text-gray-500 tracking-widest uppercase mb-1 md:mb-2">{product.brand}</p>
-                            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight">{product.name}</h1>
+                            <p className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase mb-2">{product.brand}</p>
+                            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight tracking-wider">{product.name}</h1>
                         </div>
-                        <p className="text-xl md:text-2xl font-medium">₵{product.price.toLocaleString()}</p>
 
-                        <p className="text-sm md:text-base text-gray-600 leading-relaxed font-light">{product.description}</p>
+                        <p className="text-2xl md:text-3xl font-display tracking-wider">₵{product.price.toLocaleString()}</p>
+
+                        <p className="text-sm md:text-base text-gray-500 leading-relaxed font-light">{product.description}</p>
 
                         {/* Colors */}
                         <div>
-                            <p className="text-xs font-bold tracking-widest uppercase mb-2 md:mb-3">Color: <span className="font-normal text-gray-600">{selectedColor}</span></p>
-                            <div className="flex flex-wrap gap-2 md:gap-3">
+                            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-3">
+                                Color: <span className="font-normal text-gray-500">{selectedColor}</span>
+                            </p>
+                            <div className="flex flex-wrap gap-2">
                                 {product.colors.map((color) => (
                                     <button
                                         key={color}
                                         onClick={() => setSelectedColor(color)}
-                                        className={`filter-pill min-w-[44px] min-h-[44px] flex items-center justify-center ${selectedColor === color ? 'active' : ''
+                                        className={`px-5 py-2.5 text-sm border transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${selectedColor === color
+                                                ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
+                                                : 'border-gray-200 text-gray-600 hover:border-[#0a0a0a]'
                                             }`}
                                     >
                                         {color}
@@ -189,13 +185,17 @@ export default function ProductDetail() {
 
                         {/* Sizes */}
                         <div>
-                            <p className="text-xs font-bold tracking-widest uppercase mb-2 md:mb-3">Size: <span className="font-normal text-gray-600">{selectedSize}</span></p>
-                            <div className="flex flex-wrap gap-2 md:gap-3">
+                            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-3">
+                                Size: <span className="font-normal text-gray-500">{selectedSize}</span>
+                            </p>
+                            <div className="flex flex-wrap gap-2">
                                 {product.sizes.map((size) => (
                                     <button
                                         key={size}
                                         onClick={() => setSelectedSize(size)}
-                                        className={`size-btn min-w-[44px] min-h-[44px] flex items-center justify-center ${selectedSize === size ? 'active' : ''
+                                        className={`px-5 py-2.5 text-sm border transition-all duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center ${selectedSize === size
+                                                ? 'bg-[#0a0a0a] text-white border-[#0a0a0a]'
+                                                : 'border-gray-200 text-gray-600 hover:border-[#0a0a0a]'
                                             }`}
                                     >
                                         {size}
@@ -208,7 +208,10 @@ export default function ProductDetail() {
                         <button
                             onClick={handleAddToCart}
                             disabled={added}
-                            className={`btn-primary w-full py-4 md:py-3 min-h-[52px] md:min-h-[48px] ${added ? '!bg-[#22c55e] cursor-not-allowed' : ''}`}
+                            className={`w-full py-4 text-sm font-bold tracking-[0.15em] uppercase transition-all duration-300 min-h-[52px] ${added
+                                    ? 'bg-emerald-500 text-white cursor-not-allowed'
+                                    : 'bg-[#0a0a0a] text-white hover:bg-[#dc2626]'
+                                }`}
                         >
                             {added ? (
                                 <span className="flex items-center justify-center gap-2">
@@ -220,24 +223,48 @@ export default function ProductDetail() {
                         </button>
 
                         {/* Wishlist */}
-                        <button className="btn-secondary w-full py-4 md:py-3 min-h-[52px] md:min-h-[48px] flex items-center justify-center gap-2">
+                        <button className="w-full py-4 border border-gray-200 text-sm font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:border-[#0a0a0a] transition-all duration-200 flex items-center justify-center gap-2 min-h-[52px]">
                             <Heart size={18} />
                             Save for Later
                         </button>
 
+                        {/* ════════════════════════════════════════════
+                            Trust Badges
+                        ════════════════════════════════════════════ */}
+                        <div className="grid grid-cols-3 gap-4 py-6 border-t border-b border-gray-100">
+                            <div className="text-center">
+                                <div className="w-10 h-10 mx-auto mb-2 bg-gray-50 rounded-full flex items-center justify-center">
+                                    <Truck size={16} className="text-[#0a0a0a]" />
+                                </div>
+                                <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-gray-500">Free Shipping</p>
+                            </div>
+                            <div className="text-center">
+                                <div className="w-10 h-10 mx-auto mb-2 bg-gray-50 rounded-full flex items-center justify-center">
+                                    <RefreshCw size={16} className="text-[#0a0a0a]" />
+                                </div>
+                                <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-gray-500">30-Day Returns</p>
+                            </div>
+                            <div className="text-center">
+                                <div className="w-10 h-10 mx-auto mb-2 bg-gray-50 rounded-full flex items-center justify-center">
+                                    <Shield size={16} className="text-[#0a0a0a]" />
+                                </div>
+                                <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-gray-500">2-Year Warranty</p>
+                            </div>
+                        </div>
+
                         {/* Details */}
-                        <div className="pt-6 md:pt-8 border-t border-gray-200 space-y-3 md:space-y-4">
+                        <div className="space-y-3">
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-light">Category</span>
+                                <span className="text-gray-400 font-light">Category</span>
                                 <span className="capitalize">{product.category}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-light">Gender</span>
+                                <span className="text-gray-400 font-light">Gender</span>
                                 <span className="capitalize">{product.gender}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-gray-500 font-light">Stock</span>
-                                <span className={product.stock > 5 ? 'text-green-600' : 'text-[#dc2626]'}>
+                                <span className="text-gray-400 font-light">Stock</span>
+                                <span className={product.stock > 5 ? 'text-emerald-600' : 'text-[#dc2626]'}>
                                     {product.stock > 5 ? 'In Stock' : `Only ${product.stock} left`}
                                 </span>
                             </div>
@@ -246,14 +273,17 @@ export default function ProductDetail() {
                 </div>
             </div>
 
-            {/* Related Products */}
+            {/* ════════════════════════════════════════════
+                Related Products
+            ════════════════════════════════════════════ */}
             {relatedProducts.length > 0 && (
-                <section className="bg-[#f5f5f5] py-12 md:py-16">
-                    <div className="max-w-7xl mx-auto px-4 md:px-6">
-                        <h2 className="font-display text-2xl md:text-3xl lg:text-4xl mb-6 md:mb-8">You May Also Like</h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                            {relatedProducts.map((product) => (
-                                <ProductCard key={product.id} product={product} />
+                <section className="bg-[#0a0a0a] py-16 md:py-24">
+                    <div className="max-w-7xl mx-auto px-4 md:px-8">
+                        <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">You May Also Like</span>
+                        <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-white tracking-wider mb-8 md:mb-10">Complete the Look</h2>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                            {relatedProducts.map((p) => (
+                                <ProductCard key={p.id} product={p} />
                             ))}
                         </div>
                     </div>

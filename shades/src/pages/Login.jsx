@@ -7,74 +7,96 @@ export default function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle login logic here
         console.log('Login:', { email, password });
     };
 
     return (
-        <div className="pt-[130px] md:pt-[104px] min-h-screen bg-[#f5f5f5]">
-            <div className="max-w-md mx-auto px-4 md:px-6 py-8 md:py-16">
-                <div className="bg-white p-6 md:p-8 rounded-lg shadow-sm">
-                    <h1 className="text-3xl md:text-4xl font-display text-center mb-2 tracking-wider">
-                        Welcome Back
-                    </h1>
-                    <p className="text-gray-500 text-center mb-6 md:mb-8 font-light text-sm md:text-base">
-                        Sign in to your account
-                    </p>
+        <div className="pt-20 md:pt-[104px] min-h-screen bg-[#f5f5f5]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-104px)]">
+                {/* ════════════════════════════════════════════
+                    Left — Fashion Image
+                ════════════════════════════════════════════ */}
+                <div className="hidden lg:block relative overflow-hidden">
+                    <img
+                        src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=1200&q=80&auto=format&fit=crop"
+                        alt="Premium sunglasses"
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#f5f5f5]/80" />
+                    <div className="absolute bottom-12 left-12 right-12">
+                        <p className="text-white/60 font-light text-sm leading-relaxed max-w-sm">
+                            "Style is a way to say who you are without having to speak."
+                        </p>
+                        <p className="text-white/30 text-xs mt-2 tracking-[0.2em] uppercase">— Rachel Zoe</p>
+                    </div>
+                </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-                        <div>
-                            <label className="block text-xs font-bold tracking-widest uppercase mb-2">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="input-field w-full"
-                                placeholder="your@email.com"
-                                required
-                            />
+                {/* ════════════════════════════════════════════
+                    Right — Login Form
+                ════════════════════════════════════════════ */}
+                <div className="flex items-center justify-center px-6 py-12 md:py-16">
+                    <div className="w-full max-w-md">
+                        <div className="text-center mb-10">
+                            <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Account</span>
+                            <h1 className="font-display text-4xl md:text-5xl text-[#0a0a0a] tracking-wider mb-3">Welcome Back</h1>
+                            <p className="text-gray-400 font-light text-sm">Sign in to your account</p>
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-bold tracking-widest uppercase mb-2">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="input-field w-full"
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <label className="flex items-center py-2 min-h-[48px]">
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">
+                                    Email
+                                </label>
                                 <input
-                                    type="checkbox"
-                                    className="mr-3 w-5 h-5 rounded border-gray-300 text-[#dc2626] focus:ring-[#dc2626]"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
+                                    placeholder="your@email.com"
+                                    required
                                 />
-                                <span className="text-sm text-gray-600">Remember me</span>
-                            </label>
-                            <Link to="/forgot-password" className="text-sm text-[#dc2626] hover:underline py-2 min-h-[48px] flex items-center">
-                                Forgot password?
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <label className="flex items-center cursor-pointer">
+                                    <input type="checkbox" className="mr-2 w-4 h-4 accent-[#dc2626]" />
+                                    <span className="text-sm text-gray-500">Remember me</span>
+                                </label>
+                                <Link to="/forgot-password" className="text-sm text-[#dc2626] hover:text-[#0a0a0a] transition-colors">
+                                    Forgot password?
+                                </Link>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300"
+                            >
+                                Sign In
+                            </button>
+                        </form>
+
+                        <p className="text-center text-gray-400 mt-8 font-light text-sm">
+                            Don't have an account?{' '}
+                            <Link to="/register" className="text-[#0a0a0a] font-bold hover:text-[#dc2626] transition-colors">
+                                Register
                             </Link>
-                        </div>
-
-                        <button type="submit" className="btn-primary w-full py-4 md:py-3 text-base font-bold tracking-widest">
-                            Sign In
-                        </button>
-                    </form>
-
-                    <p className="text-center text-gray-500 mt-6 font-light text-sm">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="text-[#dc2626] font-bold hover:underline">
-                            Register
-                        </Link>
-                    </p>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, X, Heart, User, UserPlus } from 'lucide-react';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingBag, Search, Menu, X, Heart, User, SearchIcon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    // { name: 'Wishlist', path: '/wishlist' },
-    // { name: 'Bag', path: '/cart' },
     { name: 'About', path: '/about' },
     { name: 'FAQ', path: '/faq' },
     { name: 'Contact', path: '/contact' },
@@ -17,16 +15,17 @@ export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { cartCount, wishlist } = useCart();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const isCheckout = location.pathname === '/checkout';
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
+            setIsScrolled(window.scrollY > 10);
         };
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -41,40 +40,39 @@ export default function Header() {
     };
 
     return (
-        <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white border-b border-gray-100' : 'bg-transparent'
-                }`}
-        >
-            {/* Top Bar */}
-            <div className="bg-[#dc2626] text-white text-xs font-bold tracking-[0.2em] text-center py-2">
-                FREE SHIPPING ON ORDERS OVER $150 — FREE RETURNS
+        <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+            {/* ════════════════════════════════════════════
+                Top Announcement Bar
+            ════════════════════════════════════════════ */}
+            <div className={`bg-[#0a0a0a] text-white text-[10px] font-bold tracking-[0.2em] text-center py-2.5 uppercase transition-all duration-500 overflow-hidden ${isScrolled ? 'h-0 py-0 opacity-0' : 'h-auto opacity-100'}`}>
+                Free Express Shipping on Orders Over ₵150
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
-                <div className="flex items-center justify-between h-16 md:h-20">
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden p-2 -ml-2"
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    >
-                        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
+            {/* ════════════════════════════════════════════
+                Main Navigation Row
+            ════════════════════════════════════════════ */}
+            <div className={`w-full transition-all duration-300 ${(isScrolled || isCheckout) ? 'bg-white shadow-sm' : 'bg-white md:bg-transparent'}`}>
+                <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between h-16 md:h-20">
 
-                    {/* Logo */}
-                    <Link to="/" className="flex-shrink-0">
-                        <h1 className="font-display text-3xl md:text-4xl tracking-wider">
-                            CITYSHADES<span className="text-[#dc2626]">.</span>
-                        </h1>
-                    </Link>
+                    {/* LEFT: Logo */}
+                    <div className="flex-shrink-0">
+                        <Link to="/" className="group">
+                            <h1 className="font-display text-2xl md:text-3xl tracking-tight text-[#0a0a0a] group-hover:text-[#dc2626] transition-colors">
+                                CITYSHADES<span className="text-[#dc2626]">.</span>
+                            </h1>
+                        </Link>
+                    </div>
 
-                    {/* Desktop Navigation */}
+                    {/* CENTER: Navigation Links */}
                     <nav className="hidden md:flex items-center space-x-10">
                         {navItems.map((item) => (
                             <NavLink
                                 key={item.name}
                                 to={item.path}
                                 className={({ isActive }) =>
-                                    `text-xs font-bold tracking-[0.15em] uppercase hover:text-[#dc2626] transition-colors duration-200 ${isActive ? 'text-[#dc2626]' : 'text-[#0a0a0a]'
+                                    `text-xs font-bold tracking-[0.1em] uppercase transition-colors relative pb-1 ${isActive
+                                        ? 'text-[#dc2626] border-b-2 border-[#dc2626]'
+                                        : 'text-[#0a0a0a] hover:text-[#dc2626]'
                                     }`
                                 }
                             >
@@ -83,91 +81,103 @@ export default function Header() {
                         ))}
                     </nav>
 
-                    {/* Icons */}
-                    <div className="flex items-center space-x-4 md:space-x-6">
-                        {/* Search Bar */}
-                        {isSearchOpen ? (
-                            <form onSubmit={handleSearch} className="hidden md:flex items-center">
+                    {/* RIGHT: Tools & Icons */}
+                    <div className="flex items-center space-x-2 md:space-x-5">
+                        {/* Search Desktop */}
+                        <div className="hidden lg:flex items-center relative group">
+                            <form onSubmit={handleSearch} className="relative">
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search sunglasses..."
-                                    className="w-64 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-[#dc2626] transition-colors duration-200"
-                                    autoFocus
+                                    placeholder="Search..."
+                                    className="w-32 lg:w-48 bg-gray-50 border border-gray-100 px-4 py-2 text-xs rounded-full focus:outline-none focus:ring-1 focus:ring-[#0a0a0a] transition-all"
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setIsSearchOpen(false)}
-                                    className="ml-2 p-2 hover:text-[#dc2626] transition-colors duration-200"
-                                >
-                                    <X size={20} />
+                                <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-[#0a0a0a]">
+                                    <Search size={14} />
                                 </button>
                             </form>
-                        ) : (
-                            <button
-                                onClick={() => setIsSearchOpen(true)}
-                                className="hidden md:block p-2 hover:text-[#dc2626] transition-colors duration-200"
-                            >
-                                <Search size={20} />
-                            </button>
-                        )}
+                        </div>
 
-                        <Link
-                            to="/wishlist"
-                            className="p-2 hover:text-[#dc2626] transition-colors duration-200 relative"
-                        >
+                        {/* Search Mobile Trigger */}
+                        <button className="lg:hidden p-2 text-[#0a0a0a] hover:text-[#dc2626]" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                            <Search size={20} />
+                        </button>
+
+                        {/* Wishlist */}
+                        <Link to="/wishlist" className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
                             <Heart size={20} />
                             {wishlist.length > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#dc2626] text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                                <span className="absolute top-1 right-1 w-4 h-4 bg-[#dc2626] text-white text-[9px] flex items-center justify-center rounded-full font-bold">
                                     {wishlist.length}
                                 </span>
                             )}
                         </Link>
 
-                        <Link
-                            to="/cart"
-                            className="p-2 hover:text-[#dc2626] transition-colors duration-200 relative"
-                        >
+                        {/* Account */}
+                        <Link to="/login" className="hidden sm:flex p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors">
+                            <User size={20} />
+                        </Link>
+
+                        {/* Bag / Cart */}
+                        <Link to="/cart" className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
                             <ShoppingBag size={20} />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#0a0a0a] text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                                <span className="absolute top-1 right-1 w-4 h-4 bg-[#0a0a0a] text-white text-[9px] flex items-center justify-center rounded-full font-bold">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
 
-                        {/* User Icon with Dropdown */}
-                        <div className="relative group">
-                            <button
-                                className="p-2 hover:text-[#dc2626] transition-colors duration-200"
-                                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                            >
-                                <User size={20} />
-                            </button>
-                            <div className={`absolute right-0 top-full mt-2 w-40 bg-white shadow-lg rounded-lg z-50 transition-all duration-200 ${isUserMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'} md:group-hover:opacity-100 md:group-hover:visible`}>
-                                <Link to="/login" className="block px-4 py-2 text-xs font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:text-[#dc2626] hover:bg-[#f5f5f5] transition-colors duration-200" onClick={() => setIsUserMenuOpen(false)}>
-                                    Login
-                                </Link>
-                                <Link to="/register" className="block px-4 py-2 text-xs font-bold tracking-[0.15em] uppercase text-[#dc2626] hover:bg-[#f5f5f5] transition-colors duration-200" onClick={() => setIsUserMenuOpen(false)}>
-                                    Register
-                                </Link>
-                            </div>
-                        </div>
+                        {/* Mobile Menu Toggle */}
+                        <button className="md:hidden p-2 text-[#0a0a0a]" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
                     </div>
                 </div>
+
+                {/* Mobile Search Bar Expansion */}
+                {isSearchOpen && (
+                    <div className="lg:hidden px-4 pb-4 animate-in slide-in-from-top duration-300">
+                        <form onSubmit={handleSearch} className="relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="SEARCH FOR SUNGLASSES..."
+                                className="w-full bg-gray-50 border border-gray-100 px-6 py-4 text-xs font-bold rounded-xl focus:outline-none"
+                                autoFocus
+                            />
+                            <button type="button" onClick={() => setIsSearchOpen(false)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                <X size={18} />
+                            </button>
+                        </form>
+                    </div>
+                )}
             </div>
 
-            {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden bg-white border-t animate-slide-up">
-                    <nav className="max-w-7xl mx-auto px-4 py-6 space-y-4">
+            {/* Mobile Sidebar Navigation */}
+            <div className={`fixed inset-0 bg-black/60 z-50 transition-opacity duration-500 md:hidden ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsMobileMenuOpen(false)}>
+                <div
+                    className={`absolute left-0 top-0 bottom-0 w-[80%] max-w-sm bg-white p-8 transition-transform duration-500 ease-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="flex items-center justify-between mb-12">
+                        <h1 className="font-display text-2xl tracking-tight text-[#0a0a0a]">
+                            CITYSHADES<span className="text-[#dc2626]">.</span>
+                        </h1>
+                        <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400">
+                            <X size={24} />
+                        </button>
+                    </div>
+
+                    <nav className="flex flex-col space-y-6">
                         {navItems.map((item) => (
                             <NavLink
                                 key={item.name}
                                 to={item.path}
                                 className={({ isActive }) =>
-                                    `block py-3 text-xs font-bold tracking-[0.15em] uppercase ${isActive ? 'text-[#dc2626]' : 'text-[#0a0a0a]'
+                                    `text-xl font-display tracking-widest uppercase pb-2 ${isActive ? 'text-[#dc2626] border-b-2 border-[#dc2626]' : 'text-[#0a0a0a]'
                                     }`
                                 }
                                 onClick={() => setIsMobileMenuOpen(false)}
@@ -175,29 +185,16 @@ export default function Header() {
                                 {item.name}
                             </NavLink>
                         ))}
-
-                        {/* Mobile User Links */}
-                        <div className="pt-4 border-t space-y-3">
-                            <Link
-                                to="/login"
-                                className="flex items-center gap-2 py-3 text-xs font-bold tracking-[0.15em] uppercase text-[#0a0a0a]"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                <User size={18} />
-                                Login
-                            </Link>
-                            <Link
-                                to="/register"
-                                className="flex items-center gap-2 py-3 text-xs font-bold tracking-[0.15em] uppercase text-[#dc2626]"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                <UserPlus size={18} />
-                                Register
-                            </Link>
-                        </div>
                     </nav>
+
+                    <div className="absolute bottom-12 left-8 right-8 pt-8 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Link to="/login" className="px-4 py-4 bg-[#0a0a0a] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+                            <Link to="/register" className="px-4 py-4 bg-[#dc2626] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => setIsMobileMenuOpen(false)}>Join</Link>
+                        </div>
+                    </div>
                 </div>
-            )}
+            </div>
         </header>
     );
 }

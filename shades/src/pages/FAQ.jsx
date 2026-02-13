@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Truck, RefreshCw, CreditCard, Package } from 'lucide-react';
+import { ChevronDown, ChevronUp, Truck, RefreshCw, CreditCard, Package, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const faqCategories = [
     {
@@ -53,53 +54,55 @@ export default function FAQ() {
     };
 
     return (
-        <div className="pt-[100px] md:pt-[104px]">
-            {/* Hero */}
-            <section className="bg-[#f5f5f5] py-6 md:py-16">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                    <span className="section-subtitle">Help Center</span>
-                    <h1 className="section-title mt-2 text-2xl md:text-4xl">Frequently Asked Questions</h1>
-                    <p className="text-gray-500 mt-3 md:mt-4 max-w-2xl mx-auto font-light text-sm md:text-base">
+        <div className="pt-20 md:pt-[104px]">
+            {/* ════════════════════════════════════════════
+                Dark Hero Header
+            ════════════════════════════════════════════ */}
+            <section className="bg-[#0a0a0a] py-14 md:py-20">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+                    <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Help Center</span>
+                    <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-white tracking-wider mb-4">Frequently Asked Questions</h1>
+                    <p className="text-white/40 max-w-2xl mx-auto font-light text-sm md:text-base">
                         Find answers to common questions about shipping, returns, payments, and more.
                     </p>
                 </div>
             </section>
 
-            {/* FAQ Content */}
-            <section className="py-8 md:py-24 bg-white">
-                <div className="max-w-4xl mx-auto px-4 md:px-6">
-                    <div className="space-y-8 md:space-y-12">
+            {/* ════════════════════════════════════════════
+                FAQ Content
+            ════════════════════════════════════════════ */}
+            <section className="py-12 md:py-24 bg-white">
+                <div className="max-w-4xl mx-auto px-4 md:px-8">
+                    <div className="space-y-10 md:space-y-14">
                         {faqCategories.map((category, categoryIndex) => (
                             <div key={categoryIndex}>
-                                <div className="flex items-center gap-3 mb-4 md:mb-6">
-                                    <div className="w-10 h-10 bg-[#f5f5f5] rounded-full flex items-center justify-center flex-shrink-0">
-                                        <category.icon size={20} className="text-[#dc2626]" />
+                                <div className="flex items-center gap-3 mb-5 md:mb-6">
+                                    <div className="w-10 h-10 bg-[#0a0a0a] rounded-full flex items-center justify-center flex-shrink-0">
+                                        <category.icon size={16} className="text-white" />
                                     </div>
-                                    <h2 className="font-display text-xl md:text-2xl">{category.title}</h2>
+                                    <h2 className="font-display text-2xl md:text-3xl tracking-wider">{category.title}</h2>
                                 </div>
-                                <div className="space-y-3 md:space-y-4">
+                                <div className="space-y-3">
                                     {category.faqs.map((faq, faqIndex) => {
                                         const key = `${categoryIndex}-${faqIndex}`;
                                         const isOpen = openFaqs[key];
                                         return (
                                             <div
                                                 key={faqIndex}
-                                                className="border border-gray-200 rounded-lg overflow-hidden"
+                                                className={`border transition-colors duration-200 ${isOpen ? 'border-[#0a0a0a]' : 'border-gray-100 hover:border-gray-200'}`}
                                             >
                                                 <button
                                                     onClick={() => toggleFaq(categoryIndex, faqIndex)}
-                                                    className="w-full px-4 md:px-6 py-4 text-left flex items-center justify-between hover:bg-[#f5f5f5] transition-colors duration-200 min-h-[48px] md:min-h-auto"
+                                                    className="w-full px-5 md:px-6 py-4 text-left flex items-center justify-between min-h-[52px]"
                                                     aria-expanded={isOpen}
                                                 >
-                                                    <span className="font-medium text-[#0a0a0a] text-sm md:text-sm pr-2">{faq.question}</span>
-                                                    {isOpen ? (
-                                                        <ChevronUp size={24} className="text-[#dc2626] flex-shrink-0" />
-                                                    ) : (
-                                                        <ChevronDown size={24} className="text-gray-400 flex-shrink-0" />
-                                                    )}
+                                                    <span className="font-medium text-[#0a0a0a] text-sm pr-4">{faq.question}</span>
+                                                    <div className={`w-8 h-8 flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${isOpen ? 'text-[#dc2626]' : 'text-gray-300'}`}>
+                                                        {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                                                    </div>
                                                 </button>
                                                 {isOpen && (
-                                                    <div className="px-4 md:px-6 py-4 bg-[#f5f5f5] text-gray-600 leading-relaxed animate-fade-in font-light text-sm">
+                                                    <div className="px-5 md:px-6 pb-5 text-gray-500 leading-relaxed font-light text-sm animate-fade-in">
                                                         {faq.answer}
                                                     </div>
                                                 )}
@@ -113,16 +116,21 @@ export default function FAQ() {
                 </div>
             </section>
 
-            {/* Contact CTA */}
-            <section className="py-10 md:py-24 bg-[#f5f5f5]">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                    <h2 className="section-title mb-4 text-xl md:text-3xl">Still Have Questions?</h2>
-                    <p className="text-gray-500 mb-6 md:mb-8 max-w-2xl mx-auto font-light text-sm md:text-base">
+            {/* ════════════════════════════════════════════
+                Contact CTA
+            ════════════════════════════════════════════ */}
+            <section className="py-16 md:py-24 bg-[#0a0a0a]">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+                    <h2 className="font-display text-3xl md:text-4xl text-white tracking-wider mb-4">Still Have Questions?</h2>
+                    <p className="text-white/40 mb-8 max-w-2xl mx-auto font-light text-sm md:text-base">
                         Our customer service team is here to help you with any questions or concerns.
                     </p>
-                    <a href="/contact" className="btn-primary w-full md:w-auto inline-block min-h-[44px] md:min-h-auto">
-                        Contact Us
-                    </a>
+                    <Link
+                        to="/contact"
+                        className="inline-flex items-center gap-2 px-10 py-4 bg-white text-[#0a0a0a] text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] hover:text-white transition-colors duration-300"
+                    >
+                        Contact Us <ArrowRight size={14} />
+                    </Link>
                 </div>
             </section>
         </div>

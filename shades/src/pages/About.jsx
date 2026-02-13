@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Star, Award, Heart, Eye } from 'lucide-react';
 
 export default function About() {
@@ -22,15 +23,39 @@ export default function About() {
     ];
 
     return (
-        <div className="pt-[100px] md:pt-[104px]">
-            {/* Story Section */}
-            <section className="py-10 md:py-24 bg-white">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-start">
+        <div className="pt-20 md:pt-[104px]">
+            {/* ════════════════════════════════════════════
+                Hero Banner
+            ════════════════════════════════════════════ */}
+            <section className="relative bg-[#0a0a0a] py-20 md:py-32 overflow-hidden">
+                <div className="absolute inset-0 opacity-30">
+                    <img
+                        src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=1920&q=80&auto=format&fit=crop"
+                        alt=""
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+                </div>
+                <div className="relative max-w-7xl mx-auto px-4 md:px-8 text-center">
+                    <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Since 2009</span>
+                    <h1 className="font-display text-5xl md:text-6xl lg:text-7xl text-white tracking-wider mb-4">Our Story</h1>
+                    <p className="text-white/50 max-w-2xl mx-auto font-light text-sm md:text-base leading-relaxed">
+                        Born from a passion for exceptional design and uncompromising quality, CITYSHADES has been your trusted destination for premium designer sunglasses.
+                    </p>
+                </div>
+            </section>
+
+            {/* ════════════════════════════════════════════
+                Story Section
+            ════════════════════════════════════════════ */}
+            <section className="py-16 md:py-28 bg-white">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
                         <div>
-                            <span className="section-subtitle">Our Story</span>
-                            <h2 className="section-title mt-2 mb-4 md:mb-6">Where Style Meets Vision</h2>
-                            <div className="space-y-4 text-gray-600 leading-relaxed font-light text-sm md:text-base">
+                            <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Where Style Meets Vision</span>
+                            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl tracking-wider mb-6 md:mb-8">The CITYSHADES Journey</h2>
+                            <div className="space-y-5 text-gray-500 leading-relaxed font-light text-sm md:text-base">
                                 <p>
                                     Founded in 2009, CITYSHADES began with a simple yet ambitious goal: to make
                                     premium eyewear accessible to everyone without compromising on quality or style.
@@ -44,27 +69,22 @@ export default function About() {
                                 <p>
                                     Every pair of sunglasses in our collection is hand-selected for its
                                     exceptional craftsmanship, premium materials, and distinctive design.
-                                    From iconic classics to cutting-edge designs, we offer only
-                                    the finest.
+                                    From iconic classics to cutting-edge designs, we offer only the finest.
                                 </p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        <div className="grid grid-cols-2 gap-4">
                             <img
                                 src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80&fm=webp"
                                 alt="Our Collection"
-                                className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg"
-                                width="400"
-                                height="256"
+                                className="w-full h-56 md:h-72 object-cover"
                                 loading="lazy"
                                 decoding="async"
                             />
                             <img
                                 src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=80&fm=webp"
                                 alt="Quality Craftsmanship"
-                                className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg sm:mt-4 md:mt-8"
-                                width="400"
-                                height="256"
+                                className="w-full h-56 md:h-72 object-cover mt-6 md:mt-10"
                                 loading="lazy"
                                 decoding="async"
                             />
@@ -73,80 +93,86 @@ export default function About() {
                 </div>
             </section>
 
-            {/* Values */}
-            <section className="py-10 md:py-24 bg-[#f5f5f5]">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="text-center mb-8 md:mb-12">
-                        <span className="section-subtitle">What We Stand For</span>
-                        <h2 className="section-title mt-2">Our Values</h2>
+            {/* ════════════════════════════════════════════
+                Values
+            ════════════════════════════════════════════ */}
+            <section className="py-16 md:py-28 bg-[#fafafa]">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="text-center mb-10 md:mb-14">
+                        <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">What We Stand For</span>
+                        <h2 className="font-display text-3xl md:text-4xl lg:text-5xl tracking-wider">Our Values</h2>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                         {values.map((value, index) => (
-                            <div key={index} className="text-center p-4 md:p-6">
-                                <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 md:mb-4 bg-white rounded-full flex items-center justify-center shadow-sm">
-                                    <value.icon size={24} md:size={28} className="text-[#dc2626]" />
+                            <div key={index} className="text-center p-6 md:p-8 bg-white border border-gray-100 hover:border-gray-200 transition-colors duration-300">
+                                <div className="w-14 h-14 mx-auto mb-4 bg-[#0a0a0a] rounded-full flex items-center justify-center">
+                                    <value.icon size={22} className="text-white" />
                                 </div>
-                                <h3 className="font-display text-lg md:text-xl mb-2">{value.title}</h3>
-                                <p className="text-sm text-gray-500 font-light">{value.desc}</p>
+                                <h3 className="font-display text-lg md:text-xl tracking-wider mb-2">{value.title}</h3>
+                                <p className="text-sm text-gray-400 font-light leading-relaxed">{value.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Stats */}
-            <section className="py-10 md:py-24 bg-[#0a0a0a] text-white">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {/* ════════════════════════════════════════════
+                Stats — Dark Banner
+            ════════════════════════════════════════════ */}
+            <section className="py-16 md:py-24 bg-[#0a0a0a]">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
                         {stats.map((stat, index) => (
                             <div key={index} className="text-center">
-                                <span className="text-3xl md:text-4xl lg:text-5xl font-display text-[#dc2626] block mb-2 tracking-wide">{stat.value}</span>
-                                <span className="text-xs tracking-[0.2em] uppercase text-gray-400">{stat.label}</span>
+                                <span className="text-4xl md:text-5xl lg:text-6xl font-display text-[#dc2626] block mb-2 tracking-wider">{stat.value}</span>
+                                <span className="text-[10px] md:text-xs tracking-[0.25em] uppercase text-white/40">{stat.label}</span>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Team */}
-            <section className="py-10 md:py-24 bg-white">
-                <div className="max-w-7xl mx-auto px-4 md:px-6">
-                    <div className="text-center mb-8 md:mb-12">
-                        <span className="section-subtitle">Meet The Team</span>
-                        <h2 className="section-title mt-2">Our Leadership</h2>
+            {/* ════════════════════════════════════════════
+                Team
+            ════════════════════════════════════════════ */}
+            <section className="py-16 md:py-28 bg-white">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="text-center mb-10 md:mb-14">
+                        <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Meet The Team</span>
+                        <h2 className="font-display text-3xl md:text-4xl lg:text-5xl tracking-wider">Our Leadership</h2>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-10 max-w-5xl mx-auto">
                         {team.map((member, index) => (
-                            <div key={index} className="text-center px-2">
-                                <div className="w-36 h-36 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto mb-4 overflow-hidden rounded-full">
+                            <div key={index} className="text-center group">
+                                <div className="w-40 h-40 md:w-52 md:h-52 mx-auto mb-5 overflow-hidden rounded-full border-2 border-transparent group-hover:border-[#dc2626] transition-colors duration-300">
                                     <img
                                         src={member.image}
                                         alt={member.name}
-                                        className="w-full h-full object-cover"
-                                        width="192"
-                                        height="192"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         loading="lazy"
                                         decoding="async"
                                     />
                                 </div>
-                                <h3 className="font-display text-lg md:text-xl">{member.name}</h3>
-                                <p className="text-xs tracking-[0.2em] uppercase text-gray-500 mt-1">{member.role}</p>
+                                <h3 className="font-display text-xl tracking-wider">{member.name}</h3>
+                                <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mt-1">{member.role}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* CTA */}
-            <section className="py-10 md:py-24 bg-[#f5f5f5]">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 text-center">
-                    <h2 className="section-title mb-4 md:mb-6">Ready to Find Your Perfect Pair?</h2>
-                    <p className="text-gray-500 mb-6 md:mb-8 max-w-xl mx-auto font-light text-sm md:text-base">
+            {/* ════════════════════════════════════════════
+                CTA
+            ════════════════════════════════════════════ */}
+            <section className="py-16 md:py-24 bg-[#fafafa]">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+                    <h2 className="font-display text-3xl md:text-4xl lg:text-5xl tracking-wider mb-4 md:mb-6">Ready to Find Your Perfect Pair?</h2>
+                    <p className="text-gray-400 mb-8 max-w-xl mx-auto font-light text-sm md:text-base">
                         Discover our curated collection of premium sunglasses from the world's most renowned designers.
                     </p>
                     <Link
                         to="/shop"
-                        className="btn-primary inline-block w-full md:w-auto min-h-[48px] md:min-h-auto"
+                        className="inline-block px-10 py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300"
                     >
                         Shop the Collection
                     </Link>
