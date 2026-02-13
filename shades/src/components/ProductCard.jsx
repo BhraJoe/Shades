@@ -7,6 +7,7 @@ export default function ProductCard({ product }) {
     const { addToWishlist, isInWishlist, addToCart } = useCart();
     const isWishlisted = isInWishlist(product.id);
     const [isAdding, setIsAdding] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
     const lastClickRef = useRef(0);
 
     // Safe data extraction
@@ -38,11 +39,18 @@ export default function ProductCard({ product }) {
             {/* Image Container */}
             <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f5] mb-4">
                 <Link to={`/product/${product.id}`}>
+                    {/* Placeholder shimmer */}
+                    {!imageLoaded && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+                    )}
                     <img
                         src={images[0] || '/images/placeholder.svg'}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+                            }`}
                         loading="lazy"
+                        decoding="async"
+                        onLoad={() => setImageLoaded(true)}
                     />
                 </Link>
 

@@ -14,24 +14,24 @@ const AdminDashboard = () => {
         fetchProducts();
     }, []);
 
-    const fetchProducts = async () => {
-        // Timeout after 10 seconds
-        const timeoutId = setTimeout(() => {
-            if (isLoading) {
-                setIsLoading(false);
-                setError('Connection timeout - please refresh');
-            }
-        }, 10000);
+    // Timeout after 10 seconds
+    const fetchProductsTimeout = setTimeout(() => {
+        if (isLoading) {
+            setIsLoading(false);
+            setError('Connection timeout - please refresh');
+        }
+    }, 10000);
 
+    const fetchProducts = async () => {
         try {
             console.log('Fetching products from /api/products...');
             const res = await axios.get('/api/products');
             console.log('Products loaded:', res.data.length);
             setProducts(res.data || []);
-            clearTimeout(timeoutId);
+            clearTimeout(fetchProductsTimeout);
         } catch (err) {
             console.error('Error loading products:', err);
-            clearTimeout(timeoutId);
+            clearTimeout(fetchProductsTimeout);
             setError('Failed to load products - API may be unreachable');
         } finally {
             setIsLoading(false);
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
     };
 
     const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.sku?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -145,7 +145,13 @@ const AdminDashboard = () => {
                                 <div className="flex gap-4">
                                     <div className="w-16 h-20 bg-gray-50 border border-gray-100 relative overflow-hidden flex-shrink-0">
                                         {p.images?.[0] ? (
-                                            <img src={p.images[0]} alt="" className="w-full h-full object-cover grayscale opacity-70" />
+                                            <img
+                                                src={p.images[0]}
+                                                alt=""
+                                                className="w-full h-full object-cover grayscale opacity-70"
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300 font-bold bg-gray-50">NULL</div>
                                         )}
@@ -227,7 +233,13 @@ const AdminDashboard = () => {
                                         <div className="flex items-center gap-10">
                                             <div className="w-20 h-24 bg-gray-50 border border-gray-100 relative overflow-hidden group/img">
                                                 {p.images?.[0] ? (
-                                                    <img src={p.images[0]} alt="" className="w-full h-full object-cover grayscale opacity-70 group-hover/img:grayscale-0 group-hover/img:opacity-100 transition-all duration-700 scale-110 group-hover/img:scale-100" />
+                                                    <img
+                                                        src={p.images[0]}
+                                                        alt=""
+                                                        className="w-full h-full object-cover grayscale opacity-70 group-hover/img:grayscale-0 group-hover/img:opacity-100 transition-all duration-700 scale-110 group-hover/img:scale-100"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                    />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300 font-bold bg-gray-50">NULL</div>
                                                 )}
@@ -243,40 +255,45 @@ const AdminDashboard = () => {
                                         </div>
                                     </td>
                                     <td className="px-10 py-10">
-                                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 bg-gray-50 px-3 py-1.5">{p.category}</span>
-                                    </td>
-                                    <td className="px-10 py-10">
-                                        <div className="flex flex-col">
-                                            <span className="text-xl font-display text-[#0a0a0a]">₵{p.price?.toFixed(2)}</span>
-                                            <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">GHS Portal Price</span>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-500 bg-gray-50 px-3 py-2 inline-block w-fit">{p.category}</span>
+                                            <span className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">{p.gender}</span>
                                         </div>
                                     </td>
                                     <td className="px-10 py-10">
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-3xl font-display text-[#0a0a0a]">₵{p.price?.toFixed(2)}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-10 py-10">
+                                        <div className="flex flex-col gap-3">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
-                                                <span className="text-[10px] font-black tracking-widest text-[#0a0a0a] uppercase">{p.stock} Units</span>
+                                                <div className={`w-2 h-2 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
+                                                <span className="text-[11px] font-black tracking-[0.2em] uppercase text-[#0a0a0a]">{p.stock} Units</span>
                                             </div>
                                             {p.is_bestseller === 1 && (
-                                                <span className="text-[8px] font-black tracking-[0.2em] text-[#dc2626] uppercase">High Covet Rank</span>
+                                                <span className="text-[9px] font-black tracking-[0.2em] text-[#dc2626] uppercase">High Covet</span>
+                                            )}
+                                            {p.is_new === 1 && (
+                                                <span className="text-[9px] font-black tracking-[0.2em] text-blue-500 uppercase">New Arrival</span>
                                             )}
                                         </div>
                                     </td>
                                     <td className="px-10 py-10 text-right">
-                                        <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="flex items-center justify-end gap-3">
                                             <Link
                                                 to={`/admin/products/edit/${p.id}`}
-                                                className="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-[#0a0a0a] hover:bg-white border border-transparent hover:border-gray-100 transition-all rounded-full"
-                                                title="Modify Object"
+                                                className="p-4 text-gray-400 hover:text-[#0a0a0a] hover:bg-gray-50 transition-all border border-gray-200 hover:border-[#0a0a0a] group/btn"
+                                                title="Modify"
                                             >
-                                                <Edit2 size={16} />
+                                                <Edit2 size={16} className="group-hover/btn:scale-110 transition-transform" />
                                             </Link>
                                             <button
                                                 onClick={() => handleDelete(p.id)}
-                                                className="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-[#dc2626] hover:bg-white border border-transparent hover:border-gray-100 transition-all rounded-full"
-                                                title="Delete Object"
+                                                className="p-4 text-gray-400 hover:text-[#dc2626] hover:bg-gray-50 transition-all border border-gray-200 hover:border-[#dc2626] group/btn"
+                                                title="Delete"
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />
                                             </button>
                                         </div>
                                     </td>
@@ -286,7 +303,7 @@ const AdminDashboard = () => {
                     </table>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

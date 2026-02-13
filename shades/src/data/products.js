@@ -16,15 +16,15 @@ export const products = [
             "Includes case and cleaning cloth"
         ],
         colors: [
-            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" },
-            { name: "Silver/Blue", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80" },
-            { name: "Black/Grey", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" }
+            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=70" },
+            { name: "Silver/Blue", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70" },
+            { name: "Black/Grey", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80",
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-            "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80"
+            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=70",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70",
+            "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70"
         ],
         rating: 4.8,
         reviews: 1243,
@@ -49,13 +49,13 @@ export const products = [
             "Includes case and cleaning cloth"
         ],
         colors: [
-            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80" },
-            { name: "Tortoise/Green", hex: "#8b6914", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" }
+            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70" },
+            { name: "Tortoise/Green", hex: "#8b6914", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80",
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
+            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70"
         ],
         rating: 4.9,
         reviews: 2156,
@@ -80,13 +80,13 @@ export const products = [
             "Iconic brow bar design"
         ],
         colors: [
-            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80" },
-            { name: "Tortoise/Grey", hex: "#8b6914", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80" }
+            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70" },
+            { name: "Tortoise/Grey", hex: "#8b6914", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80",
-            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80"
+            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70",
+            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=400&q=70"
         ],
         rating: 4.7,
         reviews: 892,
@@ -98,293 +98,169 @@ export const products = [
         id: 4,
         name: "Round Metal",
         brand: "Ray-Ban",
-        price: 2235,
+        price: 2185,
         originalPrice: null,
         category: "Women",
         subcategory: "Round",
-        description: "Classic round frames that evoke a vintage aesthetic while maintaining contemporary appeal. Perfect for the modern minimalist.",
+        description: "A refined interpretation of the classic round shape. Ultra-thin metal frames offer a lightweight, comfortable fit.",
         features: [
             "100% UV protection",
-            "Ultra-lightweight metal frame",
+            "Ultra-thin metal frame",
             "Crystal lenses",
-            "Cable temples",
-            "Includes case"
+            "Adjustable nose pads",
+            "Classic round silhouette"
         ],
         colors: [
-            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80" },
-            { name: "Silver/Pink", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80" }
+            { name: "Gold/Green", hex: "#c9a962", image: "https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=70" },
+            { name: "Silver/Grey", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80",
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
+            "https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=70",
+            "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&q=70"
         ],
         rating: 4.6,
-        reviews: 567,
+        reviews: 543,
         bestseller: false,
         newArrival: true,
         featured: false
     },
     {
         id: 5,
-        name: "Cats 5000",
-        brand: "Versace",
-        price: 4425,
+        name: "Cat Eye",
+        brand: "Ray-Ban",
+        price: 2635,
         originalPrice: null,
         category: "Women",
-        subcategory: "Cat-Eye",
-        description: "Luxurious cat-eye frames that embody bold femininity. Adorned with iconic Medusa accents and gold-tone hardware.",
+        subcategory: "Cat Eye",
+        description: "Exquisitely feminine with upswept edges. The cat eye shape has been a symbol of glamour since the 1950s.",
         features: [
             "100% UV protection",
-            "Premium acetate frame",
-            "Gradient lenses",
-            "Gold-tone metal accents",
-            "Includes luxury case"
+            "Acetate frame",
+            "Crystal lenses",
+            "Decorative hinges",
+            "Flattering silhouette"
         ],
         colors: [
-            { name: "Black/Gold", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1581093450021-22df7d43c55e?w=800&q=80" },
-            { name: "Tortoise/Gold", hex: "#8b6914", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" }
+            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70" },
+            { name: "Tortoise", hex: "#8b6914", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1581093450021-22df7d43c55e?w=800&q=80",
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80"
+            "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70",
+            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=70"
         ],
         rating: 4.8,
-        reviews: 324,
+        reviews: 756,
         bestseller: true,
         newArrival: false,
         featured: true
     },
     {
         id: 6,
-        name: "The General",
-        brand: "Warby Parker",
-        price: 2175,
+        name: "Sport Performance",
+        brand: "Oakley",
+        price: 2935,
         originalPrice: null,
         category: "Men",
-        subcategory: "Wayfarers",
-        description: "A refined take on military-inspired design. Clean lines and minimal detailing make this a versatile everyday choice.",
+        subcategory: "Sport",
+        description: "Engineered for athletes who demand the best. Impact-resistant lenses and secure grip technology.",
         features: [
-            "100% UV protection",
-            "Italian acetate",
-            "CR-39 lenses",
-            "Five-barrel hinges",
-            "Includes case"
+            "Impact-resistant lenses",
+            "Unobtainium grip technology",
+            "Three-point fit",
+            "UV protection",
+            "Lightweight frame"
         ],
         colors: [
-            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" },
-            { name: "Havana", hex: "#8b6914", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" },
-            { name: "Crystal Grey", hex: "#a8a8a8", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80" }
+            { name: "Matte Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=400&q=70" },
+            { name: "Team Red", hex: "#dc2626", image: "https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80",
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80"
-        ],
-        rating: 4.7,
-        reviews: 1089,
-        bestseller: true,
-        newArrival: false,
-        featured: false
-    },
-    {
-        id: 7,
-        name: "Soleil",
-        brand: "Miu Miu",
-        price: 5700,
-        originalPrice: null,
-        category: "Women",
-        subcategory: "Cat-Eye",
-        description: "Ultra-feminine oversized frames with a glamorous silhouette. Perfect for making a statement wherever you go.",
-        features: [
-            "100% UV protection",
-            "Acetate frame",
-            "Gradient pink lenses",
-            "Logo temple accents",
-            "Includes luxury case"
-        ],
-        colors: [
-            { name: "Pink/Gradient", hex: "#e8b4b8", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80" },
-            { name: "Black/Grey", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" }
-        ],
-        sizes: ["One Size"],
-        images: [
-            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80",
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80"
+            "https://images.unsplash.com/photo-1552346154-21d32cc4bc09?w=400&q=70",
+            "https://images.unsplash.com/photo-1551558864-75d7e9c7c14e?w=400&q=70"
         ],
         rating: 4.9,
-        reviews: 187,
-        bestseller: false,
-        newArrival: true,
-        featured: true
-    },
-    {
-        id: 8,
-        name: "Ninary",
-        brand: "Miu Miu",
-        price: 5175,
-        originalPrice: null,
-        category: "Women",
-        subcategory: "Oversized",
-        description: "Bold oversized frames with an unmistakable fashion-forward aesthetic. A perfect blend of contemporary style and luxury.",
-        features: [
-            "100% UV protection",
-            "Acetate frame",
-            "Cat-eye silhouette",
-            "Logo detailing",
-            "Includes luxury case"
-        ],
-        colors: [
-            { name: "Blue/Green", hex: "#4a90a4", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80" },
-            { name: "Pink/Gold", hex: "#e8b4b8", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80" }
-        ],
-        sizes: ["One Size"],
-        images: [
-            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80",
-            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80"
-        ],
-        rating: 4.7,
-        reviews: 234,
-        bestseller: false,
-        newArrival: true,
-        featured: false
-    },
-    {
-        id: 9,
-        name: "Carolina",
-        brand: "Persol",
-        price: 3375,
-        originalPrice: null,
-        category: "Unisex",
-        subcategory: "Pilot",
-        description: "Italian craftsmanship meets timeless design. The distinctive arrow hinge and tapered temples are unmistakably Persol.",
-        features: [
-            "100% UV protection",
-            "Meflecto temple system",
-            "Crystal lenses",
-            "Iconic arrow hinge",
-            "Includes case"
-        ],
-        colors: [
-            { name: "Black/Green", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80" },
-            { name: "Tortoise/Green", hex: "#8b6914", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80" }
-        ],
-        sizes: ["One Size"],
-        images: [
-            "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80",
-            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=800&q=80"
-        ],
-        rating: 4.8,
-        reviews: 456,
-        bestseller: false,
-        newArrival: false,
-        featured: false
-    },
-    {
-        id: 10,
-        name: "Legend",
-        brand: "Oakley",
-        price: 2325,
-        originalPrice: null,
-        category: "Men",
-        subcategory: "Sport",
-        description: "Performance eyewear for the active lifestyle. Unmatched clarity and comfort with Oakley's innovative technologies.",
-        features: [
-            "100% UV protection",
-            "Plutonite lenses",
-            "O-Matter frame",
-            "Three-Point Fit",
-            "Includes case"
-        ],
-        colors: [
-            { name: "Matte Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" },
-            { name: "Polished Black", hex: "#2a2a2a", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" }
-        ],
-        sizes: ["One Size"],
-        images: [
-            "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80",
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80"
-        ],
-        rating: 4.6,
-        reviews: 789,
-        bestseller: false,
-        newArrival: false,
-        featured: false
-    },
-    {
-        id: 11,
-        name: "Holbrook",
-        brand: "Oakley",
-        price: 2175,
-        originalPrice: null,
-        category: "Men",
-        subcategory: "Sport",
-        description: "A classic design infused with Oakley's performance technology. Perfect for those who live an active outdoor life.",
-        features: [
-            "100% UV protection",
-            "Plutonite lenses",
-            "O-Matter frame",
-            "Unobtainium earsocks",
-            "Includes case"
-        ],
-        colors: [
-            { name: "Matte Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80" },
-            { name: "Black/Prizm", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80" }
-        ],
-        sizes: ["One Size"],
-        images: [
-            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=800&q=80",
-            "https://images.unsplash.com/photo-1560912639-021745907124?w=800&q=80"
-        ],
-        rating: 4.7,
         reviews: 1023,
         bestseller: true,
         newArrival: false,
-        featured: false
+        featured: true
     },
     {
-        id: 12,
-        name: "Justin",
-        brand: "Oakley",
-        price: 2025,
+        id: 7,
+        name: "Oversized",
+        brand: "Prada",
+        price: 4535,
         originalPrice: null,
-        category: "Unisex",
-        subcategory: "Rectangular",
-        description: "A modern rectangular silhouette with a relaxed feel. The Justin offers卓越 comfort and style for everyday wear.",
+        category: "Women",
+        subcategory: "Oversized",
+        description: "Making a bold statement with maximum coverage. Premium Italian craftsmanship meets contemporary fashion.",
         features: [
             "100% UV protection",
-            "Plutonite lenses",
-            "O-Matter frame",
-            "Unobtainium earsocks",
-            "Includes case"
+            "Premium acetate frame",
+            "Crystal lenses",
+            "Iconic Prada branding",
+            "Maximum coverage"
         ],
         colors: [
-            { name: "Matte Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80" },
-            { name: "Tortoise", hex: "#8b6914", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80" }
+            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=400&q=70" },
+            { name: "Havana", hex: "#8b4513", image: "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70" }
         ],
         sizes: ["One Size"],
         images: [
-            "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80",
-            "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80"
+            "https://images.unsplash.com/photo-1612817188770-1c37c09fb141?w=400&q=70",
+            "https://images.unsplash.com/photo-1570222094114-28a9d88a27e6?w=400&q=70"
         ],
-        rating: 4.5,
-        reviews: 567,
+        rating: 4.7,
+        reviews: 334,
+        bestseller: false,
+        newArrival: true,
+        featured: false
+    },
+    {
+        id: 8,
+        name: "Rectangular",
+        brand: "Persol",
+        price: 3835,
+        originalPrice: null,
+        category: "Unisex",
+        subcategory: "Rectangular",
+        description: "Italian elegance with the signature arrow motif. A sophisticated choice for the modern professional.",
+        features: [
+            "100% UV protection",
+            "Meflecto temple technology",
+            "Crystal lenses",
+            "Signature arrow motif",
+            "Handmade in Italy"
+        ],
+        colors: [
+            { name: "Black", hex: "#1a1a1a", image: "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70" },
+            { name: "Havana", hex: "#8b4513", image: "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70" }
+        ],
+        sizes: ["One Size"],
+        images: [
+            "https://images.unsplash.com/photo-1621928290426-1723687f2a6d?w=400&q=70",
+            "https://images.unsplash.com/photo-1560912639-021745907124?w=400&q=70"
+        ],
+        rating: 4.8,
+        reviews: 445,
         bestseller: false,
         newArrival: false,
         featured: false
     }
 ];
 
-export const categories = [
-    { id: 'men', name: 'Men', icon: '👨', count: 4 },
-    { id: 'women', name: 'Women', icon: '👩', count: 4 },
-    { id: 'unisex', name: 'Unisex', icon: '🧑', count: 4 },
-    { id: 'new-arrivals', name: 'New Arrivals', icon: '✨', count: 4 },
-    { id: 'best-sellers', name: 'Best Sellers', icon: '⭐', count: 5 },
-    { id: 'aviators', name: 'Aviators', icon: '✈️', count: 1 },
-    { id: 'wayfarers', name: 'Wayfarers', icon: '🕶️', count: 2 },
-    { id: 'cat-eye', name: 'Cat-Eye', icon: '🐱', count: 2 },
-    { id: 'round', name: 'Round', icon: '⭕', count: 1 },
-    { id: 'sport', name: 'Sport', icon: '⚡', count: 3 }
-];
+// Optimized image URLs helper
+export const getOptimizedImage = (url, width = 400, quality = 70) => {
+    if (!url) return '';
+    // If already optimized, return as is
+    if (url.includes('w=') && url.includes('q=')) {
+        return url.replace(/w=\d+/, `w=${width}`).replace(/q=\d+/, `q=${quality}`);
+    }
+    // Add optimization params for Unsplash images
+    if (url.includes('unsplash.com')) {
+        return `${url.split('?')[0]}?w=${width}&q=${quality}`;
+    }
+    return url;
+};
