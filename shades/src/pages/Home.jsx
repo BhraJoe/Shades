@@ -152,24 +152,36 @@ export default function Home() {
             </section>
 
             {/* ════════════════════════════════════════════
-                SECTION 04: THE BEST SELLER GRID
+                SECTION 04: BRAND STORY BANNER
             ════════════════════════════════════════════ */}
-            <section className="py-32 bg-[#fafafa]">
+            <section className="py-24 bg-[#0a0a0a]">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex justify-between items-end mb-16 border-b border-black/5 pb-8">
-                        <div className="space-y-2">
-                            <span className="text-[#dc2626] text-[10px] font-bold tracking-[0.5em] uppercase">Trending Now</span>
-                            <h2 className="font-display text-5xl tracking-tighter">THE ARCHIVE SELECTION</h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div className="relative group overflow-hidden rounded-2xl">
+                            <img
+                                src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
+                                alt="Brand Story"
+                                className="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
                         </div>
-                        <Link to="/shop" className="text-[10px] font-bold tracking-[0.3em] uppercase hover:text-[#dc2626] transition-colors">View All +</Link>
-                    </div>
-
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                        {bestsellers.map((product) => (
-                            <div key={product.id} className="animate-in fade-in duration-700">
-                                <ProductCard product={product} />
-                            </div>
-                        ))}
+                        <div className="space-y-8">
+                            <span className="text-[#dc2626] text-[10px] font-bold tracking-[0.5em] uppercase block">Our Story</span>
+                            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-white tracking-tighter leading-tight">
+                                Crafting Vision<br />Since 2020
+                            </h2>
+                            <p className="text-white/60 text-lg font-light leading-relaxed">
+                                We believe eyewear is more than a fashion accessory—it's a statement. Our collection features handcrafted frames designed for those who see the world differently.
+                            </p>
+                            <p className="text-white/60 text-lg font-light leading-relaxed">
+                                Every pair tells a story of quality, innovation, and timeless style.
+                            </p>
+                            <Link
+                                to="/about"
+                                className="inline-block px-10 py-4 border border-white/20 text-white text-xs font-bold tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-colors"
+                            >
+                                Learn More
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -210,7 +222,7 @@ export default function Home() {
                     )}
                     {subscribeError && <p className="text-[#dc2626] text-[10px] tracking-widest uppercase italic">{subscribeError}</p>}
                 </div>
-            </section>
+            </section >
         </div >
     );
 }

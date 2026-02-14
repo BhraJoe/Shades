@@ -86,7 +86,7 @@ export default function About() {
                             </div>
                             <div className="relative group overflow-hidden rounded-2xl shadow-xl mt-12 md:mt-20">
                                 <img
-                                    src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&q=80"
+                                    src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800&q=80"
                                     alt="Quality Craftsmanship"
                                     className="w-full h-80 md:h-96 object-cover group-hover:scale-110 transition-transform duration-1000"
                                 />
