@@ -15,8 +15,12 @@ function setCorsHeaders(res) {
 
 // Parse URL to get path and query
 function parseUrl(url) {
+    if (!url) return { path: '', query: '' };
+    // Remove query string if present
     const [path, query] = url.split('?');
-    return { path, query };
+    // Also handle Vercel's routing where path might be just /auth/login
+    const cleanPath = path?.replace('/api', '') || '';
+    return { path: cleanPath, query };
 }
 
 export default async function handler(req, res) {

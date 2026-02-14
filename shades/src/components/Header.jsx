@@ -39,6 +39,10 @@ export default function Header() {
         }
     };
 
+    const handleNavClick = (e, path) => {
+        window.scrollTo(0, 0);
+    };
+
     return (
         <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full overflow-x-hidden">
             {/* ════════════════════════════════════════════
@@ -69,6 +73,7 @@ export default function Header() {
                             <NavLink
                                 key={item.name}
                                 to={item.path}
+                                onClick={(e) => handleNavClick(e, item.path)}
                                 className={({ isActive }) =>
                                     `text-xs font-bold tracking-[0.1em] uppercase transition-colors relative pb-1 ${isActive
                                         ? 'text-[#dc2626] border-b-2 border-[#dc2626]'
@@ -105,7 +110,7 @@ export default function Header() {
                         </button>
 
                         {/* Wishlist */}
-                        <Link to="/wishlist" className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
+                        <Link to="/wishlist" onClick={() => window.scrollTo(0, 0)} className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
                             <Heart size={20} />
                             {wishlist.length > 0 && (
                                 <span className="absolute top-1 right-1 w-4 h-4 bg-[#dc2626] text-white text-[9px] flex items-center justify-center rounded-full font-bold">
@@ -115,12 +120,12 @@ export default function Header() {
                         </Link>
 
                         {/* Account */}
-                        <Link to="/login" className="hidden sm:flex p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors">
+                        <Link to="/login" onClick={() => window.scrollTo(0, 0)} className="hidden sm:flex p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors">
                             <User size={20} />
                         </Link>
 
                         {/* Bag / Cart */}
-                        <Link to="/cart" className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
+                        <Link to="/cart" onClick={() => window.scrollTo(0, 0)} className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
                             <ShoppingBag size={20} />
                             {cartCount > 0 && (
                                 <span className="absolute top-1 right-1 w-4 h-4 bg-[#0a0a0a] text-white text-[9px] flex items-center justify-center rounded-full font-bold">
@@ -180,7 +185,7 @@ export default function Header() {
                                     `text-xl font-display tracking-widest uppercase pb-2 ${isActive ? 'text-[#dc2626] border-b-2 border-[#dc2626]' : 'text-[#0a0a0a]'
                                     }`
                                 }
-                                onClick={() => setIsMobileMenuOpen(false)}
+                                onClick={() => { if (item.path === '/') window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
                             >
                                 {item.name}
                             </NavLink>
@@ -189,8 +194,8 @@ export default function Header() {
 
                     <div className="absolute bottom-12 left-8 right-8 pt-8 border-t border-gray-100">
                         <div className="grid grid-cols-2 gap-4">
-                            <Link to="/login" className="px-4 py-4 bg-[#0a0a0a] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-                            <Link to="/register" className="px-4 py-4 bg-[#dc2626] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => setIsMobileMenuOpen(false)}>Join</Link>
+                            <Link to="/login" className="px-4 py-4 bg-[#0a0a0a] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}>Login</Link>
+                            <Link to="/register" className="px-4 py-4 bg-[#dc2626] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}>Join</Link>
                         </div>
                     </div>
                 </div>

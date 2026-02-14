@@ -2,11 +2,32 @@ import { readData, paths } from './database.js';
 
 const { PRODUCTS_FILE } = paths;
 
+// Helper to safely parse JSON fields
+const safeParse = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val !== 'string') return [];
+    try {
+        const parsed = JSON.parse(val);
+        return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (e) {
+        return [];
+    }
+};
+
 // GET all products
 export default async function handler(req, res) {
     try {
         const { category, gender, bestseller, new: isNew, search, sort } = req.query;
         let products = await readData(PRODUCTS_FILE);
+
+        // Parse JSON fields
+        products = products.map(p => ({
+            ...p,
+            images: safeParse(p.images),
+            colors: safeParse(p.colors),
+            sizes: safeParse(p.sizes)
+        }));
 
         if (category) {
             // Check both category and subcategory (case-insensitive)

@@ -67,6 +67,8 @@ const AdminProductForm = () => {
         }
     };
 
+    const [imageUrlInput, setImageUrlInput] = useState('');
+
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         setNewFiles([...newFiles, ...files]);
@@ -97,10 +99,26 @@ const AdminProductForm = () => {
         setIsLoading(true);
 
         try {
-            // Send as JSON (no file uploads supported on Vercel)
+            // Convert new files to base64 data URLs
+            let finalImages = [...images];
+
+            if (newFiles.length > 0) {
+                for (const file of newFiles) {
+                    // Convert file to base64 data URL
+                    const base64Url = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                    finalImages.push(base64Url);
+                }
+            }
+
+            // Send as JSON with image data URLs
             const data = {
                 ...formData,
-                images: images, // Use existing image URLs
+                images: finalImages,
             };
 
             if (isEditing) {
@@ -325,7 +343,7 @@ const AdminProductForm = () => {
                         <div className="flex items-start gap-3 p-4 bg-gray-50/50 border border-gray-100">
                             <AlertCircle size={14} className="text-[#dc2626] mt-0.5 shrink-0" />
                             <p className="text-[9px] text-gray-400 font-medium leading-relaxed uppercase tracking-wider">
-                                Visuals must represent high-fashion quality. Supported: JPG, PNG, WEBP. Max 5MB.
+                                Images are converted to base64 and stored directly. Supported: JPG, PNG, WEBP.
                             </p>
                         </div>
                     </div>
