@@ -74,13 +74,12 @@ export default function ProductCard({ product }) {
                     </button>
                 </div>
 
-                {/* Add to Cart Button */}
+                {/* Add to Cart Button - Always visible on image */}
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                     <button
                         onClick={handleAddToCart}
                         disabled={isAdding}
-                        className={`w-full py-4 bg-[#0a0a0a] text-white text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-3 hover:bg-[#dc2626] disabled:opacity-70 disabled:cursor-not-allowed shadow-xl ${isAdding ? 'translate-y-0' : 'translate-y-16 group-hover:translate-y-0'
-                            }`}
+                        className="w-full py-4 bg-[#0a0a0a] text-white text-[10px] font-bold tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-3 hover:bg-[#dc2626] disabled:opacity-70 disabled:cursor-not-allowed shadow-xl"
                     >
                         {isAdding ? (
                             <>

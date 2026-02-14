@@ -20,13 +20,22 @@ export default function ProductDetail() {
     const isAddingRef = useRef(false);
 
     useEffect(() => {
+        // Scroll to top when navigating to this page
+        window.scrollTo(0, 0);
+
         async function loadProduct() {
             setLoading(true);
             try {
                 const data = await fetchProduct(id);
                 setProduct(data);
-                setSelectedColor(data.colors[0]);
-                setSelectedSize(data.sizes[0]);
+
+                // Handle empty colors/sizes arrays
+                if (data.colors && data.colors.length > 0) {
+                    setSelectedColor(data.colors[0]);
+                }
+                if (data.sizes && data.sizes.length > 0) {
+                    setSelectedSize(data.sizes[0]);
+                }
 
                 const related = await fetchProducts({ category: data.category });
                 setRelatedProducts(related.filter(p => p.id !== data.id).slice(0, 4));
@@ -46,7 +55,8 @@ export default function ProductDetail() {
     const price = typeof product?.price === 'number' ? product.price : parseFloat(product?.price) || 0;
 
     const handleAddToCart = () => {
-        if (!selectedColor || !selectedSize) return;
+        // Allow adding if no color/size required, or if selected
+        if ((colors.length > 0 && !selectedColor) || (sizes.length > 0 && !selectedSize)) return;
         if (isAddingRef.current) return;
         isAddingRef.current = true;
 

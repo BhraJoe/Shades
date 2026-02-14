@@ -40,6 +40,17 @@ export default function Shop() {
         sort: 'newest'
     });
 
+    // Update filters when URL search params change
+    useEffect(() => {
+        setFilters(prev => ({
+            ...prev,
+            category: searchParams.get('category') || 'all',
+            bestseller: searchParams.get('bestseller') === 'true' || false,
+            new: searchParams.get('new') === 'true' || false,
+            search: searchParams.get('search') || ''
+        }));
+    }, [searchParams]);
+
     useEffect(() => {
         async function loadProducts() {
             setLoading(true);
@@ -194,8 +205,8 @@ export default function Shop() {
                                                         setMobileFiltersOpen(false);
                                                     }}
                                                     className={`text-left px-4 py-3 text-sm transition-all duration-200 ${filters.category === cat.id
-                                                            ? 'bg-[#0a0a0a] text-white font-medium'
-                                                            : 'text-gray-600 hover:bg-gray-50 hover:text-[#0a0a0a]'
+                                                        ? 'bg-[#0a0a0a] text-white font-medium'
+                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-[#0a0a0a]'
                                                         }`}
                                                 >
                                                     {cat.name}
@@ -211,8 +222,8 @@ export default function Shop() {
                                             <button
                                                 onClick={() => updateFilter('bestseller', !filters.bestseller)}
                                                 className={`text-left px-4 py-3 text-sm transition-all duration-200 ${filters.bestseller
-                                                        ? 'bg-[#0a0a0a] text-white font-medium'
-                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-[#0a0a0a]'
+                                                    ? 'bg-[#0a0a0a] text-white font-medium'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-[#0a0a0a]'
                                                     }`}
                                             >
                                                 Best Sellers
@@ -220,8 +231,8 @@ export default function Shop() {
                                             <button
                                                 onClick={() => updateFilter('new', !filters.new)}
                                                 className={`text-left px-4 py-3 text-sm transition-all duration-200 ${filters.new
-                                                        ? 'bg-[#0a0a0a] text-white font-medium'
-                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-[#0a0a0a]'
+                                                    ? 'bg-[#0a0a0a] text-white font-medium'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-[#0a0a0a]'
                                                     }`}
                                             >
                                                 New Arrivals
@@ -255,8 +266,8 @@ export default function Shop() {
                                         key={cat.id}
                                         onClick={() => updateFilter('category', cat.id)}
                                         className={`text-left px-4 py-2.5 text-sm transition-all duration-200 ${filters.category === cat.id
-                                                ? 'bg-[#0a0a0a] text-white font-medium'
-                                                : 'text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50'
+                                            ? 'bg-[#0a0a0a] text-white font-medium'
+                                            : 'text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50'
                                             }`}
                                     >
                                         {cat.name}
@@ -269,8 +280,8 @@ export default function Shop() {
                                 <button
                                     onClick={() => updateFilter('bestseller', !filters.bestseller)}
                                     className={`text-left px-4 py-2.5 text-sm transition-all duration-200 ${filters.bestseller
-                                            ? 'bg-[#0a0a0a] text-white font-medium'
-                                            : 'text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50'
+                                        ? 'bg-[#0a0a0a] text-white font-medium'
+                                        : 'text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50'
                                         }`}
                                 >
                                     Best Sellers
@@ -278,8 +289,8 @@ export default function Shop() {
                                 <button
                                     onClick={() => updateFilter('new', !filters.new)}
                                     className={`text-left px-4 py-2.5 text-sm transition-all duration-200 ${filters.new
-                                            ? 'bg-[#0a0a0a] text-white font-medium'
-                                            : 'text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50'
+                                        ? 'bg-[#0a0a0a] text-white font-medium'
+                                        : 'text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50'
                                         }`}
                                 >
                                     New Arrivals

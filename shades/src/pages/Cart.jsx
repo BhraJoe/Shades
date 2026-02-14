@@ -6,7 +6,7 @@ export default function Cart() {
     const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
 
     const shipping = cartTotal >= 150 ? 0 : 7.95;
-    const estimatedTax = cartTotal * 0.08;
+    const estimatedTax = 0;
     const orderTotal = cartTotal + shipping + estimatedTax;
     const freeShippingProgress = Math.min((cartTotal / 150) * 100, 100);
 

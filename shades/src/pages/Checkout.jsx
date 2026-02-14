@@ -13,7 +13,7 @@ export default function Checkout() {
     const [formErrors, setFormErrors] = useState({});
 
     const shipping = cartTotal >= 150 ? 0 : 7.95;
-    const estimatedTax = cartTotal * 0.08;
+    const estimatedTax = 0;
     const orderTotal = cartTotal + shipping + estimatedTax;
 
     const [formData, setFormData] = useState({
@@ -254,8 +254,8 @@ export default function Checkout() {
                                                 type="button"
                                                 onClick={() => setPaymentMethod(method.id)}
                                                 className={`p-3 border-2 text-center text-xs font-bold tracking-[0.1em] uppercase transition-all duration-200 ${paymentMethod === method.id
-                                                        ? 'border-[#0a0a0a] bg-[#0a0a0a] text-white'
-                                                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                                                    ? 'border-[#0a0a0a] bg-[#0a0a0a] text-white'
+                                                    : 'border-gray-200 text-gray-500 hover:border-gray-300'
                                                     }`}
                                             >
                                                 {method.name}

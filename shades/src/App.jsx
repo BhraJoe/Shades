@@ -15,6 +15,7 @@ import Checkout from './pages/Checkout';
 import Wishlist from './pages/Wishlist';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 
 // Admin Pages
 import AdminLogin from './pages/AdminLogin';
@@ -39,6 +40,7 @@ function AppContent() {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/product" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/faq" element={<FAQ />} />
@@ -48,6 +50,7 @@ function AppContent() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
