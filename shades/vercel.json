@@ -15,6 +15,14 @@
             "destination": "/api/auth.js"
         },
         {
+            "source": "/api/auth/forgot-password",
+            "destination": "/api/auth.js"
+        },
+        {
+            "source": "/api/auth/reset-password",
+            "destination": "/api/auth.js"
+        },
+        {
             "source": "/api/admin/products",
             "destination": "/api/admin/products.js"
         },

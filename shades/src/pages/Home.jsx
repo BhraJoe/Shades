@@ -55,7 +55,7 @@ export default function Home() {
                 <div className="relative z-10 text-center px-6">
                     <div className="space-y-8">
                         <span className="text-white text-[12px] font-bold tracking-[0.6em] uppercase drop-shadow-lg hero-stagger-1 block">
-                            The New Archive / 2024
+                            The New Archive
                         </span>
                         <h1 className="font-display text-[14vw] md:text-[10vw] text-white leading-[0.8] tracking-tighter drop-shadow-2xl hero-stagger-2">
                             EYE<br />VISION.
