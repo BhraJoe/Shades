@@ -1,0 +1,4 @@
+# Ignore problematic directories
+src/assets/images/
+node_modules/
+*.log
