@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, X, Heart, User, SearchIcon } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Heart, User, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
     { name: 'Home', path: '/' },
@@ -17,6 +18,7 @@ export default function Header() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const { cartCount, wishlist } = useCart();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -84,6 +86,20 @@ export default function Header() {
                                 {item.name}
                             </NavLink>
                         ))}
+                        {user && (
+                            <NavLink
+                                to="/profile"
+                                onClick={(e) => handleNavClick(e, '/profile')}
+                                className={({ isActive }) =>
+                                    `text-xs font-bold tracking-[0.1em] uppercase transition-colors relative pb-1 md:hidden ${isActive
+                                        ? 'text-[#dc2626] border-b-2 border-[#dc2626]'
+                                        : 'text-[#0a0a0a] hover:text-[#dc2626]'
+                                    }`
+                                }
+                            >
+                                Account
+                            </NavLink>
+                        )}
                     </nav>
 
                     {/* RIGHT: Tools & Icons */}
@@ -119,10 +135,20 @@ export default function Header() {
                             )}
                         </Link>
 
-                        {/* Account */}
-                        <Link to="/login" onClick={() => window.scrollTo(0, 0)} className="hidden sm:flex p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors">
-                            <User size={20} />
-                        </Link>
+                        {/* Account - Show user info or login link */}
+                        {user ? (
+                            <Link
+                                to="/profile"
+                                className="hidden md:flex p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors"
+                                title="My Account"
+                            >
+                                <User size={20} />
+                            </Link>
+                        ) : (
+                            <Link to="/login" onClick={() => window.scrollTo(0, 0)} className="hidden md:flex p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors">
+                                <User size={20} />
+                            </Link>
+                        )}
 
                         {/* Bag / Cart */}
                         <Link to="/cart" onClick={() => window.scrollTo(0, 0)} className="p-2 text-[#0a0a0a] hover:text-[#dc2626] transition-colors relative">
@@ -190,13 +216,36 @@ export default function Header() {
                                 {item.name}
                             </NavLink>
                         ))}
+                        {user && (
+                            <NavLink
+                                to="/profile"
+                                className={({ isActive }) =>
+                                    `text-xl font-display tracking-widest uppercase pb-2 ${isActive ? 'text-[#dc2626] border-b-2 border-[#dc2626]' : 'text-[#0a0a0a]'
+                                    }`
+                                }
+                                onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
+                            >
+                                Account
+                            </NavLink>
+                        )}
                     </nav>
 
                     <div className="absolute bottom-12 left-8 right-8 pt-8 border-t border-gray-100">
-                        <div className="grid grid-cols-2 gap-4">
-                            <Link to="/login" className="px-4 py-4 bg-[#0a0a0a] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}>Login</Link>
-                            <Link to="/register" className="px-4 py-4 bg-[#dc2626] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}>Join</Link>
-                        </div>
+                        {user ? (
+                            <div className="space-y-4">
+                                <button
+                                    onClick={async () => { await logout(); navigate('/'); setIsMobileMenuOpen(false); }}
+                                    className="w-full px-4 py-4 bg-[#dc2626] text-white text-[10px] font-bold text-center tracking-widest uppercase"
+                                >
+                                    Sign Out
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4">
+                                <Link to="/login" className="px-4 py-4 bg-[#0a0a0a] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}>Login</Link>
+                                <Link to="/register" className="px-4 py-4 bg-[#dc2626] text-white text-[10px] font-bold text-center tracking-widest uppercase" onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}>Join</Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

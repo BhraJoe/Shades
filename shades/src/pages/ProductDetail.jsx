@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProduct, fetchProducts } from '../api';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard';
 import { ChevronLeft, Heart, Check, Shield, RefreshCw, Truck } from 'lucide-react';
 
 export default function ProductDetail() {
     const { id } = useParams();
     const { addToCart } = useCart();
+    const { user } = useAuth();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedColor, setSelectedColor] = useState('');
@@ -28,6 +30,15 @@ export default function ProductDetail() {
             try {
                 const data = await fetchProduct(id);
                 setProduct(data);
+
+                // Track recently viewed products
+                if (user && data) {
+                    const storageKey = `recentlyViewed_${user.uid}`;
+                    const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    const filtered = existing.filter(item => item.id !== data.id);
+                    const updated = [{ id: data.id, name: data.name, image: data.image, price: data.price, viewedAt: new Date().toISOString() }, ...filtered].slice(0, 20);
+                    localStorage.setItem(storageKey, JSON.stringify(updated));
+                }
 
                 // Handle empty colors/sizes arrays
                 if (data.colors && data.colors.length > 0) {

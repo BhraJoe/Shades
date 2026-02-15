@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
+
+const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
 
 const AdminLogin = () => {
     const [username, setUsername] = useState('');
@@ -10,7 +11,6 @@ const AdminLogin = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || '/admin';
@@ -19,11 +19,30 @@ const AdminLogin = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await login(username, password);
+            // Use local server API for admin login
+            const response = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Login failed');
+            }
+
+            const data = await response.json();
+            // Store token in localStorage
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminUser', JSON.stringify(data.user));
+
             toast.success('Welcome back, Admin');
-            navigate(from, { replace: true });
+            // Small delay to ensure localStorage is saved before navigation
+            setTimeout(() => {
+                navigate(from, { replace: true });
+            }, 100);
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Login failed');
+            toast.error(err.message || 'Login failed');
         } finally {
             setIsLoading(false);
         }

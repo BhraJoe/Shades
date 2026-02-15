@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, ShoppingBag, LogOut, User, Menu, X } from 'lucide-react';
@@ -6,11 +6,21 @@ import { LayoutDashboard, ShoppingBag, LogOut, User, Menu, X } from 'lucide-reac
 const AdminLayout = () => {
     const { user, logout, loading } = useAuth();
     const location = useLocation();
+    const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+    useEffect(() => {
+        // Check for admin token in localStorage (set by admin login)
+        const adminToken = localStorage.getItem('adminToken');
+        if (adminToken) {
+            setIsAdminAuthenticated(true);
+        }
+    }, []);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     if (loading) return <div>Loading...</div>;
-    if (!user) return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    // Allow both Firebase user and local admin token
+    if (!user && !isAdminAuthenticated) return <Navigate to="/admin/login" state={{ from: location }} replace />;
 
     const navItems = [
         { name: 'Inventory', path: '/admin', icon: LayoutDashboard },

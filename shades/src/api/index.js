@@ -1,5 +1,5 @@
-// Use relative paths for Vercel deployment, localhost for development
-const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+// Use relative paths - Vite proxy handles localhost:3001 in dev, production uses /api
+const API_BASE = '/api';
 
 export async function fetchProducts(params = {}) {
     const queryString = new URLSearchParams(params).toString();
@@ -54,8 +54,11 @@ export async function subscribe(email) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
     });
-    if (!response.ok) throw new Error('Failed to subscribe');
-    return response.json();
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+    }
+    return data;
 }
 
 export async function sendContact(formData) {

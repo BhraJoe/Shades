@@ -17,6 +17,8 @@ import Wishlist from './pages/Wishlist';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
+import Orders from './pages/Orders';
+import Profile from './pages/Profile';
 
 // Admin Pages
 import AdminLogin from './pages/AdminLogin';
@@ -31,10 +33,11 @@ function AppContent() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
+  const isProfilePath = location.pathname === '/profile';
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
-      {!isAdminPath && <Header />}
+      {!isAdminPath && !isProfilePath && <Header />}
       {!isAdminPath && <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
       <main className="flex-1">
         <Routes>
@@ -52,6 +55,8 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/profile" element={<Profile />} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -63,7 +68,7 @@ function AppContent() {
           </Route>
         </Routes>
       </main>
-      {!isAdminPath && <Footer />}
+      {!isAdminPath && !isProfilePath && <Footer />}
       <Toaster position="bottom-right" />
     </div>
   );

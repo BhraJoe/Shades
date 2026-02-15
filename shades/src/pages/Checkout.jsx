@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { ChevronDown, CreditCard, Check, ArrowLeft, Lock, Truck } from 'lucide-react';
 
 export default function Checkout() {
     const { cart, cartTotal, clearCart } = useCart();
+    const { user } = useAuth();
     const [step, setStep] = useState('shipping');
     const [orderComplete, setOrderComplete] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -56,8 +58,39 @@ export default function Checkout() {
         } else {
             setLoading(true);
             setTimeout(() => {
-                setOrderNumber('ORD-' + Date.now().toString().slice(-8));
+                const newOrderNumber = 'ORD-' + Date.now().toString().slice(-8);
+                setOrderNumber(newOrderNumber);
                 setOrderComplete(true);
+
+                // Save order to localStorage for logged-in users
+                if (user) {
+                    const order = {
+                        id: newOrderNumber,
+                        date: new Date().toISOString(),
+                        status: 'processing',
+                        total: orderTotal,
+                        items: cart.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity,
+                            image: item.image
+                        })),
+                        shipping: {
+                            firstName: formData.firstName,
+                            lastName: formData.lastName,
+                            address: formData.address,
+                            city: formData.city,
+                            state: formData.state,
+                            zip: formData.zip
+                        }
+                    };
+
+                    const existingOrders = JSON.parse(localStorage.getItem(`orders_${user.uid}`) || '[]');
+                    existingOrders.unshift(order);
+                    localStorage.setItem(`orders_${user.uid}`, JSON.stringify(existingOrders));
+                }
+
                 clearCart();
                 setLoading(false);
             }, 2000);

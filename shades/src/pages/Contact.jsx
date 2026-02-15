@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { sendContact } from '../api';
+import emailjs from 'emailjs-com';
 import { Mail, Phone, MapPin, Clock, ArrowRight } from 'lucide-react';
 
 export default function Contact() {
@@ -11,16 +11,29 @@ export default function Contact() {
     });
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
-            await sendContact(formData);
+            await emailjs.send(
+                'service_nr3io6e',
+                'template_v6dtaqg',
+                {
+                    from_name: formData.name,
+                    from_email: formData.email,
+                    subject: formData.subject,
+                    message: formData.message
+                },
+                'MQQF-pNtnJzDtXyiL'
+            );
             setSubmitted(true);
             setFormData({ name: '', email: '', subject: '', message: '' });
-        } catch (error) {
-            console.error('Error sending message:', error);
+        } catch (err) {
+            console.error('Error sending message:', err);
+            setError('Failed to send message. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -109,6 +122,11 @@ export default function Contact() {
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <h2 className="font-display text-2xl md:text-3xl tracking-wider mb-2">Send a Message</h2>
+                                {error && (
+                                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                                        {error}
+                                    </div>
+                                )}
                                 <p className="text-gray-400 font-light text-sm mb-6">All fields marked with * are required.</p>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

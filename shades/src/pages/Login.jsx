@@ -1,13 +1,39 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Login:', { email, password });
+        setError('');
+        setLoading(true);
+
+        try {
+            await login(email, password);
+            navigate('/');
+        } catch (err) {
+            console.error('Login error:', err);
+            if (err.code === 'auth/invalid-email') {
+                setError('Invalid email address');
+            } else if (err.code === 'auth/user-not-found') {
+                setError('No account found with this email');
+            } else if (err.code === 'auth/wrong-password') {
+                setError('Incorrect password');
+            } else if (err.code === 'auth/invalid-credential') {
+                setError('Invalid email or password');
+            } else {
+                setError('Failed to sign in. Please try again.');
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -43,6 +69,12 @@ export default function Login() {
                             <p className="text-gray-400 font-light text-sm">Sign in to your account</p>
                         </div>
 
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 text-sm">
+                                {error}
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
                                 <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">
@@ -59,7 +91,7 @@ export default function Login() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">
+                                <label className="-bold tracking-[0block text-xs font.2em] uppercase mb-2 text-gray-500">
                                     Password
                                 </label>
                                 <input
@@ -84,9 +116,10 @@ export default function Login() {
 
                             <button
                                 type="submit"
-                                className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300"
+                                disabled={loading}
+                                className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Sign In
+                                {loading ? 'Signing in...' : 'Sign In'}
                             </button>
                         </form>
 

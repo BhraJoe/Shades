@@ -41,7 +41,10 @@ const AdminDashboard = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this product?')) return;
         try {
-            await axios.delete(`/api/admin/products/${id}`);
+            const adminToken = localStorage.getItem('adminToken');
+            await axios.delete(`/api/admin/products/${id}`, {
+                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {}
+            });
             toast.success('Product removed');
             fetchProducts();
         } catch (err) {

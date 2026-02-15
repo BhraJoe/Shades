@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -9,14 +10,53 @@ export default function Register() {
         password: '',
         confirmPassword: ''
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const { register } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Register:', formData);
+        setError('');
+        setSuccess(false);
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            await register(formData.email, formData.password);
+            setSuccess(true);
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+        } catch (err) {
+            console.error('Register error:', err);
+            if (err.code === 'auth/email-already-in-use') {
+                setError('An account with this email already exists');
+            } else if (err.code === 'auth/invalid-email') {
+                setError('Invalid email address');
+            } else if (err.code === 'auth/weak-password') {
+                setError('Password is too weak');
+            } else {
+                setError('Failed to create account. Please try again.');
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -51,6 +91,18 @@ export default function Register() {
                             <h1 className="font-display text-4xl md:text-5xl text-[#0a0a0a] tracking-wider mb-3">Create Account</h1>
                             <p className="text-gray-400 font-light text-sm">Join CITYSHADES for exclusive offers</p>
                         </div>
+
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 text-sm">
+                                {error}
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-600 text-sm">
+                                Account created successfully! Redirecting to login...
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="grid grid-cols-2 gap-4">
@@ -111,9 +163,10 @@ export default function Register() {
 
                             <button
                                 type="submit"
-                                className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300"
+                                disabled={loading}
+                                className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Create Account
+                                {loading ? 'Creating Account...' : 'Create Account'}
                             </button>
                         </form>
 

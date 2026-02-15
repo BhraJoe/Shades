@@ -29,11 +29,18 @@ export default function Home() {
         e.preventDefault();
         setSubscribeError('');
         try {
-            await subscribe(email);
+            console.log('Subscribing with email:', email);
+            const result = await subscribe(email);
+            console.log('Subscribe result:', result);
             setSubscribed(true);
             setEmail('');
         } catch (error) {
-            setSubscribeError('Something went wrong. Please try again.');
+            console.error('Subscribe error:', error);
+            if (error.message.includes('Already subscribed')) {
+                setSubscribeError('This email is already subscribed.');
+            } else {
+                setSubscribeError('Something went wrong. Please try again.');
+            }
         }
     };
 

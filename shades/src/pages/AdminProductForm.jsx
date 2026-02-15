@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { X, Upload, Trash2, Check, AlertCircle, ArrowLeft } from 'lucide-react';
+
+// API base URL - works on both local and Vercel
+const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
 
 const AdminProductForm = () => {
     console.log('AdminProductForm mounted');
@@ -96,6 +98,7 @@ const AdminProductForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsLoading(true);
 
         try {
@@ -121,16 +124,37 @@ const AdminProductForm = () => {
                 images: finalImages,
             };
 
-            if (isEditing) {
-                await axios.put(`/api/admin/products/${id}`, data);
-                toast.success('Product updated successfully');
-            } else {
-                await axios.post('/api/admin/products', data);
-                toast.success('Product added to inventory');
+            console.log('Submitting product data...');
+
+            const url = isEditing
+                ? `${API_BASE}/admin/products/${id}`
+                : `${API_BASE}/admin/products`;
+
+            // Get admin token from localStorage
+            const adminToken = localStorage.getItem('adminToken');
+
+            const response = await fetch(url, {
+                method: isEditing ? 'PUT' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(adminToken && { 'Authorization': `Bearer ${adminToken}` })
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Server error: ${response.status}`);
             }
-            navigate('/admin/products');
+
+            const result = await response.json();
+            console.log('Product saved:', result);
+            toast.success(isEditing ? 'Product updated successfully' : 'Product added to inventory');
+            // Navigate back to admin dashboard
+            navigate('/admin');
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to save product');
+            console.error('Error saving product:', err);
+            toast.error(err.response?.data?.error || err.message || 'Failed to save product');
         } finally {
             setIsLoading(false);
         }
