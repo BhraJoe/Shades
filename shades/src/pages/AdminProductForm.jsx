@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import axios from 'axios';
 import { X, Upload, Trash2, Check, AlertCircle, ArrowLeft } from 'lucide-react';
 
 // API base URL - works on both local and Vercel

@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, LogOut, User, Menu, X } from 'lucide-react';
 
 const AdminLayout = () => {
-    const { user, logout, loading } = useAuth();
     const location = useLocation();
-    const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-
-    useEffect(() => {
-        // Check for admin token in localStorage (set by admin login)
-        const adminToken = localStorage.getItem('adminToken');
-        if (adminToken) {
-            setIsAdminAuthenticated(true);
-        }
-    }, []);
-
+    const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    if (loading) return <div>Loading...</div>;
-    // Allow both Firebase user and local admin token
-    if (!user && !isAdminAuthenticated) return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    // Check for admin token - don't wait for Firebase
+    const [adminUser, setAdminUser] = useState(() => {
+        const token = localStorage.getItem('adminToken');
+        const userStr = localStorage.getItem('adminUser');
+        if (token && userStr) {
+            try {
+                return JSON.parse(userStr);
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    });
+
+    // Redirect to login if no admin token
+    if (!adminUser) {
+        return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    }
+
+    const handleLogout = () => {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminUser');
+        navigate('/admin/login');
+    };
 
     const navItems = [
         { name: 'Inventory', path: '/admin', icon: LayoutDashboard },
@@ -57,7 +67,7 @@ const AdminLayout = () => {
 
             <div className="absolute bottom-12 left-0 w-full px-10">
                 <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="flex items-center gap-4 text-gray-500 hover:text-[#dc2626] transition-all group"
                 >
                     <LogOut size={18} />
@@ -107,8 +117,8 @@ const AdminLayout = () => {
 
                     <div className="flex items-center gap-4 md:gap-6">
                         <div className="text-right flex-shrink min-w-0">
-                            <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.2em] text-[#0a0a0a] uppercase truncate max-w-[100px] sm:max-w-none">{user.username}</p>
-                            <p className="text-[8px] sm:text-[9px] text-[#dc2626] font-black uppercase tracking-widest mt-0.5">{user.role}</p>
+                            <p className="text-[9px] sm:text-[10px] font-bold tracking-[0.2em] text-[#0a0a0a] uppercase truncate max-w-[100px] sm:max-w-none">{adminUser.username}</p>
+                            <p className="text-[8px] sm:text-[9px] text-[#dc2626] font-black uppercase tracking-widest mt-0.5">{adminUser.role}</p>
                         </div>
                         <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-[#0a0a0a] rounded-full flex items-center justify-center text-white shadow-lg overflow-hidden border-2 border-white shrink-0">
                             <User size={18} />

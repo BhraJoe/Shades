@@ -6,6 +6,21 @@ import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+
+// Load .env file manually
+const envPath = join(dirname(fileURLToPath(import.meta.url)), '.env');
+if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf-8');
+    envContent.split('\n').forEach(line => {
+        const [key, ...valueParts] = line.split('=');
+        if (key && valueParts.length > 0) {
+            process.env[key.trim()] = valueParts.join('=').trim();
+        }
+    });
+}
+
 import db, {
     productOperations,
     userOperations,
@@ -15,6 +30,28 @@ import db, {
 } from './database.js';
 import { authenticateToken, authorize, generateToken } from './middleware/auth.js';
 import { upload } from './middleware/upload.js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabase = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
+const useSupabase = !!supabase;
+
+// Helper to timeout Supabase requests quickly
+const supabaseWithTimeout = async (promise, timeoutMs = 2000) => {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Supabase timeout')), timeoutMs);
+    });
+    try {
+        const result = await Promise.race([promise, timeoutPromise]);
+        clearTimeout(timeoutId);
+        return result;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -68,15 +105,36 @@ app.use(express.static(join(__dirname, '../dist')));
 app.get('/api/products', async (req, res) => {
     try {
         const { category, gender, bestseller, new: isNew, search, sort } = req.query;
-        let products = productOperations.getAll();
+        let products;
 
-        // Parse JSON fields
-        products = products.map(p => ({
-            ...p,
-            images: safeParse(p.images),
-            colors: safeParse(p.colors),
-            sizes: safeParse(p.sizes)
-        }));
+        // Use Supabase if available, otherwise fallback to SQLite
+        if (useSupabase && supabase) {
+            try {
+                const { data, error } = await supabaseWithTimeout(
+                    supabase.from('products').select('*')
+                );
+                if (error) throw error;
+                products = data;
+            } catch (supabaseError) {
+                console.log('Supabase unavailable, using SQLite:', supabaseError.message);
+                products = productOperations.getAll();
+                products = products.map(p => ({
+                    ...p,
+                    images: safeParse(p.images),
+                    colors: safeParse(p.colors),
+                    sizes: safeParse(p.sizes)
+                }));
+            }
+        } else {
+            products = productOperations.getAll();
+            // Parse JSON fields for SQLite
+            products = products.map(p => ({
+                ...p,
+                images: safeParse(p.images),
+                colors: safeParse(p.colors),
+                sizes: safeParse(p.sizes)
+            }));
+        }
 
         if (category) {
             products = products.filter(p => p.category === category);
@@ -87,11 +145,11 @@ app.get('/api/products', async (req, res) => {
         }
 
         if (bestseller === 'true') {
-            products = products.filter(p => p.is_bestseller === 1);
+            products = products.filter(p => p.is_bestseller === 1 || p.is_bestseller === true);
         }
 
         if (isNew === 'true') {
-            products = products.filter(p => p.is_new === 1);
+            products = products.filter(p => p.is_new === 1 || p.is_new === true);
         }
 
         if (search) {
@@ -360,12 +418,31 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
 // GET all products (admin)
 app.get('/api/admin/products', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
     try {
-        const products = productOperations.getAll().map(p => ({
-            ...p,
-            images: safeParse(p.images),
-            colors: safeParse(p.colors),
-            sizes: safeParse(p.sizes)
-        }));
+        let products;
+        if (useSupabase && supabase) {
+            try {
+                const { data, error } = await supabaseWithTimeout(
+                    supabase.from('products').select('*').order('id', { ascending: false })
+                );
+                if (error) throw error;
+                products = data;
+            } catch (supabaseError) {
+                console.log('Supabase unavailable, using SQLite');
+                products = productOperations.getAll().map(p => ({
+                    ...p,
+                    images: safeParse(p.images),
+                    colors: safeParse(p.colors),
+                    sizes: safeParse(p.sizes)
+                }));
+            }
+        } else {
+            products = productOperations.getAll().map(p => ({
+                ...p,
+                images: safeParse(p.images),
+                colors: safeParse(p.colors),
+                sizes: safeParse(p.sizes)
+            }));
+        }
         res.json(products);
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -401,12 +478,42 @@ app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']
             is_new: parseInt(product.is_new || 0)
         };
 
-        const newProduct = productOperations.create(productData);
-
-        // Return parsed fields
-        newProduct.images = JSON.parse(newProduct.images || '[]');
-        newProduct.colors = JSON.parse(newProduct.colors || '[]');
-        newProduct.sizes = JSON.parse(newProduct.sizes || '[]');
+        let newProduct;
+        if (useSupabase && supabase) {
+            try {
+                const { data, error } = await supabaseWithTimeout(
+                    supabase.from('products').insert([{
+                        name: product.name,
+                        brand: product.brand,
+                        sku: product.sku,
+                        description: sanitizedDescription,
+                        price: parseFloat(product.price),
+                        category: product.category,
+                        gender: product.gender,
+                        images: Array.isArray(product.images) ? product.images : (product.images ? [product.images] : imageUrls),
+                        colors: Array.isArray(product.colors) ? product.colors : [],
+                        sizes: Array.isArray(product.sizes) ? product.sizes : ['M'],
+                        stock: parseInt(product.stock) || 0,
+                        is_bestseller: !!(parseInt(product.is_bestseller || 0)),
+                        is_new: !!(parseInt(product.is_new || 0))
+                    }]).select().single()
+                );
+                if (error) throw error;
+                newProduct = data;
+            } catch (supabaseError) {
+                console.log('Supabase unavailable, using SQLite');
+                newProduct = productOperations.create(productData);
+                newProduct.images = JSON.parse(newProduct.images || '[]');
+                newProduct.colors = JSON.parse(newProduct.colors || '[]');
+                newProduct.sizes = JSON.parse(newProduct.sizes || '[]');
+            }
+        } else {
+            // Use SQLite
+            newProduct = productOperations.create(productData);
+            newProduct.images = JSON.parse(newProduct.images || '[]');
+            newProduct.colors = JSON.parse(newProduct.colors || '[]');
+            newProduct.sizes = JSON.parse(newProduct.sizes || '[]');
+        }
 
         res.status(201).json(newProduct);
     } catch (error) {
@@ -465,9 +572,11 @@ app.put('/api/admin/products/:id', authenticateToken, authorize(['admin', 'edito
 });
 
 // DELETE product (admin)
-app.delete('/api/admin/products/:id', authenticateToken, authorize('admin'), async (req, res) => {
+app.delete('/api/admin/products/:id', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
     try {
         const { id } = req.params;
+        console.log('Delete request for product:', id);
+        console.log('User role:', req.user?.role);
 
         const deleted = productOperations.delete(parseInt(id));
 
