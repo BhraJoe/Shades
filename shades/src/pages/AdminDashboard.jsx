@@ -42,16 +42,29 @@ const AdminDashboard = () => {
         if (!window.confirm('Are you sure you want to delete this product?')) return;
         try {
             const adminToken = localStorage.getItem('adminToken');
-            console.log('Deleting product:', id, 'Token:', adminToken ? 'present' : 'missing');
-            const response = await axios.delete(`/api/admin/products/${id}`, {
-                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {}
+            if (!adminToken) {
+                toast.error('Please login as admin to delete products');
+                return;
+            }
+
+            const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+            const response = await fetch(`${API_BASE}/admin/products/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`
+                }
             });
-            console.log('Delete response:', response.data);
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to delete');
+            }
+
             toast.success('Product removed');
             fetchProducts();
         } catch (err) {
-            console.error('Delete error:', err.response?.data || err.message);
-            toast.error(err.response?.data?.error || 'Failed to delete product');
+            console.error('Delete error:', err);
+            toast.error(err.message || 'Failed to delete product');
         }
     };
 
