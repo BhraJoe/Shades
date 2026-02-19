@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import axios from 'axios';
 import helmet from 'helmet';
 import sanitizeHtml from 'sanitize-html';
 import bcrypt from 'bcryptjs';
@@ -37,8 +38,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 const supabase = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
 const useSupabase = !!supabase;
 
-// Helper to timeout Supabase requests quickly
-const supabaseWithTimeout = async (promise, timeoutMs = 2000) => {
+// Helper to timeout Supabase requests - increased to 30 seconds for reliability
+const supabaseWithTimeout = async (promise, timeoutMs = 30000) => {
     let timeoutId;
     const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => reject(new Error('Supabase timeout')), timeoutMs);
@@ -104,7 +105,9 @@ app.use(express.static(join(__dirname, '../dist')));
 // GET all products
 app.get('/api/products', async (req, res) => {
     try {
-        const { category, gender, bestseller, new: isNew, search, sort } = req.query;
+        const { category, gender, bestseller, new: isNew, search, sort, page, limit } = req.query;
+        const pageNum = parseInt(page) || 1;
+        const limitNum = Math.min(parseInt(limit) || 12, 50); // Default 12, max 50
         let products;
 
         // Use Supabase if available, otherwise fallback to SQLite
@@ -172,7 +175,23 @@ app.get('/api/products', async (req, res) => {
             products.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         }
 
-        res.json(products);
+        // Pagination
+        const totalProducts = products.length;
+        const totalPages = Math.ceil(totalProducts / limitNum);
+        const startIndex = (pageNum - 1) * limitNum;
+        const endIndex = startIndex + limitNum;
+        const paginatedProducts = products.slice(startIndex, endIndex);
+
+        res.json({
+            products: paginatedProducts,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                totalProducts,
+                totalPages,
+                hasMore: pageNum < totalPages
+            }
+        });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).json({ error: 'Failed to fetch products' });
@@ -183,16 +202,37 @@ app.get('/api/products', async (req, res) => {
 app.get('/api/products/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const product = productOperations.getById(parseInt(id));
+        let product;
+
+        // Use Supabase if available, otherwise fallback to SQLite
+        if (useSupabase && supabase) {
+            try {
+                const { data, error } = await supabaseWithTimeout(
+                    supabase.from('products').select('*').eq('id', parseInt(id)).single()
+                );
+                if (error) throw error;
+                product = data;
+            } catch (supabaseError) {
+                console.log('Supabase unavailable, using SQLite:', supabaseError.message);
+                product = productOperations.getById(parseInt(id));
+                if (product) {
+                    product.images = safeParse(product.images);
+                    product.colors = safeParse(product.colors);
+                    product.sizes = safeParse(product.sizes);
+                }
+            }
+        } else {
+            product = productOperations.getById(parseInt(id));
+            if (product) {
+                product.images = safeParse(product.images);
+                product.colors = safeParse(product.colors);
+                product.sizes = safeParse(product.sizes);
+            }
+        }
 
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
-
-        // Parse JSON fields
-        product.images = safeParse(product.images);
-        product.colors = safeParse(product.colors);
-        product.sizes = safeParse(product.sizes);
 
         res.json(product);
     } catch (error) {
@@ -371,6 +411,96 @@ app.post('/api/contact', async (req, res) => {
     } catch (error) {
         console.error('Error sending message:', error);
         res.status(500).json({ error: 'Failed to send message' });
+    }
+});
+
+// ==================== PAYSTACK PAYMENT ROUTES ====================
+
+// Paystack secret key
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+const PAYSTACK_BASE_URL = 'https://api.paystack.co';
+
+// Initialize Paystack payment
+app.post('/api/paystack/initialize', async (req, res) => {
+    try {
+        const { email, amount, currency = 'NGN', reference, metadata } = req.body;
+
+        if (!email || !amount || !reference) {
+            return res.status(400).json({
+                error: 'Missing required fields: email, amount, reference'
+            });
+        }
+
+        const response = await axios.post(
+            `${PAYSTACK_BASE_URL}/transaction/initialize`,
+            {
+                email,
+                amount: Math.round(amount),
+                currency,
+                reference,
+                metadata: metadata || {},
+                callback_url: `${req.protocol}://${req.get('host')}/checkout?payment=success`
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        return res.status(200).json(response.data.data);
+    } catch (error) {
+        console.error('Paystack initialize error:', error.response?.data || error.message);
+        return res.status(500).json({
+            error: error.response?.data?.message || 'Failed to initialize payment'
+        });
+    }
+});
+
+// Verify Paystack payment
+app.get('/api/paystack/verify/:reference', async (req, res) => {
+    try {
+        const { reference } = req.params;
+
+        if (!reference) {
+            return res.status(400).json({
+                error: 'Payment reference is required'
+            });
+        }
+
+        const response = await axios.get(
+            `${PAYSTACK_BASE_URL}/transaction/verify/${reference}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+                }
+            }
+        );
+
+        const paymentData = response.data.data;
+
+        if (paymentData.status === 'success') {
+            return res.status(200).json({
+                verified: true,
+                status: paymentData.status,
+                amount: paymentData.amount,
+                currency: paymentData.currency,
+                customer: paymentData.customer,
+                reference: paymentData.reference
+            });
+        } else {
+            return res.status(400).json({
+                verified: false,
+                status: paymentData.status,
+                message: 'Payment not successful'
+            });
+        }
+    } catch (error) {
+        console.error('Paystack verify error:', error.response?.data || error.message);
+        return res.status(500).json({
+            error: error.response?.data?.message || 'Failed to verify payment'
+        });
     }
 });
 
@@ -578,7 +708,29 @@ app.delete('/api/admin/products/:id', authenticateToken, authorize(['admin', 'ed
         console.log('Delete request for product:', id);
         console.log('User role:', req.user?.role);
 
-        const deleted = productOperations.delete(parseInt(id));
+        let deleted = false;
+
+        // Try Supabase first if available
+        if (useSupabase && supabase) {
+            try {
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', parseInt(id));
+
+                if (error) throw error;
+                deleted = true;
+                console.log('Deleted from Supabase');
+            } catch (supabaseError) {
+                console.log('Supabase delete failed:', supabaseError.message);
+            }
+        }
+
+        // Fallback to SQLite if not deleted yet
+        if (!deleted) {
+            deleted = productOperations.delete(parseInt(id));
+            console.log('Deleted from SQLite:', deleted);
+        }
 
         if (!deleted) {
             return res.status(404).json({ error: 'Product not found' });

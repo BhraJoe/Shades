@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT NOT NULL DEFAULT '',
     price REAL NOT NULL DEFAULT 0,
     category TEXT NOT NULL DEFAULT 'sunglasses',
+    subcategory TEXT NOT NULL DEFAULT '',
     gender TEXT NOT NULL DEFAULT 'unisex',
     images TEXT [] DEFAULT '{}',
     colors TEXT [] DEFAULT '{}',

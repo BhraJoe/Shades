@@ -8,7 +8,7 @@ const faqCategories = [
         icon: Truck,
         faqs: [
             { question: 'How long does shipping take?', answer: 'Standard shipping within the US takes 3-5 business days. Express shipping (1-2 business days) is available at checkout. International shipping typically takes 7-14 business days depending on customs clearance.' },
-            { question: 'Do you offer free shipping?', answer: 'Yes! We offer free standard shipping on all US orders over $150. For orders under $150, a flat rate of $7.95 applies.' },
+            { question: 'Do you offer free shipping?', answer: 'Yes! We offer free standard shipping on all orders. No minimum purchase required.' },
             { question: 'Where do you ship to?', answer: 'We ship to the United States, Canada, United Kingdom, European Union, Australia, and select other countries. Check our shipping page for the full list.' },
             { question: 'How can I track my order?', answer: "Once your order ships, you'll receive an email with a tracking number. You can also track your order by logging into your account." }
         ]

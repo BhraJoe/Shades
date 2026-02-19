@@ -1,19 +1,33 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get environment variables
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_KEY || '';
+// Get environment variables and clean them
+let supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+let supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_SERVICE_KEY || '';
+
+// Clean the values - remove any whitespace or special characters
+if (supabaseUrl) {
+    supabaseUrl = supabaseUrl.replace(/[\s\n\r\t]/g, '');
+}
+if (supabaseServiceKey) {
+    supabaseServiceKey = supabaseServiceKey.replace(/[\s\n\r\t]/g, '');
+}
+
+console.log('Supabase init - URL:', supabaseUrl ? 'set' : 'not set');
+console.log('Supabase init - Key:', supabaseServiceKey ? 'set' : 'not set');
 
 // Create Supabase client with service role key (for server-side operations)
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export const supabase = supabaseUrl && supabaseServiceKey
+    ? createClient(supabaseUrl, supabaseServiceKey)
+    : null;
 
 // Check if Supabase is configured
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseServiceKey);
+export const isSupabaseConfigured = !!(supabase && supabaseUrl && supabaseServiceKey);
 
 // Product operations using Supabase
 export const productService = {
     // Get all products
     async getAll() {
+        if (!supabase) throw new Error('Supabase not configured');
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -25,6 +39,7 @@ export const productService = {
 
     // Get product by ID
     async getById(id) {
+        if (!supabase) throw new Error('Supabase not configured');
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -37,6 +52,7 @@ export const productService = {
 
     // Create new product
     async create(product) {
+        if (!supabase) throw new Error('Supabase not configured');
         const { data, error } = await supabase
             .from('products')
             .insert([{
@@ -46,22 +62,25 @@ export const productService = {
                 description: product.description,
                 price: parseFloat(product.price) || 0,
                 category: product.category || 'sunglasses',
+                subcategory: product.subcategory || '',
                 gender: product.gender || 'unisex',
                 images: product.images || [],
                 colors: product.colors || [],
                 sizes: product.sizes || ['M'],
                 stock: parseInt(product.stock) || 0,
-                is_bestseller: product.is_bestseller || false,
-                is_new: product.is_new || false,
+                is_bestseller: !!product.is_bestseller,
+                is_new: !!product.is_new,
             }])
-            .select();
+            .select()
+            .single();
 
         if (error) throw error;
-        return data[0];
+        return data;
     },
 
     // Update product
     async update(id, product) {
+        if (!supabase) throw new Error('Supabase not configured');
         const { data, error } = await supabase
             .from('products')
             .update({
@@ -71,24 +90,26 @@ export const productService = {
                 description: product.description,
                 price: parseFloat(product.price) || 0,
                 category: product.category,
+                subcategory: product.subcategory || '',
                 gender: product.gender,
                 images: product.images,
                 colors: product.colors,
                 sizes: product.sizes,
                 stock: parseInt(product.stock) || 0,
-                is_bestseller: product.is_bestseller,
-                is_new: product.is_new,
-                updated_at: new Date().toISOString(),
+                is_bestseller: !!product.is_bestseller,
+                is_new: !!product.is_new,
             })
             .eq('id', id)
-            .select();
+            .select()
+            .single();
 
         if (error) throw error;
-        return data[0];
+        return data;
     },
 
     // Delete product
     async delete(id) {
+        if (!supabase) throw new Error('Supabase not configured');
         const { error } = await supabase
             .from('products')
             .delete()
@@ -96,55 +117,5 @@ export const productService = {
 
         if (error) throw error;
         return true;
-    },
-
-    // Get products by category
-    async getByCategory(category) {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('category', category)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        return data;
-    },
-
-    // Get bestsellers
-    async getBestsellers() {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('is_bestseller', true)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        return data;
-    },
-
-    // Get new arrivals
-    async getNewArrivals() {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('is_new', true)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        return data;
-    },
-
-    // Search products
-    async search(query) {
-        const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .or(`name.ilike.%${query}%,brand.ilike.%${query}%,description.ilike.%${query}%`)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        return data;
     }
 };
-
-export default supabase;

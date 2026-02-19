@@ -5,7 +5,9 @@ export async function fetchProducts(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(`${API_BASE}/products${queryString ? '?' + queryString : ''}`);
     if (!response.ok) throw new Error('Failed to fetch products');
-    return response.json();
+    const data = await response.json();
+    // Handle both paginated and non-paginated responses
+    return data.products || data;
 }
 
 export async function fetchProduct(id) {

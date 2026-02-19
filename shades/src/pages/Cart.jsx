@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 export default function Cart() {
     const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
 
-    const shipping = cartTotal >= 150 ? 0 : 7.95;
+    const shipping = 0; // Always free shipping
     const estimatedTax = 0;
     const orderTotal = cartTotal + shipping + estimatedTax;
     const freeShippingProgress = Math.min((cartTotal / 150) * 100, 100);
@@ -146,8 +146,7 @@ export default function Cart() {
                             {cartTotal < 150 && (
                                 <div className="mb-6 p-4 bg-[#fafafa]">
                                     <div className="flex justify-between text-xs mb-2">
-                                        <span className="text-gray-500 font-light">Free shipping at ₵150</span>
-                                        <span className="font-bold text-[#dc2626]">₵{(150 - cartTotal).toFixed(2)} away</span>
+                                        <span className="text-gray-500 font-light">Free shipping on all orders</span>
                                     </div>
                                     <div className="w-full h-1.5 bg-gray-200 overflow-hidden">
                                         <div

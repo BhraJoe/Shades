@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 export default function CartDrawer({ isOpen, onClose }) {
     const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
 
-    const shipping = cartTotal >= 150 ? 0 : 7.95;
+    const shipping = 0; // Always free shipping
 
     if (!isOpen) return null;
 
@@ -102,7 +102,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                         {cartTotal < 150 && (
                             <div className="bg-[#f5f5f5] p-3">
                                 <div className="flex justify-between text-xs mb-2 font-light">
-                                    <span>Add ₵{(150 - cartTotal).toFixed(2)} for free shipping</span>
+                                    <span>Free shipping on all orders</span>
                                 </div>
                                 <div className="w-full bg-gray-200 h-1">
                                     <div

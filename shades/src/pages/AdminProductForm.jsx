@@ -103,6 +103,8 @@ const AdminProductForm = () => {
         setIsLoading(true);
 
         try {
+            console.log('Starting form submission...');
+
             // Convert new files to base64 data URLs
             let finalImages = [...images];
 
@@ -125,43 +127,73 @@ const AdminProductForm = () => {
                 images: finalImages,
             };
 
-            console.log('Submitting product data...');
-
             const url = isEditing
                 ? `${API_BASE}/admin/products/${id}`
                 : `${API_BASE}/admin/products`;
 
+            console.log('Submitting to URL:', url);
+
             // Get admin token from localStorage
             const adminToken = localStorage.getItem('adminToken');
+            console.log('Admin token exists:', !!adminToken);
 
-            const response = await fetch(url, {
-                method: isEditing ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(adminToken && { 'Authorization': `Bearer ${adminToken}` })
-                },
-                body: JSON.stringify(data)
-            });
+            // Create abort controller for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                console.log('Timeout reached - aborting request');
+                controller.abort();
+            }, 30000); // 30 second timeout
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `Server error: ${response.status}`);
+            try {
+                console.log('Starting fetch request...');
+                const response = await fetch(url, {
+                    method: isEditing ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(adminToken && { 'Authorization': `Bearer ${adminToken}` })
+                    },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                console.log('Response received, status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `Server error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Product saved:', result);
+                toast.success(isEditing ? 'Product updated successfully' : 'Product added to inventory');
+                console.log('About to navigate...');
+                // Navigate back to admin dashboard
+                navigate('/admin');
+                console.log('Navigation complete');
+            } catch (err) {
+                console.error('Error saving product:', err);
+                // Better error handling for aborted requests
+                if (err.name === 'AbortError' || err.message.includes('aborted')) {
+                    toast.error('Request timed out - please try again');
+                } else {
+                    toast.error(err.message || 'Failed to save product');
+                }
+            } finally {
+                setIsLoading(false);
             }
-
-            const result = await response.json();
-            console.log('Product saved:', result);
-            toast.success(isEditing ? 'Product updated successfully' : 'Product added to inventory');
-            // Navigate back to admin dashboard
-            navigate('/admin');
         } catch (err) {
             console.error('Error saving product:', err);
-            toast.error(err.response?.data?.error || err.message || 'Failed to save product');
+            // Better error handling for aborted requests
+            if (err.name === 'AbortError' || err.message.includes('aborted')) {
+                toast.error('Request timed out - please try again');
+            } else {
+                toast.error(err.message || 'Failed to save product');
+            }
         } finally {
             setIsLoading(false);
         }
     };
-
-    if (isFetching) return <div className="p-12 text-center text-gray-500">Loading product details...</div>;
 
     return (
         <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 md:px-0">

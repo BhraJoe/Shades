@@ -40,6 +40,9 @@ export default function Shop() {
         sort: 'newest'
     });
 
+    // Server-side pagination state
+    const [pagination, setPagination] = useState(null);
+
     // Update filters when URL search params change
     useEffect(() => {
         setFilters(prev => ({
@@ -62,23 +65,40 @@ export default function Shop() {
                 if (filters.bestseller) params.bestseller = 'true';
                 if (filters.new) params.new = 'true';
                 if (filters.sort) params.sort = filters.sort;
+                params.page = 1;
+                params.limit = PRODUCTS_PER_PAGE;
 
                 let data = await fetchProducts(params);
 
                 // Client-side search filtering
                 if (filters.search) {
                     const searchLower = filters.search.toLowerCase();
-                    data = data.filter(product =>
+                    const filteredData = data.products || data;
+                    const filtered = filteredData.filter(product =>
                         product.name.toLowerCase().includes(searchLower) ||
                         product.brand.toLowerCase().includes(searchLower) ||
                         product.category.toLowerCase().includes(searchLower) ||
                         product.subcategory?.toLowerCase().includes(searchLower)
                     );
+                    // For search, we need to update the displayed products
+                    setDisplayedProducts(filtered);
+                    setProducts(filtered);
+                    setHasMore(false); // Disable pagination for search results
+                    setLoading(false);
+                    return;
                 }
 
-                setProducts(data);
-                setDisplayedProducts(data.slice(0, PRODUCTS_PER_PAGE));
-                setHasMore(data.length > PRODUCTS_PER_PAGE);
+                // Check if response is paginated
+                if (data.pagination) {
+                    setDisplayedProducts(data.products);
+                    setPagination(data.pagination);
+                    setProducts(data.products);
+                } else {
+                    // Fallback for non-paginated response
+                    setProducts(data);
+                    setDisplayedProducts(data.slice(0, PRODUCTS_PER_PAGE));
+                    setHasMore(data.length > PRODUCTS_PER_PAGE);
+                }
             } catch (error) {
                 console.error('Error loading products:', error);
             } finally {
@@ -88,12 +108,31 @@ export default function Shop() {
         loadProducts();
     }, [filters]);
 
-    const loadMore = () => {
+    const loadMore = async () => {
         const nextPage = page + 1;
-        const nextProducts = products.slice(0, nextPage * PRODUCTS_PER_PAGE);
-        setDisplayedProducts(nextProducts);
-        setPage(nextPage);
-        setHasMore(nextProducts.length < products.length);
+        try {
+            const params = {};
+            if (filters.category !== 'all') params.category = filters.category;
+            if (filters.bestseller) params.bestseller = 'true';
+            if (filters.new) params.new = 'true';
+            if (filters.sort) params.sort = filters.sort;
+            params.page = nextPage;
+            params.limit = PRODUCTS_PER_PAGE;
+
+            const data = await fetchProducts(params);
+            const newProducts = data.pagination ? data.products : data;
+
+            setDisplayedProducts(prev => [...prev, ...newProducts]);
+            setPage(nextPage);
+
+            if (data.pagination) {
+                setHasMore(data.pagination.hasMore);
+            } else {
+                setHasMore(nextPage * PRODUCTS_PER_PAGE < products.length);
+            }
+        } catch (error) {
+            console.error('Error loading more products:', error);
+        }
     };
 
     const updateFilter = (key, value) => {

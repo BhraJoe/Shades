@@ -25,9 +25,10 @@ const AdminDashboard = () => {
     const fetchProducts = async () => {
         try {
             console.log('Fetching products from /api/products...');
-            const res = await axios.get('/api/products');
-            console.log('Products loaded:', res.data.length);
-            setProducts(res.data || []);
+            const res = await axios.get('/api/products?limit=100');
+            const productsData = res.data.products || res.data;
+            console.log('Products loaded:', productsData.length);
+            setProducts(productsData || []);
             clearTimeout(fetchProductsTimeout);
         } catch (err) {
             console.error('Error loading products:', err);

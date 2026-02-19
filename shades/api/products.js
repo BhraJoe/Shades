@@ -1,102 +1,55 @@
-import { readData, paths } from './database.js';
-import { getAllProducts, getProductById } from './firestore.js';
+// Simpler products API using Supabase
 
-const { PRODUCTS_FILE } = paths;
-
-// Helper to safely parse JSON fields
-const safeParse = (val) => {
-    if (!val) return [];
-    if (Array.isArray(val)) return val;
-    if (typeof val !== 'string') return [];
-    try {
-        const parsed = JSON.parse(val);
-        return Array.isArray(parsed) ? parsed : [parsed];
-    } catch (e) {
-        return [];
-    }
-};
-
-// GET all products
 export default async function handler(req, res) {
+    const { method } = req;
+
+    // Parse path from URL
+    let path = '/';
     try {
-        const { category, gender, bestseller, new: isNew, search, sort } = req.query;
+        const urlObj = new URL(req.url || '/', `http://${req.headers?.host || 'localhost'}`);
+        path = urlObj.pathname;
+    } catch (e) {
+        path = '/api/products';
+    }
 
-        // Try Firestore first
-        let products = await getAllProducts();
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-        // If Firestore fails or returns null, fallback to JSON
-        if (!products) {
-            console.log('Firestore unavailable, falling back to JSON file');
-            products = await readData(PRODUCTS_FILE);
-        }
+    // Handle preflight
+    if (method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-        // Ensure products is an array
-        if (!products || !Array.isArray(products)) {
-            products = [];
-        }
-
-        // Parse JSON fields
-        products = products.map(p => ({
-            ...p,
-            images: safeParse(p.images),
-            colors: safeParse(p.colors),
-            sizes: safeParse(p.sizes)
-        }));
-
-        if (category) {
-            // Check both category and subcategory (case-insensitive)
-            const catLower = category.toLowerCase();
-            products = products.filter(p =>
-                p.category?.toLowerCase() === catLower ||
-                p.subcategory?.toLowerCase() === catLower
-            );
-        }
-
-        if (gender) {
-            products = products.filter(p => p.gender === gender);
-        }
-
-        if (bestseller === 'true') {
-            products = products.filter(p => p.is_bestseller === 1 || p.is_bestseller === true);
-        }
-
-        if (isNew === 'true') {
-            products = products.filter(p => p.is_new === 1 || p.is_new === true);
-        }
-
-        if (search) {
-            const searchLower = search.toLowerCase();
-            products = products.filter(p =>
-                p.name?.toLowerCase().includes(searchLower) ||
-                p.brand?.toLowerCase().includes(searchLower) ||
-                p.description?.toLowerCase().includes(searchLower)
-            );
-        }
-
-        // Sorting
-        if (sort === 'price-low') {
-            products.sort((a, b) => (a.price || 0) - (b.price || 0));
-        } else if (sort === 'price-high') {
-            products.sort((a, b) => (b.price || 0) - (a.price || 0));
-        } else {
-            products.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
-        }
-
-        res.status(200).json(products);
-    } catch (error) {
-        console.error('Error fetching products:', error);
-        // Try fallback to JSON on error
+    // Get products - GET /api/products
+    if (method === 'GET' && (path === '/api/products' || path === '/api/products/')) {
         try {
-            let products = await readData(PRODUCTS_FILE);
-            products = products.map(p => ({
-                ...p,
-                images: safeParse(p.images),
-                colors: safeParse(p.colors),
-                sizes: safeParse(p.sizes)
-            }));
-            return res.status(200).json(products || []);
-        } catch (fallbackError) {
-            res.status(500).json({ error: 'Failed to fetch products' });
+            // Use Supabase from @supabase/supabase-js
+            const { createClient } = await import('@supabase/supabase-js');
+
+            // Hardcoded for testing - replace with env vars in production
+            const supabaseUrl = 'https://llyjnqdhxxnrqgraicuh.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxseWpucWRoeHhucnFncmFpY3VoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTI2NDYxNCwiZXhwIjoyMDg2ODQwNjE0fQ.YgF6VxgPDQU79DRzh8d1jAGWr98Aoj1iZcgJGNE0Cgo';
+
+            console.log('Using Supabase URL:', supabaseUrl);
+
+            const supabase = createClient(supabaseUrl, supabaseKey);
+
+            const { data, error } = await supabase.from('products').select('*');
+
+            if (error) {
+                console.error('Supabase error:', error);
+                return res.status(500).json({ error: error.message });
+            }
+
+            return res.status(200).json(data || []);
+        } catch (error) {
+            console.error('Error:', error);
+            return res.status(500).json({ error: error.message });
         }
     }
+
+    // 404 for unmatched routes
+    return res.status(404).json({ error: 'Not found' });
 }

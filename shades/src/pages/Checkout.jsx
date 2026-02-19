@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, CreditCard, Check, ArrowLeft, Lock, Truck } from 'lucide-react';
+import { initializePaystackPayment, generatePaymentReference, convertToSmallestUnit, isPaystackAvailable } from '../paystack';
 
 export default function Checkout() {
     const { cart, cartTotal, clearCart } = useCart();
@@ -11,12 +12,134 @@ export default function Checkout() {
     const [orderComplete, setOrderComplete] = useState(false);
     const [loading, setLoading] = useState(false);
     const [orderNumber, setOrderNumber] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('card');
+    const [paymentMethod, setPaymentMethod] = useState('paystack');
     const [formErrors, setFormErrors] = useState({});
+    const [paymentRef, setPaymentRef] = useState('');
+    const [searchParams] = useSearchParams();
 
-    const shipping = cartTotal >= 150 ? 0 : 7.95;
+    // Check for payment success from Paystack redirect
+    const paymentStatus = searchParams.get('payment');
+
+    const shipping = 0; // Always free shipping
     const estimatedTax = 0;
     const orderTotal = cartTotal + shipping + estimatedTax;
+
+    // Check for payment success and verify
+    useEffect(() => {
+        if (paymentStatus === 'success' && paymentRef) {
+            verifyPaystackPayment(paymentRef);
+        }
+    }, [paymentStatus, paymentRef]);
+
+    // Verify Paystack payment
+    const verifyPaystackPayment = async (ref) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/paystack/verify/${ref}`);
+            const data = await response.json();
+
+            if (data.verified) {
+                // Payment successful, complete the order
+                completeOrder(ref);
+            } else {
+                alert('Payment verification failed. Please contact support.');
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('Error verifying payment. Please contact support.');
+            setLoading(false);
+        }
+    };
+
+    // Complete the order after successful payment
+    const completeOrder = (paymentReference = null) => {
+        const newOrderNumber = 'ORD-' + Date.now().toString().slice(-8);
+        setOrderNumber(newOrderNumber);
+        setOrderComplete(true);
+
+        if (user) {
+            const order = {
+                id: newOrderNumber,
+                date: new Date().toISOString(),
+                status: 'processing',
+                total: orderTotal,
+                paymentMethod: paymentMethod,
+                paymentReference: paymentReference,
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image
+                })),
+                shipping: {
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    address: formData.address,
+                    city: formData.city,
+                    state: formData.state,
+                    zip: formData.zip
+                }
+            };
+
+            const existingOrders = JSON.parse(localStorage.getItem(`orders_${user.uid}`) || '[]');
+            existingOrders.unshift(order);
+            localStorage.setItem(`orders_${user.uid}`, JSON.stringify(existingOrders));
+        }
+
+        clearCart();
+        setLoading(false);
+    };
+
+    // Handle Paystack payment
+    const handlePaystackPayment = async () => {
+        if (!isPaystackAvailable()) {
+            alert('Paystack is not loaded. Please refresh the page and try again.');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            // Generate payment reference
+            const ref = generatePaymentReference();
+            setPaymentRef(ref);
+
+            // Convert amount to kobo (GH₵ to pesewas)
+            const amountInKobo = convertToSmallestUnit(orderTotal * 100, 'GHS'); // Ghana Cedis
+
+            // Initialize payment with backend
+            const response = await fetch('/api/paystack/initialize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: formData.email,
+                    amount: amountInKobo,
+                    currency: 'GHS',
+                    reference: ref,
+                    metadata: {
+                        customerName: `${formData.firstName} ${formData.lastName}`,
+                        phone: formData.phone,
+                        orderTotal: orderTotal
+                    }
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.authorization_url) {
+                // Redirect to Paystack payment page
+                window.location.href = data.authorization_url;
+            } else {
+                throw new Error(data.error || 'Failed to initialize payment');
+            }
+        } catch (error) {
+            console.error('Paystack error:', error);
+            alert('Payment initialization failed: ' + error.message);
+            setLoading(false);
+        }
+    };
 
     const [formData, setFormData] = useState({
         email: '', firstName: '', lastName: '', address: '', city: '', state: '', zip: '',
@@ -48,7 +171,7 @@ export default function Checkout() {
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (step === 'shipping') {
             if (validateForm()) {
@@ -56,6 +179,13 @@ export default function Checkout() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         } else {
+            // Handle Paystack payment
+            if (paymentMethod === 'paystack') {
+                await handlePaystackPayment();
+                return;
+            }
+
+            // Handle other payment methods (mock)
             setLoading(true);
             setTimeout(() => {
                 const newOrderNumber = 'ORD-' + Date.now().toString().slice(-8);
@@ -98,10 +228,7 @@ export default function Checkout() {
     };
 
     const paymentMethods = [
-        { id: 'card', name: 'Card' },
-        { id: 'mobile_money', name: 'Mobile' },
-        { id: 'paypal', name: 'PayPal' },
-        { id: 'bank', name: 'Bank' },
+        { id: 'paystack', name: 'Paystack' },
     ];
 
     const countries = [
@@ -277,109 +404,49 @@ export default function Checkout() {
 
                             {step === 'payment' && (
                                 <div className="space-y-5">
-                                    <h2 className="font-display text-2xl tracking-wider mb-2">Payment Method</h2>
+                                    <h2 className="font-display text-2xl tracking-wider mb-2">Payment</h2>
 
-                                    {/* Method Tabs */}
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {paymentMethods.map((method) => (
-                                            <button
-                                                key={method.id}
-                                                type="button"
-                                                onClick={() => setPaymentMethod(method.id)}
-                                                className={`p-3 border-2 text-center text-xs font-bold tracking-[0.1em] uppercase transition-all duration-200 ${paymentMethod === method.id
-                                                    ? 'border-[#0a0a0a] bg-[#0a0a0a] text-white'
-                                                    : 'border-gray-200 text-gray-500 hover:border-gray-300'
-                                                    }`}
-                                            >
-                                                {method.name}
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-50 p-3">
-                                        <Lock size={14} />
-                                        Secure encrypted transaction
+                                    <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <CreditCard size={24} className="text-blue-600" />
+                                            <span className="text-lg font-medium text-blue-800">Paystack Secure Payment</span>
+                                        </div>
+                                        <p className="text-sm text-blue-600 mb-4">
+                                            You'll be redirected to Paystack's secure payment page to complete your purchase using your preferred payment method.
+                                        </p>
+                                        <div className="flex flex-wrap gap-3 text-xs text-blue-700">
+                                            <span className="bg-blue-100 px-3 py-1 rounded-full">💳 Card</span>
+                                            <span className="bg-blue-100 px-3 py-1 rounded-full">📱 Mobile Money</span>
+                                            <span className="bg-blue-100 px-3 py-1 rounded-full">🏦 Bank Transfer</span>
+                                        </div>
+                                        {isPaystackAvailable() ? (
+                                            <div className="mt-4 text-xs text-emerald-600 flex items-center gap-1">
+                                                <Check size={14} /> Paystack is ready
+                                            </div>
+                                        ) : (
+                                            <div className="mt-4 text-xs text-amber-600">
+                                                Loading Paystack... Please wait
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-4">
-                                        {paymentMethod === 'card' && (
-                                            <>
-                                                <div>
-                                                    <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Card Number</label>
-                                                    <input type="text" name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="1234 5678 9012 3456" required />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Name on Card</label>
-                                                    <input type="text" name="cardName" value={formData.cardName} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="Name on card" required />
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Expiry</label>
-                                                        <input type="text" name="cardExpiry" value={formData.cardExpiry} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="MM/YY" required />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">CVV</label>
-                                                        <input type="text" name="cardCvv" value={formData.cardCvv} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="123" required />
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
-                                        {paymentMethod === 'mobile_money' && (
-                                            <>
-                                                <div>
-                                                    <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Provider</label>
-                                                    <div className="relative">
-                                                        <select name="mobileMoneyProvider" value={formData.mobileMoneyProvider} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors appearance-none" required>
-                                                            <option value="">Select Provider</option>
-                                                            <option value="mtn">MTN Mobile Money</option>
-                                                            <option value="vodafone">Vodafone Cash</option>
-                                                            <option value="airteltigo">AirtelTigo</option>
-                                                            <option value="mpesa">M-Pesa</option>
-                                                        </select>
-                                                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Phone Number</label>
-                                                    <input type="tel" name="mobileMoneyNumber" value={formData.mobileMoneyNumber} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="+233 123 456 789" required />
-                                                </div>
-                                            </>
-                                        )}
-                                        {paymentMethod === 'paypal' && (
-                                            <div>
-                                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">PayPal Email</label>
-                                                <input type="email" name="paypalEmail" value={formData.paypalEmail} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="your@email.com" required />
-                                            </div>
-                                        )}
-                                        {paymentMethod === 'bank' && (
-                                            <>
-                                                <div>
-                                                    <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Bank Name</label>
-                                                    <input type="text" name="bankName" value={formData.bankName} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="Bank name" required />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Account Number</label>
-                                                    <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="Account number" required />
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => setStep('shipping')}
-                                            className="px-8 py-4 border border-gray-200 text-sm font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:border-[#0a0a0a] transition-colors"
-                                        >
-                                            Back
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="flex-1 py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300 disabled:opacity-50"
-                                            disabled={loading}
-                                        >
-                                            {loading ? 'Processing...' : `Pay ₵${orderTotal.toFixed(2)}`}
-                                        </button>
+                                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => setStep('shipping')}
+                                                className="px-8 py-4 border border-gray-200 text-sm font-bold tracking-[0.15em] uppercase text-[#0a0a0a] hover:border-[#0a0a0a] transition-colors"
+                                            >
+                                                Back
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="flex-1 py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300 disabled:opacity-50"
+                                                disabled={loading}
+                                            >
+                                                {loading ? 'Processing...' : `Pay ₵${orderTotal.toFixed(2)}`}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -431,9 +498,9 @@ export default function Checkout() {
                                 </div>
                             </div>
 
-                            {shipping > 0 && (
+                            {shipping === 0 && (
                                 <div className="p-3 bg-white text-xs text-gray-500 font-light">
-                                    Add <span className="font-bold text-[#dc2626]">₵{(150 - cartTotal).toFixed(2)}</span> more for free shipping
+                                    Free shipping on all orders
                                 </div>
                             )}
 
