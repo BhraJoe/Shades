@@ -27,7 +27,8 @@ import db, {
     userOperations,
     orderOperations,
     subscriberOperations,
-    messageOperations
+    messageOperations,
+    categoryOperations
 } from './database.js';
 import { authenticateToken, authorize, generateToken } from './middleware/auth.js';
 import { upload } from './middleware/upload.js';
@@ -279,25 +280,11 @@ app.get('/api/products/featured/new', async (req, res) => {
     }
 });
 
-// GET product categories with counts
+// GET all categories from categories table (public)
 app.get('/api/categories', async (req, res) => {
     try {
-        const products = productOperations.getAll();
-        const categories = {};
-
-        products.forEach(product => {
-            if (!categories[product.category]) {
-                categories[product.category] = 0;
-            }
-            categories[product.category]++;
-        });
-
-        const result = Object.entries(categories).map(([category, count]) => ({
-            category,
-            count
-        }));
-
-        res.json(result);
+        const categories = categoryOperations.getAll();
+        res.json(categories);
     } catch (error) {
         console.error('Error fetching categories:', error);
         res.status(500).json({ error: 'Failed to fetch categories' });
@@ -740,6 +727,85 @@ app.delete('/api/admin/products/:id', authenticateToken, authorize(['admin', 'ed
     } catch (error) {
         console.error('Error deleting product:', error);
         res.status(500).json({ error: 'Failed to delete product' });
+    }
+});
+
+// ==================== CATEGORIES API ====================
+
+// GET all categories (public - for product form)
+app.get('/api/categories', async (req, res) => {
+    try {
+        const categories = categoryOperations.getAll();
+        res.json(categories);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+});
+
+// GET all categories (admin)
+app.get('/api/admin/categories', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
+    try {
+        const categories = categoryOperations.getAll();
+        res.json(categories);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+});
+
+// POST create category (admin)
+app.post('/api/admin/categories', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
+    try {
+        const { name, slug, description } = req.body;
+
+        if (!name || !slug) {
+            return res.status(400).json({ error: 'Name and slug are required' });
+        }
+
+        const newCategory = categoryOperations.create({ name, slug, description: description || '' });
+        res.status(201).json(newCategory);
+    } catch (error) {
+        console.error('Error creating category:', error);
+        res.status(500).json({ error: 'Failed to create category' });
+    }
+});
+
+// PUT update category (admin)
+app.put('/api/admin/categories/:id', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, slug, description } = req.body;
+
+        if (!name || !slug) {
+            return res.status(400).json({ error: 'Name and slug are required' });
+        }
+
+        const updated = categoryOperations.update(id, { name, slug, description: description || '' });
+        if (!updated) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+        res.json(updated);
+    } catch (error) {
+        console.error('Error updating category:', error);
+        res.status(500).json({ error: 'Failed to update category' });
+    }
+});
+
+// DELETE category (admin)
+app.delete('/api/admin/categories/:id', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = categoryOperations.delete(parseInt(id));
+
+        if (!deleted) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        res.status(500).json({ error: 'Failed to delete category' });
     }
 });
 

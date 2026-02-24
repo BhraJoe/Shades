@@ -77,6 +77,14 @@ db.exec(`
         message TEXT NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        slug TEXT NOT NULL UNIQUE,
+        description TEXT DEFAULT '',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
 `);
 
 // Initialize products if empty
@@ -203,6 +211,29 @@ if (userCount.count === 0) {
     console.log('Admin user seeded (admin / admin123)');
 }
 
+// Seed default categories
+const categoryCount = db.prepare('SELECT COUNT(*) as count FROM categories').get();
+if (categoryCount.count === 0) {
+    const initialCategories = [
+        { name: 'Aviator', slug: 'aviator', description: 'Classic aviator style sunglasses' },
+        { name: 'Wayfarer', slug: 'wayfarer', description: 'Iconic wayfarer style sunglasses' },
+        { name: 'Clubmaster', slug: 'clubmaster', description: 'Retro clubmaster browline sunglasses' },
+        { name: 'Round', slug: 'round', description: 'Vintage round frame sunglasses' },
+        { name: 'Cat-Eye', slug: 'cat-eye', description: 'Feminine cat-eye style sunglasses' },
+        { name: 'Rectangular', slug: 'rectangular', description: 'Modern rectangular frame sunglasses' }
+    ];
+
+    const insertCategory = db.prepare(`
+        INSERT INTO categories (name, slug, description)
+        VALUES (@name, @slug, @description)
+    `);
+
+    for (const category of initialCategories) {
+        insertCategory.run(category);
+    }
+    console.log('Default categories added to database');
+}
+
 // Product operations
 export const productOperations = {
     getAll: () => db.prepare('SELECT * FROM products ORDER BY created_at DESC').all(),
@@ -297,6 +328,36 @@ export const messageOperations = {
         `);
         const result = stmt.run(message);
         return { id: result.lastInsertRowid, ...message };
+    }
+};
+
+// Category operations
+export const categoryOperations = {
+    getAll: () => db.prepare('SELECT * FROM categories ORDER BY id ASC').all(),
+    getById: (id) => db.prepare('SELECT * FROM categories WHERE id = ?').get(id),
+    create: (category) => {
+        const stmt = db.prepare(`
+            INSERT INTO categories (name, slug, description)
+            VALUES (@name, @slug, @description)
+        `);
+        const result = stmt.run(category);
+        return { id: result.lastInsertRowid, ...category };
+    },
+    update: (id, category) => {
+        const stmt = db.prepare(`
+            UPDATE categories SET
+                name = @name,
+                slug = @slug,
+                description = @description
+            WHERE id = @id
+        `);
+        stmt.run({ id, ...category });
+        return categoryOperations.getById(id);
+    },
+    delete: (id) => {
+        const stmt = db.prepare('DELETE FROM categories WHERE id = ?');
+        const result = stmt.run(id);
+        return result.changes > 0;
     }
 };
 

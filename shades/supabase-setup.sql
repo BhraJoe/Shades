@@ -107,6 +107,55 @@ INSERT WITH CHECK (true);
 CREATE POLICY "Authenticated users can view messages" ON messages FOR
 SELECT USING (auth.role() = 'authenticated');
 -- ===========================================
+-- CATEGORIES TABLE
+-- ===========================================
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    slug TEXT NOT NULL UNIQUE,
+    description TEXT DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+-- Enable RLS for categories
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+-- Policy: Everyone can view categories
+CREATE POLICY "Anyone can view categories" ON categories FOR
+SELECT USING (true);
+-- Policy: Authenticated users can manage categories
+CREATE POLICY "Authenticated users can manage categories" ON categories FOR ALL USING (auth.role() = 'authenticated');
+-- Seed default categories
+INSERT INTO categories (name, slug, description)
+VALUES (
+        'Aviator',
+        'aviator',
+        'Classic aviator style sunglasses'
+    ),
+    (
+        'Wayfarer',
+        'wayfarer',
+        'Iconic wayfarer style sunglasses'
+    ),
+    (
+        'Clubmaster',
+        'clubmaster',
+        'Retro clubmaster browline sunglasses'
+    ),
+    (
+        'Round',
+        'round',
+        'Vintage round frame sunglasses'
+    ),
+    (
+        'Cat-Eye',
+        'cat-eye',
+        'Feminine cat-eye style sunglasses'
+    ),
+    (
+        'Rectangular',
+        'rectangular',
+        'Modern rectangular frame sunglasses'
+    ) ON CONFLICT (name) DO NOTHING;
+-- ===========================================
 -- SEED DATA - Sample Products
 -- ===========================================
 INSERT INTO products (

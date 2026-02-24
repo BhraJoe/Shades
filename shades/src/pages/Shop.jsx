@@ -4,18 +4,6 @@ import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { fetchProducts, fetchCategories } from '../api';
 
-const categories = [
-    { id: 'all', name: 'All' },
-    { id: 'aviator', name: 'Aviator' },
-    { id: 'wayfarer', name: 'Wayfarer' },
-    { id: 'round', name: 'Round' },
-    { id: 'cat-eye', name: 'Cat Eye' },
-    { id: 'clubmaster', name: 'Clubmaster' },
-    { id: 'rectangular', name: 'Rectangular' },
-    { id: 'sport', name: 'Sport' },
-    { id: 'oversized', name: 'Oversized' }
-];
-
 const sortOptions = [
     { id: 'newest', name: 'Newest' },
     { id: 'price-low', name: 'Price: Low to High' },
@@ -31,6 +19,7 @@ export default function Shop() {
     const [hasMore, setHasMore] = useState(true);
     const PRODUCTS_PER_PAGE = 8;
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+    const [categories, setCategories] = useState([{ id: 'all', name: 'All' }]);
 
     const [filters, setFilters] = useState({
         category: searchParams.get('category') || 'all',
@@ -42,6 +31,22 @@ export default function Shop() {
 
     // Server-side pagination state
     const [pagination, setPagination] = useState(null);
+
+    // Load categories from API
+    useEffect(() => {
+        async function loadCategories() {
+            try {
+                const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+                const res = await fetch(`${API_BASE}/categories`);
+                const data = await res.json();
+                const cats = [{ id: 'all', name: 'All' }, ...data.map(c => ({ id: c.slug, name: c.name }))];
+                setCategories(cats);
+            } catch (err) {
+                console.error('Failed to load categories:', err);
+            }
+        }
+        loadCategories();
+    }, []);
 
     // Update filters when URL search params change
     useEffect(() => {

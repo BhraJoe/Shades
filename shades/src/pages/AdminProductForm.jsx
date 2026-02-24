@@ -14,6 +14,7 @@ const AdminProductForm = () => {
     const isEditing = !!id;
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(isEditing);
+    const [categories, setCategories] = useState([]);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -37,10 +38,29 @@ const AdminProductForm = () => {
     const fileInputRef = useRef(null);
 
     useEffect(() => {
+        fetchCategories();
         if (isEditing) {
             fetchProduct();
         }
     }, [id]);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await axios.get(`${API_BASE}/categories`);
+            setCategories(res.data || []);
+        } catch (err) {
+            console.error('Error loading categories:', err);
+            // Fallback to default categories if API fails
+            setCategories([
+                { name: 'Aviator', slug: 'aviator' },
+                { name: 'Wayfarer', slug: 'wayfarer' },
+                { name: 'Clubmaster', slug: 'clubmaster' },
+                { name: 'Round', slug: 'round' },
+                { name: 'Cat-Eye', slug: 'cat-eye' },
+                { name: 'Rectangular', slug: 'rectangular' }
+            ]);
+        }
+    };
 
     const fetchProduct = async () => {
         try {
@@ -297,9 +317,20 @@ const AdminProductForm = () => {
                                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                     className="w-full bg-transparent border-b border-gray-100 focus:border-[#0a0a0a] py-3 text-[10px] font-bold tracking-widest uppercase focus:outline-none appearance-none cursor-pointer"
                                 >
-                                    {['aviator', 'wayfarer', 'clubmaster', 'round', 'cat-eye', 'rectangular'].map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
+                                    {categories.length > 0 ? (
+                                        categories.map(cat => (
+                                            <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                                        ))
+                                    ) : (
+                                        <>
+                                            <option value="aviator">Aviator</option>
+                                            <option value="wayfarer">Wayfarer</option>
+                                            <option value="clubmaster">Clubmaster</option>
+                                            <option value="round">Round</option>
+                                            <option value="cat-eye">Cat-Eye</option>
+                                            <option value="rectangular">Rectangular</option>
+                                        </>
+                                    )}
                                 </select>
                             </div>
                             <div className="space-y-3">
