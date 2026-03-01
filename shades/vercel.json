@@ -31,6 +31,14 @@
             "destination": "/api/admin/products.js"
         },
         {
+            "source": "/api/bestsellers",
+            "destination": "/api/bestsellers.js"
+        },
+        {
+            "source": "/api/newarrivals",
+            "destination": "/api/newarrivals.js"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/$1"
         },
