@@ -265,6 +265,21 @@ export default function Home() {
                     {subscribeError && <p className="text-[#dc2626] text-[10px] tracking-widest uppercase italic">{subscribeError}</p>}
                 </div>
             </section >
+
+            {/* ════════════════════════════════════════════
+                ADVERTISEMENT BANNER
+            ════════════════════════════════════════════ */}
+            <section className="py-8 bg-gray-50">
+                <div className="max-w-7xl mx-auto px-6">
+                    <a href="/shop" className="block">
+                        <img
+                            src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1400&q=80"
+                            alt="Advertisement"
+                            className="w-full h-32 md:h-48 object-cover rounded-lg shadow-sm hover:opacity-95 transition-opacity"
+                        />
+                    </a>
+                </div>
+            </section>
         </div >
     );
 }
