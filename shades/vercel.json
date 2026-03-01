@@ -7,32 +7,8 @@
     "devCommand": "npm run dev",
     "rewrites": [
         {
-            "source": "/api/auth/login",
-            "destination": "/api/auth.js"
-        },
-        {
-            "source": "/api/auth/me",
-            "destination": "/api/auth.js"
-        },
-        {
-            "source": "/api/auth/forgot-password",
-            "destination": "/api/auth.js"
-        },
-        {
-            "source": "/api/auth/reset-password",
-            "destination": "/api/auth.js"
-        },
-        {
-            "source": "/api/admin/products",
-            "destination": "/api/admin/products.js"
-        },
-        {
-            "source": "/api/admin/products/:id",
-            "destination": "/api/admin/products.js"
-        },
-        {
             "source": "/api/(.*)",
-            "destination": "/api/$1"
+            "destination": "/api/index.js"
         },
         {
             "source": "/(.*)",
@@ -40,9 +16,12 @@
         }
     ],
     "functions": {
-        "api/**/*.js": {
+        "api/index.js": {
             "maxDuration": 60,
             "memory": 2048
         }
-    }
+    },
+    "ignore": [
+        "shades/api/admin"
+    ]
 }
