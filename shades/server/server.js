@@ -109,7 +109,7 @@ app.get('/api/products', async (req, res) => {
         const { category, gender, bestseller, new: isNew, search, sort, page, limit } = req.query;
         const pageNum = parseInt(page) || 1;
         const limitNum = Math.min(parseInt(limit) || 12, 50); // Default 12, max 50
-        let products;
+        let products = [];
 
         // Use Supabase if available, otherwise fallback to SQLite
         if (useSupabase && supabase) {
@@ -118,10 +118,10 @@ app.get('/api/products', async (req, res) => {
                     supabase.from('products').select('*')
                 );
                 if (error) throw error;
-                products = data;
+                products = data || [];
             } catch (supabaseError) {
                 console.log('Supabase unavailable, using SQLite:', supabaseError.message);
-                products = productOperations.getAll();
+                products = productOperations.getAll() || [];
                 products = products.map(p => ({
                     ...p,
                     images: safeParse(p.images),
@@ -130,7 +130,7 @@ app.get('/api/products', async (req, res) => {
                 }));
             }
         } else {
-            products = productOperations.getAll();
+            products = productOperations.getAll() || [];
             // Parse JSON fields for SQLite
             products = products.map(p => ({
                 ...p,
@@ -261,6 +261,44 @@ app.get('/api/products/featured/bestsellers', async (req, res) => {
     }
 });
 
+// GET bestsellers (redirect to products endpoint)
+app.get('/api/bestsellers', async (req, res) => {
+    try {
+        const products = productOperations.getAll()
+            .filter(p => p.is_bestseller === 1 || p.is_bestseller === true)
+            .slice(0, 4)
+            .map(p => ({
+                ...p,
+                images: safeParse(p.images),
+                colors: safeParse(p.colors),
+                sizes: safeParse(p.sizes)
+            }));
+        res.json(products);
+    } catch (error) {
+        console.error('Error fetching bestsellers:', error);
+        res.status(500).json({ error: 'Failed to fetch bestsellers' });
+    }
+});
+
+// GET newarrivals (redirect to products endpoint)
+app.get('/api/newarrivals', async (req, res) => {
+    try {
+        const products = productOperations.getAll()
+            .filter(p => p.is_new === 1)
+            .slice(0, 4)
+            .map(p => ({
+                ...p,
+                images: safeParse(p.images),
+                colors: safeParse(p.colors),
+                sizes: safeParse(p.sizes)
+            }));
+        res.json(products);
+    } catch (error) {
+        console.error('Error fetching newarrivals:', error);
+        res.status(500).json({ error: 'Failed to fetch newarrivals' });
+    }
+});
+
 // GET new arrivals
 app.get('/api/products/featured/new', async (req, res) => {
     try {
@@ -360,6 +398,24 @@ app.get('/api/orders/:orderNumber', async (req, res) => {
     }
 });
 
+// GET all orders (admin)
+app.get('/api/admin/orders', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        const orders = orderOperations.getAll();
+
+        // Parse JSON fields for each order
+        const parsedOrders = orders.map(order => ({
+            ...order,
+            items: JSON.parse(order.items || '[]')
+        }));
+
+        res.json(parsedOrders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
 // POST subscribe to newsletter
 app.post('/api/subscribe', async (req, res) => {
     try {
@@ -401,6 +457,63 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
+// GET all subscribers (admin)
+app.get('/api/admin/subscribers', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        const subscribers = subscriberOperations.getAll();
+        res.json(subscribers);
+    } catch (error) {
+        console.error('Error fetching subscribers:', error);
+        res.status(500).json({ error: 'Failed to fetch subscribers' });
+    }
+});
+
+// DELETE subscriber (admin)
+app.delete('/api/admin/subscribers/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        subscriberOperations.delete(parseInt(id));
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting subscriber:', error);
+        res.status(500).json({ error: 'Failed to delete subscriber' });
+    }
+});
+
+// DELETE all subscribers (admin)
+app.delete('/api/admin/subscribers', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        subscriberOperations.deleteAll();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting all subscribers:', error);
+        res.status(500).json({ error: 'Failed to delete all subscribers' });
+    }
+});
+
+// GET all messages (admin)
+app.get('/api/admin/messages', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        const messages = messageOperations.getAll();
+        res.json(messages);
+    } catch (error) {
+        console.error('Error fetching messages:', error);
+        res.status(500).json({ error: 'Failed to fetch messages' });
+    }
+});
+
+// DELETE message (admin)
+app.delete('/api/admin/messages/:id', authenticateToken, authorize(['admin']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        messageOperations.delete(parseInt(id));
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        res.status(500).json({ error: 'Failed to delete message' });
+    }
+});
+
 // ==================== PAYSTACK PAYMENT ROUTES ====================
 
 // Paystack secret key
@@ -426,7 +539,7 @@ app.post('/api/paystack/initialize', async (req, res) => {
                 currency,
                 reference,
                 metadata: metadata || {},
-                callback_url: `${req.protocol}://${req.get('host')}/checkout?payment=success`
+                callback_url: `${process.env.FRONTEND_URL}/?payment=success`
             },
             {
                 headers: {
@@ -567,33 +680,88 @@ app.get('/api/admin/products', authenticateToken, authorize(['admin', 'editor'])
     }
 });
 
+// GET single product (admin)
+app.get('/api/admin/products/:id', authenticateToken, authorize(['admin', 'editor']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        let product;
+
+        if (useSupabase && supabase) {
+            try {
+                const { data, error } = await supabaseWithTimeout(
+                    supabase.from('products').select('*').eq('id', parseInt(id)).single()
+                );
+                if (error) throw error;
+                product = data;
+            } catch (supabaseError) {
+                console.log('Supabase unavailable, using SQLite');
+                product = productOperations.getById(parseInt(id));
+            }
+        } else {
+            product = productOperations.getById(parseInt(id));
+        }
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Parse JSON fields
+        if (typeof product.images === 'string') {
+            product.images = safeParse(product.images);
+        }
+        if (typeof product.colors === 'string') {
+            product.colors = safeParse(product.colors);
+        }
+        if (typeof product.sizes === 'string') {
+            product.sizes = safeParse(product.sizes);
+        }
+
+        res.json(product);
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        res.status(500).json({ error: 'Failed to fetch product' });
+    }
+});
+
 // POST create product (admin)
 app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']), upload.array('images', 5), async (req, res) => {
     try {
         const product = req.body;
+        console.log('POST product body:', product);
+        console.log('POST req.files:', req.files);
 
-        // Handle images from S3 or local fallback
-        const imageUrls = req.files ? req.files.map(f => f.location || `/uploads/products/${f.filename}`) : (product.images || []);
+        // Generate SKU if not provided
+        let sku = product.sku;
+        if (!sku || sku.trim() === '') {
+            sku = `SKU-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        }
+
+        // Handle images - from files or from body
+        let imageUrls = [];
+        if (req.files && req.files.length > 0) {
+            imageUrls = req.files.map(f => f.location || `/uploads/products/${f.filename}`);
+        } else if (product.images) {
+            // Try parsing as JSON array or use as single image
+            try {
+                const parsed = JSON.parse(product.images);
+                imageUrls = Array.isArray(parsed) ? parsed : [parsed];
+            } catch {
+                imageUrls = [product.images];
+            }
+        }
 
         // Sanitize description
         const sanitizedDescription = sanitize(product.description || '');
 
-        // Ensure JSON fields are strings
-        const productData = {
-            name: product.name,
-            brand: product.brand,
-            sku: product.sku,
-            description: sanitizedDescription,
-            price: parseFloat(product.price),
-            category: product.category,
-            gender: product.gender,
-            images: (typeof product.images === 'string' && product.images.startsWith('[')) ? product.images : JSON.stringify(imageUrls),
-            colors: (typeof product.colors === 'string' && product.colors.startsWith('[')) ? product.colors : JSON.stringify(product.colors || []),
-            sizes: (typeof product.sizes === 'string' && product.sizes.startsWith('[')) ? product.sizes : JSON.stringify(product.sizes || []),
-            stock: parseInt(product.stock),
-            is_bestseller: parseInt(product.is_bestseller || 0),
-            is_new: parseInt(product.is_new || 0)
-        };
+        // Parse arrays
+        let colors = [];
+        let sizes = ['M'];
+        try {
+            colors = typeof product.colors === 'string' ? JSON.parse(product.colors) : (Array.isArray(product.colors) ? product.colors : []);
+        } catch { colors = []; }
+        try {
+            sizes = typeof product.sizes === 'string' ? JSON.parse(product.sizes) : (Array.isArray(product.sizes) ? product.sizes : ['M']);
+        } catch { sizes = ['M']; }
 
         let newProduct;
         if (useSupabase && supabase) {
@@ -601,15 +769,15 @@ app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']
                 const { data, error } = await supabaseWithTimeout(
                     supabase.from('products').insert([{
                         name: product.name,
-                        brand: product.brand,
-                        sku: product.sku,
+                        brand: product.brand || '',
+                        sku: sku,
                         description: sanitizedDescription,
-                        price: parseFloat(product.price),
-                        category: product.category,
-                        gender: product.gender,
-                        images: Array.isArray(product.images) ? product.images : (product.images ? [product.images] : imageUrls),
-                        colors: Array.isArray(product.colors) ? product.colors : [],
-                        sizes: Array.isArray(product.sizes) ? product.sizes : ['M'],
+                        price: parseFloat(product.price) || 0,
+                        category: product.category || 'sunglasses',
+                        gender: product.gender || 'unisex',
+                        images: imageUrls.length > 0 ? imageUrls : ['/images/products/aviator.svg'],
+                        colors: colors,
+                        sizes: sizes,
                         stock: parseInt(product.stock) || 0,
                         is_bestseller: !!(parseInt(product.is_bestseller || 0)),
                         is_new: !!(parseInt(product.is_new || 0))
@@ -618,7 +786,22 @@ app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']
                 if (error) throw error;
                 newProduct = data;
             } catch (supabaseError) {
-                console.log('Supabase unavailable, using SQLite');
+                console.log('Supabase error, using SQLite:', supabaseError.message);
+                const productData = {
+                    name: product.name,
+                    brand: product.brand || '',
+                    sku: sku,
+                    description: sanitizedDescription,
+                    price: parseFloat(product.price) || 0,
+                    category: product.category || 'sunglasses',
+                    gender: product.gender || 'unisex',
+                    images: JSON.stringify(imageUrls.length > 0 ? imageUrls : ['/images/products/aviator.svg']),
+                    colors: JSON.stringify(colors),
+                    sizes: JSON.stringify(sizes),
+                    stock: parseInt(product.stock) || 0,
+                    is_bestseller: parseInt(product.is_bestseller || 0),
+                    is_new: parseInt(product.is_new || 0)
+                };
                 newProduct = productOperations.create(productData);
                 newProduct.images = JSON.parse(newProduct.images || '[]');
                 newProduct.colors = JSON.parse(newProduct.colors || '[]');
@@ -626,6 +809,21 @@ app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']
             }
         } else {
             // Use SQLite
+            const productData = {
+                name: product.name,
+                brand: product.brand || '',
+                sku: sku,
+                description: sanitizedDescription,
+                price: parseFloat(product.price) || 0,
+                category: product.category || 'sunglasses',
+                gender: product.gender || 'unisex',
+                images: JSON.stringify(imageUrls.length > 0 ? imageUrls : ['/images/products/aviator.svg']),
+                colors: JSON.stringify(colors),
+                sizes: JSON.stringify(sizes),
+                stock: parseInt(product.stock) || 0,
+                is_bestseller: parseInt(product.is_bestseller || 0),
+                is_new: parseInt(product.is_new || 0)
+            };
             newProduct = productOperations.create(productData);
             newProduct.images = JSON.parse(newProduct.images || '[]');
             newProduct.colors = JSON.parse(newProduct.colors || '[]');
@@ -635,7 +833,7 @@ app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']
         res.status(201).json(newProduct);
     } catch (error) {
         console.error('Error creating product:', error);
-        res.status(500).json({ error: 'Failed to create product' });
+        res.status(500).json({ error: 'Failed to create product: ' + error.message });
     }
 });
 
@@ -644,29 +842,140 @@ app.put('/api/admin/products/:id', authenticateToken, authorize(['admin', 'edito
     try {
         const { id } = req.params;
         const product = req.body;
+        console.log('PUT product body:', product);
+        console.log('PUT req.files:', req.files);
 
-        // Handle images
-        let imageUrls = product.images || [];
+        // Check if this is a partial update (only is_bestseller or is_new)
+        const isPartialUpdate = Object.keys(product).length === 1 &&
+            (product.is_bestseller !== undefined || product.is_new !== undefined);
+
+        // If partial update, fetch existing product first
+        let existingProduct = null;
+        if (isPartialUpdate && useSupabase && supabase) {
+            const { data: existing } = await supabase
+                .from('products')
+                .select('*')
+                .eq('id', parseInt(id))
+                .single();
+            existingProduct = existing;
+        } else if (isPartialUpdate) {
+            // SQLite fallback
+            const stmt = db.prepare('SELECT * FROM products WHERE id = ?');
+            existingProduct = stmt.get(parseInt(id));
+        }
+
+        // Generate SKU if not provided
+        let sku = product.sku;
+        if (!sku || sku.trim() === '') {
+            sku = isPartialUpdate && existingProduct?.sku
+                ? existingProduct.sku
+                : `SKU-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        }
+
+        // Handle images - from files or from body
+        let imageUrls = [];
         if (req.files && req.files.length > 0) {
-            const newUrls = req.files.map(f => f.location || `/uploads/products/${f.filename}`);
-            imageUrls = [...imageUrls, ...newUrls];
+            // New files uploaded
+            imageUrls = req.files.map(f => f.location || `/uploads/products/${f.filename}`);
+        } else if (product.images) {
+            // Try parsing as JSON array or use as single image string
+            try {
+                const parsed = JSON.parse(product.images);
+                imageUrls = Array.isArray(parsed) ? parsed : [parsed];
+            } catch {
+                // It's a plain string URL, use it directly
+                imageUrls = [product.images];
+            }
+        } else if (isPartialUpdate && existingProduct?.images) {
+            imageUrls = existingProduct.images;
         }
 
         // Sanitize
-        const sanitizedDescription = sanitize(product.description || '');
+        const sanitizedDescription = sanitize(product.description || (isPartialUpdate ? existingProduct?.description : '') || '');
 
+        // Parse arrays from string if needed
+        let colors = [];
+        let sizes = ['M'];
+        try {
+            colors = typeof product.colors === 'string' ? JSON.parse(product.colors) : (Array.isArray(product.colors) ? product.colors : []);
+            if (colors.length === 0 && isPartialUpdate && existingProduct?.colors) {
+                colors = existingProduct.colors;
+            }
+        } catch {
+            colors = isPartialUpdate && existingProduct?.colors ? existingProduct.colors : [];
+        }
+        try {
+            sizes = typeof product.sizes === 'string' ? JSON.parse(product.sizes) : (Array.isArray(product.sizes) ? product.sizes : ['M']);
+            if ((sizes.length === 0 || (sizes.length === 1 && sizes[0] === 'M')) && isPartialUpdate && existingProduct?.sizes) {
+                sizes = existingProduct.sizes;
+            }
+        } catch {
+            sizes = isPartialUpdate && existingProduct?.sizes ? existingProduct.sizes : ['M'];
+        }
+
+        // Use Supabase if available, otherwise fallback to SQLite
+        if (useSupabase && supabase) {
+            try {
+                // For Supabase, we need to pass arrays directly, not JSON strings
+                const updateData = {
+                    name: product.name || (isPartialUpdate ? existingProduct?.name : '') || '',
+                    brand: product.brand || (isPartialUpdate ? existingProduct?.brand : '') || '',
+                    sku: sku,
+                    description: sanitizedDescription,
+                    price: parseFloat(product.price) || (isPartialUpdate ? existingProduct?.price : 0) || 0,
+                    category: product.category || (isPartialUpdate ? existingProduct?.category : 'sunglasses') || 'sunglasses',
+                    gender: product.gender || (isPartialUpdate ? existingProduct?.gender : 'unisex') || 'unisex',
+                    images: imageUrls,
+                    colors: colors,
+                    sizes: sizes,
+                    stock: parseInt(product.stock) || (isPartialUpdate ? existingProduct?.stock : 0) || 0,
+                    is_bestseller: (() => {
+                        const val = product.is_bestseller !== undefined ? product.is_bestseller : (isPartialUpdate ? (existingProduct?.is_bestseller ? 1 : 0) : 0);
+                        return !!(parseInt(val));
+                    })(),
+                    is_new: (() => {
+                        const val = product.is_new !== undefined ? product.is_new : (isPartialUpdate ? (existingProduct?.is_new ? 1 : 0) : 0);
+                        return !!(parseInt(val));
+                    })()
+                };
+
+                console.log('Supabase update data:', updateData);
+
+                const { data, error } = await supabase
+                    .from('products')
+                    .update(updateData)
+                    .eq('id', parseInt(id))
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Supabase update error:', error);
+                    return res.status(500).json({ error: error.message });
+                }
+
+                if (!data) {
+                    return res.status(404).json({ error: 'Product not found' });
+                }
+
+                return res.json(data);
+            } catch (supabaseError) {
+                console.error('Supabase error, using SQLite:', supabaseError.message);
+            }
+        }
+
+        // Use SQLite
         const productData = {
             name: product.name,
-            brand: product.brand,
-            sku: product.sku,
+            brand: product.brand || '',
+            sku: sku,
             description: sanitizedDescription,
-            price: parseFloat(product.price),
-            category: product.category,
-            gender: product.gender,
-            images: (typeof product.images === 'string' && product.images.startsWith('[')) ? product.images : JSON.stringify(imageUrls),
-            colors: (typeof product.colors === 'string' && product.colors.startsWith('[')) ? product.colors : JSON.stringify(product.colors || []),
-            sizes: (typeof product.sizes === 'string' && product.sizes.startsWith('[')) ? product.sizes : JSON.stringify(product.sizes || []),
-            stock: parseInt(product.stock),
+            price: parseFloat(product.price) || 0,
+            category: product.category || 'sunglasses',
+            gender: product.gender || 'unisex',
+            images: JSON.stringify(imageUrls),
+            colors: JSON.stringify(colors),
+            sizes: JSON.stringify(sizes),
+            stock: parseInt(product.stock) || 0,
             is_bestseller: parseInt(product.is_bestseller || 0),
             is_new: parseInt(product.is_new || 0)
         };
@@ -684,7 +993,7 @@ app.put('/api/admin/products/:id', authenticateToken, authorize(['admin', 'edito
         res.json(updatedProduct);
     } catch (error) {
         console.error('Error updating product:', error);
-        res.status(500).json({ error: 'Failed to update product' });
+        res.status(500).json({ error: 'Failed to update product: ' + error.message });
     }
 });
 
@@ -809,10 +1118,8 @@ app.delete('/api/admin/categories/:id', authenticateToken, authorize(['admin', '
     }
 });
 
-// ==================== CATCH ALL FOR REACT ROUTING ====================
-app.get('*', (req, res) => {
-    res.sendFile(join(__dirname, '../dist/index.html'));
-});
+// ==================== API ROUTES ONLY ====================
+// Non-API routes return 404 - use port 5173 for frontend
 
 // Start server
 app.listen(PORT, () => {

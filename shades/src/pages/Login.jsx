@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from || '/';
+    const message = location.state?.message || '';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,7 +23,7 @@ export default function Login() {
 
         try {
             await login(email, password);
-            navigate('/');
+            navigate(from, { replace: true });
         } catch (err) {
             console.error('Login error:', err);
             if (err.code === 'auth/invalid-email') {
@@ -75,6 +81,12 @@ export default function Login() {
                             </div>
                         )}
 
+                        {message && (
+                            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-600 text-sm">
+                                {message}
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
                                 <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">
@@ -90,18 +102,25 @@ export default function Login() {
                                 />
                             </div>
 
-                            <div>
-                                <label className="-bold tracking-[0block text-xs font.2em] uppercase mb-2 text-gray-500">
+                            <div className="relative">
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">
                                     Password
                                 </label>
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
+                                    className="w-full px-4 py-3.5 pr-12 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
                                     placeholder="••••••••"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-9 text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
 
                             <div className="flex items-center justify-between">

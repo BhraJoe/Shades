@@ -39,7 +39,7 @@ export default function Shop() {
                 const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
                 const res = await fetch(`${API_BASE}/categories`);
                 const data = await res.json();
-                const cats = [{ id: 'all', name: 'All' }, ...data.map(c => ({ id: c.slug, name: c.name }))];
+                const cats = [{ id: 'all', name: 'All' }, ...data.map(c => ({ id: String(c.id), name: c.name }))];
                 setCategories(cats);
             } catch (err) {
                 console.error('Failed to load categories:', err);

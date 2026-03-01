@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ export default function Register() {
         password: '',
         confirmPassword: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -133,22 +136,36 @@ export default function Register() {
                                 />
                             </div>
 
-                            <div>
+                            <div className="relative">
                                 <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Password</label>
                                 <input
-                                    type="password" name="password" value={formData.password} onChange={handleChange}
-                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
+                                    type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange}
+                                    className="w-full px-4 py-3.5 pr-12 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
                                     placeholder="••••••••" required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-9 text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
 
-                            <div>
+                            <div className="relative">
                                 <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Confirm Password</label>
                                 <input
-                                    type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
-                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
+                                    type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
+                                    className="w-full px-4 py-3.5 pr-12 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors placeholder-gray-300"
                                     placeholder="••••••••" required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-4 top-9 text-gray-400 hover:text-gray-600"
+                                >
+                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
 
                             <div className="flex items-start">

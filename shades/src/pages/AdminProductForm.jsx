@@ -1,483 +1,428 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
-import { X, Upload, Trash2, Check, AlertCircle, ArrowLeft } from 'lucide-react';
+import { X, ChevronLeft, Upload, Eye, EyeOff } from 'lucide-react';
 
-// API base URL - works on both local and Vercel
-const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+const COLORS = [
+    { name: 'Black', code: '#000000' },
+    { name: 'Gold', code: '#FFD700' },
+    { name: 'Silver', code: '#C0C0C0' },
+    { name: 'Brown', code: '#8B4513' },
+    { name: 'Tortoise', code: '#B5651D' },
+    { name: 'Red', code: '#DC2626' },
+    { name: 'Blue', code: '#2563EB' },
+    { name: 'Green', code: '#16A34A' },
+    { name: 'Purple', code: '#9333EA' },
+    { name: 'Pink', code: '#EC4899' },
+    { name: 'White', code: '#FFFFFF' },
+    { name: 'Gray', code: '#6B7280' }
+];
 
-const AdminProductForm = () => {
-    console.log('AdminProductForm mounted');
+export default function AdminProductForm() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const isEditing = !!id;
-    const [isLoading, setIsLoading] = useState(false);
-    const [isFetching, setIsFetching] = useState(isEditing);
-    const [categories, setCategories] = useState([]);
-
-    // Form State
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         brand: '',
-        sku: '',
-        description: '',
         price: '',
+        description: '',
+        category_id: '',
         stock: '',
-        category: 'aviator',
-        gender: 'unisex',
-        is_bestseller: 0,
+        image: '',
         is_new: 0,
+        is_bestseller: 0,
         colors: [],
-        sizes: ['M'],
+        sizes: ['M']
     });
-
-    const [images, setImages] = useState([]);
-    const [newFiles, setNewFiles] = useState([]);
-    const [previews, setPreviews] = useState([]);
-    const fileInputRef = useRef(null);
+    const [categories, setCategories] = useState([]);
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         fetchCategories();
-        if (isEditing) {
+        if (id) {
             fetchProduct();
         }
     }, [id]);
 
     const fetchCategories = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/categories`);
-            setCategories(res.data || []);
-        } catch (err) {
-            console.error('Error loading categories:', err);
-            // Fallback to default categories if API fails
-            setCategories([
-                { name: 'Aviator', slug: 'aviator' },
-                { name: 'Wayfarer', slug: 'wayfarer' },
-                { name: 'Clubmaster', slug: 'clubmaster' },
-                { name: 'Round', slug: 'round' },
-                { name: 'Cat-Eye', slug: 'cat-eye' },
-                { name: 'Rectangular', slug: 'rectangular' }
-            ]);
-        }
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch('http://localhost:3001/api/admin/categories', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setCategories(data);
+            }
+        } catch (err) { console.error(err); }
     };
 
     const fetchProduct = async () => {
         try {
-            const res = await axios.get(`/api/products/${id}`);
-            const p = res.data;
-            setFormData({
-                name: p.name || '',
-                brand: p.brand || '',
-                sku: p.sku || '',
-                description: p.description || '',
-                price: p.price || '',
-                stock: p.stock || '',
-                category: p.category || 'aviator',
-                gender: p.gender || 'unisex',
-                is_bestseller: p.is_bestseller || 0,
-                is_new: p.is_new || 0,
-                colors: typeof p.colors === 'string' ? JSON.parse(p.colors) : (p.colors || []),
-                sizes: typeof p.sizes === 'string' ? JSON.parse(p.sizes) : (p.sizes || ['M']),
+            const token = localStorage.getItem('adminToken');
+            const res = await fetch(`http://localhost:3001/api/admin/products/${id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-            setImages(typeof p.images === 'string' ? JSON.parse(p.images) : (p.images || []));
-        } catch (err) {
-            console.error('Fetch error:', err);
-            toast.error('Failed to load product data');
-            navigate('/admin/products');
-        } finally {
-            setIsFetching(false);
-        }
-    };
-
-    const [imageUrlInput, setImageUrlInput] = useState('');
-
-    const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        setNewFiles([...newFiles, ...files]);
-
-        const newPreviews = files.map(file => URL.createObjectURL(file));
-        setPreviews([...previews, ...newPreviews]);
-    };
-
-    const removeNewFile = (index) => {
-        const updatedFiles = [...newFiles];
-        updatedFiles.splice(index, 1);
-        setNewFiles(updatedFiles);
-
-        const updatedPreviews = [...previews];
-        URL.revokeObjectURL(updatedPreviews[index]);
-        updatedPreviews.splice(index, 1);
-        setPreviews(updatedPreviews);
-    };
-
-    const removeExistingImage = (index) => {
-        const updatedImages = [...images];
-        updatedImages.splice(index, 1);
-        setImages(updatedImages);
+            if (res.ok) {
+                const p = await res.json();
+                setFormData({
+                    name: p.name || '',
+                    brand: p.brand || '',
+                    price: p.price || '',
+                    description: p.description || '',
+                    category_id: p.category || '',
+                    stock: p.stock ?? '',
+                    image: Array.isArray(p.images) ? (p.images[0] || '') : (p.image || ''),
+                    is_new: p.is_new || 0,
+                    is_bestseller: p.is_bestseller || 0,
+                    colors: typeof p.colors === 'string' ? JSON.parse(p.colors) : (Array.isArray(p.colors) ? p.colors : []),
+                    sizes: typeof p.sizes === 'string' ? JSON.parse(p.sizes) : (Array.isArray(p.sizes) ? p.sizes : ['M'])
+                });
+                const previewImage = Array.isArray(p.images) ? p.images[0] : (p.image || '');
+                if (previewImage) setImagePreview(previewImage);
+            }
+        } catch (err) { console.error(err); }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        e.stopPropagation();
-        setIsLoading(true);
-
+        setLoading(true);
         try {
-            console.log('Starting form submission...');
+            const token = localStorage.getItem('adminToken');
 
-            // Convert new files to base64 data URLs
-            let finalImages = [...images];
+            // Use FormData for file uploads
+            const formDataToSend = new FormData();
 
-            if (newFiles.length > 0) {
-                for (const file of newFiles) {
-                    // Convert file to base64 data URL
-                    const base64Url = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
-                    finalImages.push(base64Url);
-                }
+            // Add all form fields
+            formDataToSend.append('name', formData.name);
+            formDataToSend.append('brand', formData.brand);
+            formDataToSend.append('price', formData.price);
+            formDataToSend.append('description', formData.description);
+            formDataToSend.append('category', formData.category_id);
+            formDataToSend.append('stock', formData.stock);
+            formDataToSend.append('is_bestseller', formData.is_bestseller || 0);
+            formDataToSend.append('is_new', formData.is_new || 0);
+            formDataToSend.append('colors', JSON.stringify(formData.colors));
+            formDataToSend.append('sizes', JSON.stringify(formData.sizes));
+
+            // Add image file if selected (it's stored as base64 in formData.image)
+            if (formData.image && formData.image.startsWith('data:')) {
+                // Convert base64 to blob and then to file
+                const response = await fetch(formData.image);
+                const blob = await response.blob();
+                const ext = blob.type.split('/')[1] || 'jpg';
+                const file = new File([blob], `product_${Date.now()}.${ext}`, { type: blob.type });
+                formDataToSend.append('images', file);
+            } else if (id && formData.image) {
+                // For editing without new image, send existing image URL
+                formDataToSend.append('images', formData.image);
             }
 
-            // Send as JSON with image data URLs
-            const data = {
-                ...formData,
-                images: finalImages,
-            };
+            const url = id
+                ? `http://localhost:3001/api/admin/products/${id}`
+                : 'http://localhost:3001/api/admin/products';
+            const method = id ? 'PUT' : 'POST';
 
-            const url = isEditing
-                ? `${API_BASE}/admin/products/${id}`
-                : `${API_BASE}/admin/products`;
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formDataToSend
+            });
 
-            console.log('Submitting to URL:', url);
-
-            // Get admin token from localStorage
-            const adminToken = localStorage.getItem('adminToken');
-            console.log('Admin token exists:', !!adminToken);
-
-            // Create abort controller for timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                console.log('Timeout reached - aborting request');
-                controller.abort();
-            }, 30000); // 30 second timeout
-
-            try {
-                console.log('Starting fetch request...');
-                const response = await fetch(url, {
-                    method: isEditing ? 'PUT' : 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(adminToken && { 'Authorization': `Bearer ${adminToken}` })
-                    },
-                    body: JSON.stringify(data),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-                console.log('Response received, status:', response.status);
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `Server error: ${response.status}`);
-                }
-
-                const result = await response.json();
-                console.log('Product saved:', result);
-                toast.success(isEditing ? 'Product updated successfully' : 'Product added to inventory');
-                console.log('About to navigate...');
-                // Navigate back to admin dashboard
-                navigate('/admin');
-                console.log('Navigation complete');
-            } catch (err) {
-                console.error('Error saving product:', err);
-                // Better error handling for aborted requests
-                if (err.name === 'AbortError' || err.message.includes('aborted')) {
-                    toast.error('Request timed out - please try again');
-                } else {
-                    toast.error(err.message || 'Failed to save product');
-                }
-            } finally {
-                setIsLoading(false);
+            if (res.ok) {
+                toast.success(id ? 'Product updated!' : 'Product created!');
+                navigate('/admin/products');
+            } else {
+                const err = await res.json();
+                toast.error(err.error || 'Failed to save product');
             }
         } catch (err) {
-            console.error('Error saving product:', err);
-            // Better error handling for aborted requests
-            if (err.name === 'AbortError' || err.message.includes('aborted')) {
-                toast.error('Request timed out - please try again');
-            } else {
-                toast.error(err.message || 'Failed to save product');
-            }
-        } finally {
-            setIsLoading(false);
+            console.error(err);
+            toast.error('Something went wrong');
+        } finally { setLoading(false); }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+                setFormData({ ...formData, image: reader.result });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-12 pb-20 px-4 md:px-0">
-            {/* Form Header */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-gray-100 pb-12">
-                <div className="flex items-center gap-6 md:gap-8">
-                    <button
-                        onClick={() => navigate('/admin/products')}
-                        className="p-3 md:p-4 bg-white border border-gray-100 hover:border-[#0a0a0a] rounded-full transition-all group shrink-0"
-                    >
-                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                    </button>
-                    <div>
-                        <h2 className="text-3xl md:text-5xl font-display tracking-tight text-[#0a0a0a]">
-                            {isEditing ? 'REVISE VISION' : 'NEW OBJECT'}<span className="text-[#dc2626]">.</span>
-                        </h2>
-                        <p className="text-gray-400 text-[9px] md:text-[10px] font-bold tracking-[0.4em] uppercase mt-2">
-                            Product Specification Interface
-                        </p>
+        <div className="min-h-screen bg-gray-50 pt-10 pb-20">
+            <div className="max-w-5xl mx-auto px-4">
+                <button onClick={() => navigate('/admin/products')} className="flex items-center gap-2 text-gray-500 hover:text-[#dc2626] mb-6 transition-colors">
+                    <ChevronLeft size={20} />
+                    <span className="text-sm font-medium">Back to Products</span>
+                </button>
+
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="bg-[#0a0a0a] px-6 py-4 flex items-center justify-between">
+                        <h1 className="text-white text-lg font-bold tracking-wide">{id ? 'Edit Product' : 'Add New Product'}</h1>
                     </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto mt-8 lg:mt-0">
-                    <button
-                        type="button"
-                        onClick={() => navigate('/admin/products')}
-                        className="order-2 lg:order-1 px-8 py-4 text-[10px] font-bold tracking-widest uppercase text-gray-400 hover:text-[#0a0a0a] transition-all bg-gray-50 lg:bg-transparent"
-                    >
-                        Discard Changes
-                    </button>
-                    <button
-                        form="product-form"
-                        type="submit"
-                        disabled={isLoading}
-                        className="order-1 lg:order-2 bg-[#0a0a0a] text-white px-10 py-4 font-bold tracking-widest uppercase text-[10px] hover:bg-[#dc2626] transition-all shadow-xl disabled:opacity-50"
-                    >
-                        {isLoading ? 'Processing...' : (isEditing ? 'Sync with Archive' : 'Publish to Archive')}
-                    </button>
-                </div>
-            </div>
 
-            <form id="product-form" onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-                {/* Left: Core Specifications */}
-                <div className="space-y-12">
-                    <div className="space-y-8 bg-white p-6 md:p-10 border border-gray-100 shadow-sm">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-1.5 h-1.5 bg-[#dc2626] rounded-full" />
-                            <h3 className="text-[10px] font-black tracking-[0.3em] uppercase">Identity & Classification</h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black tracking-widest uppercase text-gray-400">Object Name</label>
+                    <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-8">
+                        {/* Basic Info */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Product Name</label>
                                 <input
-                                    type="text" required
+                                    type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-gray-50 border-b border-gray-100 focus:border-[#0a0a0a] py-3 text-sm focus:outline-none transition-all font-medium placeholder:text-gray-300"
-                                    placeholder="e.g. Aviator Gold"
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                    placeholder="Enter product name"
+                                    required
                                 />
                             </div>
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black tracking-widest uppercase text-gray-400">SKU / Model ID</label>
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Brand</label>
                                 <input
-                                    type="text" required
-                                    value={formData.sku}
-                                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                                    className="w-full bg-gray-50 border-b border-gray-100 focus:border-[#0a0a0a] py-3 text-sm focus:outline-none transition-all font-mono tracking-tighter placeholder:text-gray-300"
-                                    placeholder="CS-2026-F"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black tracking-widest uppercase text-gray-400">Valuation (₵)</label>
-                                <input
-                                    type="number" step="0.01" required
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                    className="w-full bg-gray-50 border-b border-gray-100 focus:border-[#0a0a0a] py-4 text-xl font-display focus:outline-none transition-all placeholder:text-gray-200"
-                                    placeholder="00.00"
-                                />
-                            </div>
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black tracking-widest uppercase text-gray-400">Inventory Count</label>
-                                <input
-                                    type="number" required
-                                    value={formData.stock}
-                                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                                    className="w-full bg-gray-50 border-b border-gray-100 focus:border-[#0a0a0a] py-3 text-sm focus:outline-none transition-all font-medium placeholder:text-gray-300"
-                                    placeholder="Total units"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black tracking-widest uppercase text-gray-400">Classification</label>
-                                <select
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    className="w-full bg-transparent border-b border-gray-100 focus:border-[#0a0a0a] py-3 text-[10px] font-bold tracking-widest uppercase focus:outline-none appearance-none cursor-pointer"
-                                >
-                                    {categories.length > 0 ? (
-                                        categories.map(cat => (
-                                            <option key={cat.slug} value={cat.slug}>{cat.name}</option>
-                                        ))
-                                    ) : (
-                                        <>
-                                            <option value="aviator">Aviator</option>
-                                            <option value="wayfarer">Wayfarer</option>
-                                            <option value="clubmaster">Clubmaster</option>
-                                            <option value="round">Round</option>
-                                            <option value="cat-eye">Cat-Eye</option>
-                                            <option value="rectangular">Rectangular</option>
-                                        </>
-                                    )}
-                                </select>
-                            </div>
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black tracking-widest uppercase text-gray-400">Brand Authority</label>
-                                <input
-                                    type="text" required
+                                    type="text"
                                     value={formData.brand}
                                     onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                                    className="w-full bg-gray-50 border-b border-gray-100 focus:border-[#0a0a0a] py-3 text-sm focus:outline-none transition-all font-medium placeholder:text-gray-300"
-                                    placeholder="CITYSHADES EXCLUSIVE"
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                    placeholder="Enter brand name"
+                                    required
                                 />
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        <label className="text-[9px] font-black tracking-widest uppercase text-gray-400 px-1">Curatorial Statement / Description</label>
-                        <textarea
-                            required
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full bg-white border border-gray-100 focus:border-[#0a0a0a] p-6 md:p-10 text-sm focus:outline-none transition-all min-h-[300px] md:min-h-[400px] resize-none leading-relaxed italic text-gray-600 shadow-sm"
-                            placeholder="Articulate the vision, craftsmanship, and aesthetic intent behind this object..."
-                        />
-                    </div>
-                </div>
-
-                {/* Right: Curated Assets & Configuration */}
-                <div className="space-y-12">
-                    <div className="space-y-8 bg-white p-6 md:p-10 border border-gray-100 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 bg-[#dc2626] rounded-full" />
-                                <h3 className="text-[10px] font-black tracking-[0.3em] uppercase">Visual Evidence</h3>
-                            </div>
-                            <span className="text-[8px] font-bold text-gray-300 tracking-widest uppercase">{images.length + newFiles.length} / 05</span>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
-                            {images.map((img, i) => (
-                                <div key={`existing-${i}`} className="relative group aspect-[3/4] bg-gray-50 border border-gray-100 overflow-hidden shadow-sm">
-                                    <img src={img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeExistingImage(i)}
-                                        className="absolute inset-0 bg-[#0a0a0a]/80 flex items-center justify-center transition-all text-white opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                                    >
-                                        <Trash2 size={24} strokeWidth={1} />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeExistingImage(i)}
-                                        className="md:hidden absolute top-2 right-2 bg-[#0a0a0a]/80 p-2 rounded-full text-white"
-                                    >
-                                        <X size={14} />
-                                    </button>
-                                </div>
-                            ))}
-                            {previews.map((url, i) => (
-                                <div key={`new-${i}`} className="relative group aspect-[3/4] bg-gray-50 border border-[#dc2626] overflow-hidden shadow-sm">
-                                    <img src={url} className="w-full h-full object-cover" />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeNewFile(i)}
-                                        className="absolute inset-0 bg-[#dc2626]/90 flex items-center justify-center transition-all text-white opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                                    >
-                                        <Trash2 size={24} strokeWidth={1} />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeNewFile(i)}
-                                        className="md:hidden absolute top-2 right-2 bg-[#dc2626]/90 p-2 rounded-full text-white"
-                                    >
-                                        <X size={14} />
-                                    </button>
-                                    <div className="absolute top-3 left-3 bg-[#dc2626] text-white p-1 rounded-sm shadow-lg">
-                                        <Check size={8} />
-                                    </div>
-                                </div>
-                            ))}
-                            {(images.length + newFiles.length) < 5 && (
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current.click()}
-                                    className="aspect-[3/4] border border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 text-gray-300 hover:border-[#0a0a0a] hover:text-[#0a0a0a] hover:bg-gray-50 transition-all group"
-                                >
-                                    <Upload size={24} strokeWidth={1} className="group-hover:-translate-y-1 transition-transform" />
-                                    <span className="text-[8px] font-black tracking-[0.4em] uppercase">Add Media</span>
-                                </button>
-                            )}
-                        </div>
-                        <input
-                            type="file" multiple accept="image/*"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            className="hidden"
-                        />
-                        <div className="flex items-start gap-3 p-4 bg-gray-50/50 border border-gray-100">
-                            <AlertCircle size={14} className="text-[#dc2626] mt-0.5 shrink-0" />
-                            <p className="text-[9px] text-gray-400 font-medium leading-relaxed uppercase tracking-wider">
-                                Images are converted to base64 and stored directly. Supported: JPG, PNG, WEBP.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-8 bg-white p-6 md:p-10 border border-gray-100 shadow-sm">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-1.5 h-1.5 bg-[#dc2626] rounded-full" />
-                            <h3 className="text-[10px] font-black tracking-[0.3em] uppercase">Visibility Configuration</h3>
-                        </div>
-
-                        <div className="space-y-10">
-                            <label className="flex items-center justify-between cursor-pointer group py-4 border-b border-gray-50">
-                                <div className="space-y-1">
-                                    <span className="text-[10px] font-black tracking-widest uppercase text-gray-600 group-hover:text-[#0a0a0a]">Priority Access (Best Seller)</span>
-                                    <p className="text-[8px] text-gray-400 uppercase tracking-widest">Pin to curated high-traffic sections</p>
-                                </div>
-                                <div className={`w-12 h-6 rounded-full p-1 transition-all duration-500 shrink-0 ${formData.is_bestseller ? 'bg-[#dc2626]' : 'bg-gray-100'}`}>
-                                    <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-500 shadow-sm ${formData.is_bestseller ? 'translate-x-6' : ''}`} />
-                                </div>
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Price (GHS)</label>
                                 <input
-                                    type="checkbox" className="hidden"
-                                    checked={formData.is_bestseller === 1}
-                                    onChange={(e) => setFormData({ ...formData, is_bestseller: e.target.checked ? 1 : 0 })}
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.price}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                    placeholder="0.00"
+                                    required
                                 />
-                            </label>
+                            </div>
+                        </div>
 
-                            <label className="flex items-center justify-between cursor-pointer group py-4 border-b border-gray-50">
-                                <div className="space-y-1">
-                                    <span className="text-[10px] font-black tracking-widest uppercase text-gray-600 group-hover:text-[#0a0a0a]">Contemporary Arrival</span>
-                                    <p className="text-[8px] text-gray-400 uppercase tracking-widest">Mark as new visual contribution</p>
+                        <div>
+                            <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Description</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                rows={4}
+                                className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors resize-none"
+                                placeholder="Product description..."
+                                required
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Category</label>
+                                <select
+                                    value={formData.category_id}
+                                    onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                    required
+                                >
+                                    <option value="">Select Category</option>
+                                    {categories.map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Stock</label>
+                                <input
+                                    type="number"
+                                    value={formData.stock}
+                                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                    placeholder="0"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Image URL</label>
+                                <input
+                                    type="text"
+                                    value={formData.image}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, image: e.target.value });
+                                        if (e.target.value.startsWith('http')) setImagePreview(e.target.value);
+                                    }}
+                                    className="w-full px-4 py-3.5 bg-white border border-gray-200 text-[#0a0a0a] text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                    placeholder="https://..."
+                                />
+                            </div>
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="space-y-4">
+                            <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-500">Product Image</label>
+                            <div className="flex items-start gap-6">
+                                <div className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                                    {imagePreview ? (
+                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                            <Upload size={24} />
+                                        </div>
+                                    )}
                                 </div>
-                                <div className={`w-12 h-6 rounded-full p-1 transition-all duration-500 shrink-0 ${formData.is_new ? 'bg-[#dc2626]' : 'bg-gray-100'}`}>
-                                    <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-500 shadow-sm ${formData.is_new ? 'translate-x-6' : ''}`} />
+                                <div className="flex-1">
+                                    <label className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <Upload size={16} className="mr-2" />
+                                        Choose Image
+                                        <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                    </label>
+                                    <p className="text-xs text-gray-400 mt-2">Or paste an image URL above</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* New Arrival Toggle */}
+                        <div className="flex items-center gap-3">
+                            <label className="relative inline-flex items-center cursor-pointer">
                                 <input
                                     type="checkbox" className="hidden"
                                     checked={formData.is_new === 1}
                                     onChange={(e) => setFormData({ ...formData, is_new: e.target.checked ? 1 : 0 })}
                                 />
+                                <div className={`w-11 h-6 rounded-full transition-colors ${formData.is_new ? 'bg-[#dc2626]' : 'bg-gray-200'}`}>
+                                    <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${formData.is_new ? 'translate-x-5' : 'translate-x-0.5'} mt-0.5`} />
+                                </div>
                             </label>
+                            <label className="text-sm text-gray-600 font-medium">Mark as New Arrival</label>
                         </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    );
-};
 
-export default AdminProductForm;
+                        {/* Best Seller Toggle */}
+                        <div className="flex items-center gap-3">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox" className="hidden"
+                                    checked={formData.is_bestseller === 1}
+                                    onChange={(e) => setFormData({ ...formData, is_bestseller: e.target.checked ? 1 : 0 })}
+                                />
+                                <div className={`w-11 h-6 rounded-full transition-colors ${formData.is_bestseller ? 'bg-[#dc2626]' : 'bg-gray-200'}`}>
+                                    <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${formData.is_bestseller ? 'translate-x-5' : 'translate-x-0.5'} mt-0.5`} />
+                                </div>
+                            </label>
+                            <label className="text-sm text-gray-600 font-medium">Mark as Best Seller</label>
+                        </div>
+
+                        {/* Colors Section */}
+                        <div className="space-y-8 bg-white p-6 md:p-10 border border-gray-100 shadow-sm">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="w-1.5 h-1.5 bg-[#dc2626] rounded-full" />
+                                <h3 className="text-[10px] font-black tracking-[0.3em] uppercase">Color Options</h3>
+                            </div>
+
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                {COLORS.map((color) => (
+                                    <button
+                                        key={color.name}
+                                        type="button"
+                                        onClick={() => {
+                                            const newColors = formData.colors.includes(color.name)
+                                                ? formData.colors.filter(c => c !== color.name)
+                                                : [...formData.colors, color.name];
+                                            setFormData({ ...formData, colors: newColors });
+                                        }}
+                                        className={`py-3 px-4 text-[10px] font-bold tracking-widest uppercase border transition-all flex items-center justify-center gap-2 ${formData.colors.includes(color.name)
+                                            ? 'border-[#0a0a0a] bg-[#0a0a0a] text-white'
+                                            : 'border-gray-200 text-gray-400 hover:border-[#0a0a0a]'
+                                            }`}
+                                    >
+                                        <span className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: color.code }} />
+                                        {color.name}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {formData.colors.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
+                                    <span className="text-[8px] font-bold text-gray-400 tracking-widest uppercase">Selected:</span>
+                                    {formData.colors.map((c) => (
+                                        <span key={c} className="inline-flex items-center gap-1 bg-gray-100 px-2 py-1 text-[8px] font-bold uppercase">
+                                            {c}
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, colors: formData.colors.filter(x => x !== c) })}
+                                                className="text-[#dc2626] hover:text-red-700"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sizes Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 bg-[#dc2626] rounded-full" />
+                                <h3 className="text-[10px] font-black tracking-[0.3em] uppercase">Size Options</h3>
+                            </div>
+                            <div className="flex flex-wrap gap-3">
+                                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                                    <button
+                                        key={size}
+                                        type="button"
+                                        onClick={() => {
+                                            const newSizes = formData.sizes.includes(size)
+                                                ? formData.sizes.filter(s => s !== size)
+                                                : [...formData.sizes, size];
+                                            setFormData({ ...formData, sizes: newSizes });
+                                        }}
+                                        className={`w-12 h-12 text-xs font-bold uppercase border transition-all ${formData.sizes.includes(size)
+                                            ? 'border-[#0a0a0a] bg-[#0a0a0a] text-white'
+                                            : 'border-gray-200 text-gray-400 hover:border-[#0a0a0a]'
+                                            }`}
+                                    >
+                                        {size}
+                                    </button>
+                                ))}
+                            </div>
+                            {formData.sizes.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
+                                    <span className="text-[8px] font-bold text-gray-400 tracking-widest uppercase">Selected:</span>
+                                    {formData.sizes.map((s) => (
+                                        <span key={s} className="inline-flex items-center gap-1 bg-gray-100 px-2 py-1 text-[8px] font-bold uppercase">
+                                            {s}
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, sizes: formData.sizes.filter(x => x !== s) })}
+                                                className="text-[#dc2626] hover:text-red-700"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="pt-6 border-t border-gray-100">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Saving...' : (id ? 'Update Product' : 'Create Product')}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div >
+        </div >
+    );
+}

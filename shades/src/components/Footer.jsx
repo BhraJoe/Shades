@@ -116,8 +116,8 @@ export default function Footer() {
                         © 2026 CITYSHADES. All rights reserved.
                     </p>
                     <div className="flex gap-6">
-                        <a href="#" className="footer-link text-xs">Privacy Policy</a>
-                        <a href="#" className="footer-link text-xs">Terms of Service</a>
+                        <Link to="/privacy-policy" className="footer-link text-xs">Privacy Policy</Link>
+                        <Link to="/terms-of-service" className="footer-link text-xs">Terms of Service</Link>
                     </div>
                 </div>
             </div>

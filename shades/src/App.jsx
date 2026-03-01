@@ -25,7 +25,12 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProductForm from './pages/AdminProductForm';
 import AdminCategories from './pages/AdminCategories';
+import AdminOrders from './pages/AdminOrders';
+import AdminSubscribers from './pages/AdminSubscribers';
+import AdminMessages from './pages/AdminMessages';
 import AdminLayout from './components/AdminLayout';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -58,6 +63,8 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -67,6 +74,9 @@ function AppContent() {
             <Route path="products/new" element={<AdminProductForm />} />
             <Route path="products/edit/:id" element={<AdminProductForm />} />
             <Route path="categories" element={<AdminCategories />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="subscribers" element={<AdminSubscribers />} />
+            <Route path="messages" element={<AdminMessages />} />
           </Route>
         </Routes>
       </main>

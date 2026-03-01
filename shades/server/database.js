@@ -315,7 +315,34 @@ export const subscriberOperations = {
         const result = stmt.run(email);
         return { id: result.lastInsertRowid, email };
     },
-    exists: (email) => db.prepare('SELECT id FROM subscribers WHERE email = ?').get(email)
+    exists: (email) => db.prepare('SELECT id FROM subscribers WHERE email = ?').get(email),
+    delete: (id) => {
+        // Get all subscribers ordered by id
+        const subscribers = db.prepare('SELECT * FROM subscribers ORDER BY id').all();
+
+        // Delete the subscriber
+        const stmt = db.prepare('DELETE FROM subscribers WHERE id = ?');
+        stmt.run(id);
+
+        // Renumber remaining subscribers to have sequential IDs
+        const remaining = db.prepare('SELECT * FROM subscribers ORDER BY id').all();
+        remaining.forEach((sub, index) => {
+            const updateStmt = db.prepare('UPDATE subscribers SET id = ? WHERE id = ?');
+            updateStmt.run(index + 1, sub.id);
+        });
+
+        // Reset auto-increment to the next available ID
+        const count = db.prepare('SELECT COUNT(*) as count FROM subscribers').get();
+        if (count.count === 0) {
+            db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run('subscribers');
+        } else {
+            db.prepare('UPDATE sqlite_sequence SET seq = ? WHERE name = ?').run(count.count + 1, 'subscribers');
+        }
+    },
+    deleteAll: () => {
+        db.prepare('DELETE FROM subscribers').run();
+        db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run('subscribers');
+    }
 };
 
 // Message operations
@@ -328,6 +355,10 @@ export const messageOperations = {
         `);
         const result = stmt.run(message);
         return { id: result.lastInsertRowid, ...message };
+    },
+    delete: (id) => {
+        const stmt = db.prepare('DELETE FROM messages WHERE id = ?');
+        stmt.run(id);
     }
 };
 

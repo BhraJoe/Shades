@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, CreditCard, Check, ArrowLeft, Lock, Truck } from 'lucide-react';
@@ -7,7 +7,8 @@ import { initializePaystackPayment, generatePaymentReference, convertToSmallestU
 
 export default function Checkout() {
     const { cart, cartTotal, clearCart } = useCart();
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
+    const navigate = useNavigate();
     const [step, setStep] = useState('shipping');
     const [orderComplete, setOrderComplete] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -23,6 +24,13 @@ export default function Checkout() {
     const shipping = 0; // Always free shipping
     const estimatedTax = 0;
     const orderTotal = cartTotal + shipping + estimatedTax;
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            navigate('/login', { state: { from: '/checkout', message: 'Please login to complete your checkout' } });
+        }
+    }, [user, authLoading, navigate]);
 
     // Check for payment success and verify
     useEffect(() => {
@@ -106,8 +114,8 @@ export default function Checkout() {
             const ref = generatePaymentReference();
             setPaymentRef(ref);
 
-            // Convert amount to kobo (GH₵ to pesewas)
-            const amountInKobo = convertToSmallestUnit(orderTotal * 100, 'GHS'); // Ghana Cedis
+            // Convert amount to pesewas (smallest currency unit for GHS)
+            const amountInKobo = convertToSmallestUnit(orderTotal, 'GHS'); // Ghana Cedis
 
             // Initialize payment with backend
             const response = await fetch('/api/paystack/initialize', {

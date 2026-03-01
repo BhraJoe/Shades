@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, LogOut, User, Menu, X, Tag } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, LogOut, User, Menu, X, Tag, Package, Users, MessageSquare } from 'lucide-react';
 
 const AdminLayout = () => {
     const location = useLocation();
@@ -35,6 +35,9 @@ const AdminLayout = () => {
     const navItems = [
         { name: 'Products', path: '/admin/products', icon: ShoppingBag },
         { name: 'Categories', path: '/admin/categories', icon: Tag },
+        { name: 'Orders', path: '/admin/orders', icon: Package },
+        { name: 'Subscribers', path: '/admin/subscribers', icon: Users },
+        { name: 'Messages', path: '/admin/messages', icon: MessageSquare },
     ];
 
     const SidebarContent = () => (

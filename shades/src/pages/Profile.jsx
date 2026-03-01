@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { User, Package, Heart, MapPin, LogOut, Trash2, Plus, ArrowLeft, Edit3 } from 'lucide-react';
+import { User, Package, Heart, MapPin, LogOut, Trash2, Plus, ArrowLeft, Edit3, Bell, Mail, Eye, MessageSquare, Settings, ChevronRight } from 'lucide-react';
 
 export default function Profile() {
     const { user, logout: authLogout, loading: authLoading } = useAuth();
@@ -15,6 +15,10 @@ export default function Profile() {
     const [showForm, setShowForm] = useState(false);
     const [form, setForm] = useState({ firstName: '', lastName: '', address: '', city: '', state: '', zip: '', country: 'GH' });
     const [editing, setEditing] = useState(false);
+    const [newsletter, setNewsletter] = useState(false);
+    const [recentlyViewed, setRecentlyViewed] = useState([]);
+    const [notifications, setNotifications] = useState({ email: true, sms: false, orders: true, promotions: true });
+    const [activeTab, setActiveTab] = useState('overview');
 
     useEffect(() => {
         if (!user) return;
@@ -26,6 +30,9 @@ export default function Profile() {
         load(`orders_${user.uid}`, setOrders);
         load(`wishlist_${user.uid}`, setWishlist);
         load(`addresses_${user.uid}`, setAddresses);
+        load(`newsletter_${user.uid}`, setNewsletter);
+        load(`recentlyViewed_${user.uid}`, setRecentlyViewed);
+        load(`notifications_${user.uid}`, setNotifications);
 
         (async () => {
             try {
@@ -36,6 +43,8 @@ export default function Profile() {
                     if (data.orders) { setOrders(data.orders); localStorage.setItem(`orders_${user.uid}`, JSON.stringify(data.orders)); }
                     if (data.wishlist) { setWishlist(data.wishlist); localStorage.setItem(`wishlist_${user.uid}`, JSON.stringify(data.wishlist)); }
                     if (data.addresses) { setAddresses(data.addresses); localStorage.setItem(`addresses_${user.uid}`, JSON.stringify(data.addresses)); }
+                    if (data.newsletter !== undefined) { setNewsletter(data.newsletter); localStorage.setItem(`newsletter_${user.uid}`, JSON.stringify(data.newsletter)); }
+                    if (data.notifications) { setNotifications(data.notifications); localStorage.setItem(`notifications_${user.uid}`, JSON.stringify(data.notifications)); }
                 }
             } catch (e) { console.log(e); }
         })();
@@ -60,6 +69,8 @@ export default function Profile() {
     const removeAddress = (id) => { const u = addresses.filter(a => a.id !== id); setAddresses(u); save('addresses', u); };
     const removeWishlist = (id) => { const u = wishlist.filter(i => i.id !== id); setWishlist(u); save('wishlist', u); };
     const logoutUser = async () => { await authLogout(); navigate('/'); };
+    const toggleNewsletter = () => { const v = !newsletter; setNewsletter(v); save('newsletter', v); };
+    const toggleNotification = (key) => { const n = { ...notifications, [key]: !notifications[key] }; setNotifications(n); save('notifications', n); };
 
     if (authLoading || !user) return null;
 
@@ -113,71 +124,206 @@ export default function Profile() {
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Orders */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg flex items-center gap-2">
-                                <Package className="text-[#dc2626]" size={20} /> Orders
-                            </h2>
-                            <span className="bg-[#dc2626]/10 text-[#dc2626] text-sm font-medium px-3 py-1 rounded-full">{orders.length}</span>
+                {/* Navigation Tabs */}
+                <div className="flex gap-2 mb-6 overflow-x-auto">
+                    {['overview', 'orders', 'wishlist', 'addresses', 'settings'].map(tab => (
+                        <button key={tab} onClick={() => setActiveTab(tab)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${activeTab === tab ? 'bg-[#dc2626] text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Overview Tab */}
+                {activeTab === 'overview' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Orders */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="font-bold text-lg flex items-center gap-2">
+                                    <Package className="text-[#dc2626]" size={20} /> Orders
+                                </h2>
+                                <button onClick={() => setActiveTab('orders')} className="text-[#dc2626] text-sm font-medium hover:underline flex items-center gap-1">
+                                    View All <ChevronRight size={16} />
+                                </button>
+                            </div>
+                            {orders.length === 0 ? (
+                                <div className="text-center py-6">
+                                    <p className="text-gray-400 mb-3">No orders yet</p>
+                                    <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Start shopping</Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {orders.slice(0, 3).map(o => (
+                                        <div key={o.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                            <div>
+                                                <p className="font-bold text-[#dc2626]">#{o.id}</p>
+                                                <p className="text-xs text-gray-500">{new Date(o.date).toLocaleDateString()}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="font-bold">₵{o.total?.toFixed(2) || '0.00'}</p>
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{o.status}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
+
+                        {/* Wishlist */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="font-bold text-lg flex items-center gap-2">
+                                    <Heart className="text-[#dc2626]" size={20} /> Wishlist
+                                </h2>
+                                <button onClick={() => setActiveTab('wishlist')} className="text-[#dc2626] text-sm font-medium hover:underline flex items-center gap-1">
+                                    View All <ChevronRight size={16} />
+                                </button>
+                            </div>
+                            {wishlist.length === 0 ? (
+                                <div className="text-center py-6">
+                                    <p className="text-gray-400 mb-3">Your wishlist is empty</p>
+                                    <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Browse products</Link>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-3">
+                                    {wishlist.slice(0, 4).map(item => (
+                                        <div key={item.id} className="relative group">
+                                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                                <img src={item.image || '/images/products/wayfarer.svg'} alt={item.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <button onClick={() => removeWishlist(item.id)} className="absolute top-2 right-2 p-1 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Trash2 size={12} className="text-red-500" />
+                                            </button>
+                                            <p className="text-xs font-medium mt-1 truncate">{item.name}</p>
+                                            <p className="text-[#dc2626] font-bold text-sm">₵{item.price?.toFixed(2) || '0.00'}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Recently Viewed */}
+                        {recentlyViewed.length > 0 && (
+                            <div className="bg-white rounded-2xl p-6 shadow-sm md:col-span-2">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="font-bold text-lg flex items-center gap-2">
+                                        <Eye className="text-[#dc2626]" size={20} /> Recently Viewed
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {recentlyViewed.slice(0, 4).map(item => (
+                                        <Link key={item.id} to={`/product/${item.id}`} className="group">
+                                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                                <img src={item.image || '/images/products/wayfarer.svg'} alt={item.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <p className="text-xs font-medium mt-1 truncate group-hover:text-[#dc2626]">{item.name}</p>
+                                            <p className="text-[#dc2626] font-bold text-sm">₵{item.price?.toFixed(2) || '0.00'}</p>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Quick Actions */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm md:col-span-2">
+                            <h2 className="font-bold text-lg mb-4">Quick Actions</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <button onClick={() => navigate('/contact')} className="p-4 bg-gray-50 rounded-lg text-center hover:bg-gray-100 transition-colors">
+                                    <MessageSquare className="mx-auto text-[#dc2626] mb-2" size={24} />
+                                    <span className="text-sm font-medium">Contact Support</span>
+                                </button>
+                                <button onClick={() => setActiveTab('settings')} className="p-4 bg-gray-50 rounded-lg text-center hover:bg-gray-100 transition-colors">
+                                    <Settings className="mx-auto text-[#dc2626] mb-2" size={24} />
+                                    <span className="text-sm font-medium">Settings</span>
+                                </button>
+                                <Link to="/shop" className="p-4 bg-gray-50 rounded-lg text-center hover:bg-gray-100 transition-colors">
+                                    <Package className="mx-auto text-[#dc2626] mb-2" size={24} />
+                                    <span className="text-sm font-medium">Shop Now</span>
+                                </Link>
+                                <button onClick={() => navigate('/faq')} className="p-4 bg-gray-50 rounded-lg text-center hover:bg-gray-100 transition-colors">
+                                    <Bell className="mx-auto text-[#dc2626] mb-2" size={24} />
+                                    <span className="text-sm font-medium">FAQ</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Orders Tab */}
+                {activeTab === 'orders' && (
+                    <div className="bg-white rounded-2xl p-6 shadow-sm">
+                        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <Package className="text-[#dc2626]" size={20} /> My Orders
+                        </h2>
                         {orders.length === 0 ? (
-                            <div className="text-center py-6">
+                            <div className="text-center py-12">
+                                <Package className="mx-auto text-gray-300 mb-4" size={48} />
                                 <p className="text-gray-400 mb-3">No orders yet</p>
                                 <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Start shopping</Link>
                             </div>
                         ) : (
-                            <div className="space-y-3">
-                                {orders.slice(0, 3).map(o => (
-                                    <div key={o.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                        <div>
-                                            <p className="font-bold text-[#dc2626]">#{o.id}</p>
-                                            <p className="text-xs text-gray-500">{new Date(o.date).toLocaleDateString()}</p>
+                            <div className="space-y-4">
+                                {orders.map(o => (
+                                    <div key={o.id} className="p-4 border border-gray-200 rounded-lg">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div>
+                                                <p className="font-bold text-[#dc2626] text-lg">Order #{o.id}</p>
+                                                <p className="text-sm text-gray-500">{new Date(o.date).toLocaleDateString()}</p>
+                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                {o.status}
+                                            </span>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="font-bold">₵{o.total?.toFixed(2) || '0.00'}</p>
-                                            <span className={`text-xs px-2 py-0.5 rounded-full ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{o.status}</span>
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-bold text-lg">₵{o.total?.toFixed(2) || '0.00'}</p>
+                                            <button onClick={() => navigate(`/orders`)} className="text-[#dc2626] text-sm font-medium hover:underline">
+                                                View Details
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
+                )}
 
-                    {/* Wishlist */}
+                {/* Wishlist Tab */}
+                {activeTab === 'wishlist' && (
                     <div className="bg-white rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="font-bold text-lg flex items-center gap-2">
-                                <Heart className="text-[#dc2626]" size={20} /> Wishlist
-                            </h2>
-                            <span className="bg-[#dc2626]/10 text-[#dc2626] text-sm font-medium px-3 py-1 rounded-full">{wishlist.length}</span>
-                        </div>
+                        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <Heart className="text-[#dc2626]" size={20} /> My Wishlist
+                        </h2>
                         {wishlist.length === 0 ? (
-                            <div className="text-center py-6">
+                            <div className="text-center py-12">
+                                <Heart className="mx-auto text-gray-300 mb-4" size={48} />
                                 <p className="text-gray-400 mb-3">Your wishlist is empty</p>
                                 <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Browse products</Link>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                                {wishlist.slice(0, 4).map(item => (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {wishlist.map(item => (
                                     <div key={item.id} className="relative group">
-                                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                            <img src={item.image || '/images/products/wayfarer.svg'} alt={item.name} className="w-full h-full object-cover" />
-                                        </div>
-                                        <button onClick={() => removeWishlist(item.id)} className="absolute top-2 right-2 p-1 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Trash2 size={12} className="text-red-500" />
+                                        <Link to={`/product/${item.id}`}>
+                                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                                <img src={item.image || '/images/products/wayfarer.svg'} alt={item.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <p className="text-sm font-medium mt-2 truncate">{item.name}</p>
+                                            <p className="text-[#dc2626] font-bold">₵{item.price?.toFixed(2) || '0.00'}</p>
+                                        </Link>
+                                        <button onClick={() => removeWishlist(item.id)} className="absolute top-2 right-2 p-2 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Trash2 size={16} className="text-red-500" />
                                         </button>
-                                        <p className="text-xs font-medium mt-1 truncate">{item.name}</p>
-                                        <p className="text-[#dc2626] font-bold text-sm">₵{item.price?.toFixed(2) || '0.00'}</p>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
+                )}
 
-                    {/* Addresses */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm md:col-span-2">
+                {/* Addresses Tab */}
+                {activeTab === 'addresses' && (
+                    <div className="bg-white rounded-2xl p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-bold text-lg flex items-center gap-2">
                                 <MapPin className="text-[#dc2626]" size={20} /> Saved Addresses
@@ -187,16 +333,18 @@ export default function Profile() {
                             </button>
                         </div>
                         {showForm && (
-                            <form onSubmit={addAddress} className="mb-4 p-4 bg-gray-50 rounded-lg grid grid-cols-2 gap-3">
+                            <form onSubmit={addAddress} className="mb-6 p-4 bg-gray-50 rounded-lg grid grid-cols-2 gap-3">
                                 <input type="text" placeholder="Name" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" required />
-                                <input type="text" placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" required />
+                                <input type="text" placeholder="Phone" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" />
+                                <input type="text" placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="col-span-2 px-3 py-2 border rounded-lg text-sm" required />
                                 <input type="text" placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" required />
-                                <input type="text" placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" required />
+                                <input type="text" placeholder="State/Region" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" required />
+                                <input type="text" placeholder="ZIP Code" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} className="px-3 py-2 border rounded-lg text-sm" />
                                 <button type="submit" className="col-span-2 py-2 bg-[#dc2626] text-white rounded-lg text-sm">Save Address</button>
                             </form>
                         )}
                         {addresses.length === 0 ? (
-                            <p className="text-gray-400 text-center py-4">No addresses saved</p>
+                            <p className="text-gray-400 text-center py-8">No addresses saved</p>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {addresses.map(a => (
@@ -204,9 +352,9 @@ export default function Profile() {
                                         <div>
                                             <p className="font-medium">{a.firstName}</p>
                                             <p className="text-sm text-gray-500">{a.address}</p>
-                                            <p className="text-sm text-gray-500">{a.city}, {a.state}</p>
+                                            <p className="text-sm text-gray-500">{a.city}, {a.state} {a.zip}</p>
                                         </div>
-                                        <button onClick={() => removeAddress(a.id)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => removeAddress(a.id)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity h-fit">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -214,8 +362,84 @@ export default function Profile() {
                             </div>
                         )}
                     </div>
-                </div>
+                )}
+
+                {/* Settings Tab */}
+                {activeTab === 'settings' && (
+                    <div className="space-y-6">
+                        {/* Newsletter */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                <Mail className="text-[#dc2626]" size={20} /> Newsletter
+                            </h2>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium">Subscribe to newsletter</p>
+                                    <p className="text-sm text-gray-500">Get updates on new products and promotions</p>
+                                </div>
+                                <button onClick={toggleNewsletter} className={`w-12 h-6 rounded-full transition-colors ${newsletter ? 'bg-[#dc2626]' : 'bg-gray-300'}`}>
+                                    <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${newsletter ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Notifications */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                <Bell className="text-[#dc2626]" size={20} /> Notification Preferences
+                            </h2>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="font-medium">Order Updates</p>
+                                        <p className="text-sm text-gray-500">Get notified about order status changes</p>
+                                    </div>
+                                    <button onClick={() => toggleNotification('orders')} className={`w-12 h-6 rounded-full transition-colors ${notifications.orders ? 'bg-[#dc2626]' : 'bg-gray-300'}`}>
+                                        <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${notifications.orders ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="font-medium">Promotional Emails</p>
+                                        <p className="text-sm text-gray-500">Receive promotional offers and discounts</p>
+                                    </div>
+                                    <button onClick={() => toggleNotification('promotions')} className={`w-12 h-6 rounded-full transition-colors ${notifications.promotions ? 'bg-[#dc2626]' : 'bg-gray-300'}`}>
+                                        <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${notifications.promotions ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="font-medium">SMS Notifications</p>
+                                        <p className="text-sm text-gray-500">Receive SMS for order updates</p>
+                                    </div>
+                                    <button onClick={() => toggleNotification('sms')} className={`w-12 h-6 rounded-full transition-colors ${notifications.sms ? 'bg-[#dc2626]' : 'bg-gray-300'}`}>
+                                        <div className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${notifications.sms ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Account Actions */}
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <h2 className="font-bold text-lg mb-4">Account</h2>
+                            <div className="space-y-3">
+                                <button onClick={() => navigate('/forgot-password')} className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex justify-between items-center">
+                                    <span>Change Password</span>
+                                    <ChevronRight size={18} className="text-gray-400" />
+                                </button>
+                                <button onClick={() => navigate('/contact')} className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex justify-between items-center">
+                                    <span>Contact Support</span>
+                                    <ChevronRight size={18} className="text-gray-400" />
+                                </button>
+                                <button onClick={logoutUser} className="w-full text-left p-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex justify-between items-center">
+                                    <span>Logout</span>
+                                    <LogOut size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-        </div>
+        </div >
     );
 }

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { fetchBestsellers, fetchNewArrivals, subscribe } from '../api';
 import ProductCard from '../components/ProductCard';
 import { ArrowRight, ChevronDown, Star } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 export default function Home() {
     const [bestsellers, setBestsellers] = useState([]);
@@ -10,6 +11,32 @@ export default function Home() {
     const [email, setEmail] = useState('');
     const [subscribed, setSubscribed] = useState(false);
     const [subscribeError, setSubscribeError] = useState('');
+    const [searchParams] = useSearchParams();
+    const { clearCart } = useCart();
+    const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+    const clearCartRef = useRef(clearCart);
+    clearCartRef.current = clearCart;
+    const hasProcessedPayment = useRef(false);
+
+    // Check for payment success and clear cart
+    useEffect(() => {
+        const paymentStatus = searchParams.get('payment');
+        if (paymentStatus === 'success' && !hasProcessedPayment.current) {
+            hasProcessedPayment.current = true;
+            // Clear cart both in state and localStorage
+            clearCartRef.current();
+            localStorage.removeItem('shades-cart');
+            setShowOrderSuccess(true);
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                setShowOrderSuccess(false);
+            }, 5000);
+            // Clean up URL after a short delay
+            setTimeout(() => {
+                window.history.replaceState({}, document.title, '/');
+            }, 100);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         async function loadData() {
@@ -46,6 +73,14 @@ export default function Home() {
 
     return (
         <div className="bg-white selection:bg-[#dc2626] selection:text-white">
+            {/* Order Success Message */}
+            {showOrderSuccess && (
+                <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white px-8 py-4 rounded-lg shadow-xl animate-fade-in">
+                    <p className="font-bold text-lg">Thank you for your order!</p>
+                    <p className="text-sm">Your order has been placed successfully.</p>
+                </div>
+            )}
+
             {/* ════════════════════════════════════════════
                 SECTION 01: THE CINEMATIC HERO (KEN BURNS)
             ════════════════════════════════════════════ */}

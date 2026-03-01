@@ -9,6 +9,7 @@ const AdminDashboard = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all');
 
     useEffect(() => {
         fetchProducts();
@@ -69,10 +70,82 @@ const AdminDashboard = () => {
         }
     };
 
-    const filteredProducts = products.filter(p =>
-        p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.sku?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleToggleBestseller = async (id, currentStatus) => {
+        try {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                toast.error('Please login as admin');
+                return;
+            }
+
+            const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+            const response = await fetch(`${API_BASE}/admin/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ is_bestseller: currentStatus ? 0 : 1 })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to update');
+            }
+
+            toast.success(currentStatus ? 'Removed from Best Sellers' : 'Added to Best Sellers');
+            fetchProducts();
+        } catch (err) {
+            console.error('Toggle bestseller error:', err);
+            toast.error(err.message || 'Failed to update bestseller status');
+        }
+    };
+
+    const handleToggleNewArrival = async (id, currentStatus) => {
+        try {
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                toast.error('Please login as admin');
+                return;
+            }
+
+            const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+            const response = await fetch(`${API_BASE}/admin/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ is_new: currentStatus ? 0 : 1 })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to update');
+            }
+
+            toast.success(currentStatus ? 'Removed from New Arrivals' : 'Added to New Arrivals');
+            fetchProducts();
+        } catch (err) {
+            console.error('Toggle new arrival error:', err);
+            toast.error(err.message || 'Failed to update new arrival status');
+        }
+    };
+
+    const filteredProducts = products.filter(p => {
+        const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.sku?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const isBestseller = p.is_bestseller === 1 || p.is_bestseller === true;
+        const isNew = p.is_new === 1 || p.is_new === true;
+        const hasStock = p.stock > 0;
+
+        if (filterType === 'bestsellers') return matchesSearch && isBestseller;
+        if (filterType === 'new') return matchesSearch && isNew;
+        if (filterType === 'instock') return matchesSearch && hasStock;
+        if (filterType === 'outofstock') return matchesSearch && !hasStock;
+        return matchesSearch;
+    });
 
     return (
         <div className="max-w-7xl mx-auto space-y-12 pb-12">
@@ -96,6 +169,17 @@ const AdminDashboard = () => {
                             className="w-full bg-white border border-gray-100 py-4 pl-12 pr-6 text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-[#0a0a0a] transition-all shadow-sm"
                         />
                     </div>
+                    <select
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                        className="bg-white border border-gray-100 py-4 px-4 text-[10px] font-bold tracking-[0.2em] uppercase focus:outline-none focus:border-[#0a0a0a] transition-all shadow-sm cursor-pointer"
+                    >
+                        <option value="all">All Products</option>
+                        <option value="bestsellers">Best Sellers</option>
+                        <option value="new">New Arrivals</option>
+                        <option value="instock">In Stock</option>
+                        <option value="outofstock">Out of Stock</option>
+                    </select>
                     <Link
                         to="/admin/products/new"
                         className="bg-[#0a0a0a] text-white px-10 py-4 font-bold tracking-[0.2em] uppercase text-[10px] flex items-center justify-center gap-4 hover:bg-[#dc2626] transition-all shadow-xl"
@@ -112,7 +196,7 @@ const AdminDashboard = () => {
                     { label: 'Total Objects', value: products.length },
                     { label: 'Active Stock', value: products.reduce((acc, p) => acc + (p.stock || 0), 0) },
                     { label: 'Categories', value: new Set(products.map(p => p.category)).size },
-                    { label: 'Best Sellers', value: products.filter(p => p.is_bestseller).length },
+                    { label: 'Best Sellers', value: products.filter(p => p.is_bestseller === 1 || p.is_bestseller === true).length },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-8 border border-gray-100 shadow-sm relative group overflow-hidden">
                         <div className="absolute top-0 left-0 w-1 h-0 bg-[#dc2626] group-hover:h-full transition-all duration-500" />
@@ -192,13 +276,27 @@ const AdminDashboard = () => {
                                         <div className="flex items-center gap-2">
                                             <div className={`w-1.5 h-1.5 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
                                             <span className="text-[9px] font-black tracking-widest text-[#0a0a0a] uppercase">{p.stock} Units</span>
-                                            {p.is_bestseller === 1 && (
+                                            {p.is_bestseller === 1 || p.is_bestseller === true ? (
                                                 <span className="text-[7px] font-black tracking-[0.2em] text-[#dc2626] uppercase ml-auto">High Covet</span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleToggleBestseller(p.id, p.is_bestseller)}
+                                        className={`flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase transition-all rounded border ${p.is_bestseller ? 'text-[#dc2626] border-[#dc2626] bg-red-50' : 'text-gray-500 border-gray-200 hover:text-[#0a0a0a] hover:bg-gray-50'}`}
+                                        title={p.is_bestseller ? 'Remove from Best Sellers' : 'Add to Best Sellers'}
+                                    >
+                                        {p.is_bestseller ? '★ Best Seller' : '☆ Best Seller'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleToggleNewArrival(p.id, p.is_new)}
+                                        className={`flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase transition-all rounded border ${p.is_new ? 'text-blue-500 border-blue-500 bg-blue-50' : 'text-gray-500 border-gray-200 hover:text-blue-500 hover:border-blue-500'}`}
+                                        title={p.is_new ? 'Remove from New Arrivals' : 'Add to New Arrivals'}
+                                    >
+                                        {p.is_new ? '● New' : '○ New'}
+                                    </button>
                                     <Link
                                         to={`/admin/products/edit/${p.id}`}
                                         className="flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50 border border-gray-200 transition-all rounded"
@@ -291,16 +389,30 @@ const AdminDashboard = () => {
                                                 <div className={`w-2 h-2 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
                                                 <span className="text-[11px] font-black tracking-[0.2em] uppercase text-[#0a0a0a]">{p.stock} Units</span>
                                             </div>
-                                            {p.is_bestseller === 1 && (
+                                            {p.is_bestseller === 1 || p.is_bestseller === true ? (
                                                 <span className="text-[9px] font-black tracking-[0.2em] text-[#dc2626] uppercase">High Covet</span>
-                                            )}
-                                            {p.is_new === 1 && (
+                                            ) : null}
+                                            {p.is_new === 1 || p.is_new === true ? (
                                                 <span className="text-[9px] font-black tracking-[0.2em] text-blue-500 uppercase">New Arrival</span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </td>
                                     <td className="px-10 py-10 text-right">
                                         <div className="flex items-center justify-end gap-3">
+                                            <button
+                                                onClick={() => handleToggleBestseller(p.id, p.is_bestseller)}
+                                                className={`p-4 transition-all border group/btn ${p.is_bestseller ? 'text-[#dc2626] border-[#dc2626] bg-red-50' : 'text-gray-400 border-gray-200 hover:text-[#dc2626] hover:border-[#dc2626]'}`}
+                                                title={p.is_bestseller ? 'Remove from Best Sellers' : 'Add to Best Sellers'}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={p.is_bestseller ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:scale-110 transition-transform"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                            </button>
+                                            <button
+                                                onClick={() => handleToggleNewArrival(p.id, p.is_new)}
+                                                className={`p-4 transition-all border group/btn ${p.is_new ? 'text-blue-500 border-blue-500 bg-blue-50' : 'text-gray-400 border-gray-200 hover:text-blue-500 hover:border-blue-500'}`}
+                                                title={p.is_new ? 'Remove from New Arrivals' : 'Add to New Arrivals'}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={p.is_new ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:scale-110 transition-transform"><path d="M12 2v4" /><path d="m16.2 7.8 2.9-2.9" /><path d="M18 12h4" /><path d="m16.2 16.2 2.9 2.9" /><path d="M12 18v4" /><path d="m4.9 19.1 2.9-2.9" /><path d="M2 12h4" /><path d="m4.9 4.9 2.9 2.9" /></svg>
+                                            </button>
                                             <Link
                                                 to={`/admin/products/edit/${p.id}`}
                                                 className="p-4 text-gray-400 hover:text-[#0a0a0a] hover:bg-gray-50 transition-all border border-gray-200 hover:border-[#0a0a0a] group/btn"

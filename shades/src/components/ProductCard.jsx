@@ -3,6 +3,35 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
+const COLOR_MAP = {
+    'Black': '#000000',
+    'Gold': '#FFD700',
+    'Silver': '#C0C0C0',
+    'Brown': '#8B4513',
+    'Tortoise': '#B5651D',
+    'Red': '#DC2626',
+    'Blue': '#2563EB',
+    'Green': '#16A34A',
+    'Purple': '#9333EA',
+    'Pink': '#EC4899',
+    'White': '#FFFFFF',
+    'Gray': '#6B7280',
+    'Grey': '#6B7280',
+    'Gunmetal': '#2C3539',
+    'Matte Black': '#1a1a1a',
+    'Matte Navy': '#1e3a5f',
+    'Matte Grey': '#5a5a5a',
+    'Demi Blue': '#87CEEB',
+    'Clear': '#e8e8e8'
+};
+
+// Helper function to get color hex from name
+function getColorHex(color) {
+    if (typeof color === 'object' && color.hex) return color.hex;
+    if (typeof color === 'string') return COLOR_MAP[color] || '#CCCCCC';
+    return '#CCCCCC';
+}
+
 export default function ProductCard({ product }) {
     const { addToWishlist, isInWishlist, addToCart } = useCart();
     const isWishlisted = isInWishlist(product.id);
@@ -122,7 +151,7 @@ export default function ProductCard({ product }) {
                                 key={i}
                                 className="w-5 h-5 rounded-full border border-gray-200 shadow-sm"
                                 style={{
-                                    backgroundColor: typeof color === 'object' ? color.hex : '#' + Math.floor(Math.random() * 16777215).toString(16),
+                                    backgroundColor: getColorHex(color),
                                 }}
                                 title={typeof color === 'object' ? color.name : color}
                             />
