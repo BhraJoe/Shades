@@ -231,4 +231,54 @@ app.delete('/api/admin/categories/:id', async (req, res) => {
      }
 });
 
+// ============ ADMIN ORDERS ============
+app.get('/api/admin/orders', async (req, res) => {
+     try {
+          const { data, error } = await supabase
+               .from('orders')
+               .select('*')
+               .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          res.json(data || []);
+     } catch (error) {
+          console.error('Admin orders error:', error);
+          res.status(500).json({ error: error.message });
+     }
+});
+
+app.put('/api/admin/orders/:id', async (req, res) => {
+     try {
+          const { id } = req.params;
+          const { status } = req.body;
+          const { data, error } = await supabase
+               .from('orders')
+               .update({ status })
+               .eq('id', id)
+               .select();
+
+          if (error) throw error;
+          res.json(data[0]);
+     } catch (error) {
+          console.error('Admin order update error:', error);
+          res.status(500).json({ error: error.message });
+     }
+});
+
+app.delete('/api/admin/orders/:id', async (req, res) => {
+     try {
+          const { id } = req.params;
+          const { error } = await supabase
+               .from('orders')
+               .delete()
+               .eq('id', id);
+
+          if (error) throw error;
+          res.json({ message: 'Order deleted' });
+     } catch (error) {
+          console.error('Admin order delete error:', error);
+          res.status(500).json({ error: error.message });
+     }
+});
+
 export default app;
