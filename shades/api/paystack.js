@@ -49,7 +49,8 @@ export default async function handler(req, res) {
                          amount: Math.round(amount),
                          currency,
                          reference,
-                         metadata: metadata || {}
+                         metadata: metadata || {},
+                         callback_url: `${process.env.FRONTEND_URL || 'https://shades-ruddy.vercel.app'}/?payment=success`
                     },
                     {
                          headers: {
