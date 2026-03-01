@@ -25,7 +25,7 @@ export default async function handler(req, res) {
      // Import Supabase dynamically
      const { createClient } = await import('@supabase/supabase-js');
 
-     const supabaseUrl = 'https://llyjnqdhxxnrqgraicuh.supabase.co';
+     const supabaseUrl = 'https://rofkykdunbsnubguoukv.supabase.co';
      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxseWpucWRoeHhucnFncmFpY3VoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTI2NDYxNCwiZXhwIjoyMDg2ODQwNjE0fQ.YgF6VxgPDQU79DRzh8d1jAGWr98Aoj1iZcgJGNE0Cgo';
 
      const supabase = createClient(supabaseUrl, supabaseKey);
