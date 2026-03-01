@@ -201,7 +201,7 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div className="relative group overflow-hidden rounded-2xl">
                             <img
-                                src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&q=80"
+                                src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=800&q=80"
                                 alt="Brand Story"
                                 className="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-700"
                             />
@@ -209,10 +209,10 @@ export default function Home() {
                         <div className="space-y-8">
                             <span className="text-[#dc2626] text-[10px] font-bold tracking-[0.5em] uppercase block">Our Story</span>
                             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-white tracking-tighter leading-tight">
-                                Crafting Vision<br />Since 2020
+                                Born for Style<br />Since 2009
                             </h2>
                             <p className="text-white/60 text-lg font-light leading-relaxed">
-                                We believe eyewear is more than a fashion accessory—it's a statement. Our collection features handcrafted frames designed for those who see the world differently.
+                                Born from a passion for exceptional design and uncompromising quality, CITYSHADES has been your trusted destination for premium designer sunglasses.
                             </p>
                             <p className="text-white/60 text-lg font-light leading-relaxed">
                                 Every pair tells a story of quality, innovation, and timeless style.

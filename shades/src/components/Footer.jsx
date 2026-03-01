@@ -73,9 +73,9 @@ export default function Footer() {
                         <ul className="space-y-3">
                             <li><Link to="/faq" className="footer-link">FAQ</Link></li>
                             <li><Link to="/contact" className="footer-link">Contact Us</Link></li>
-                            <li><a href="#" className="footer-link">Shipping Info</a></li>
-                            <li><a href="#" className="footer-link">Returns & Exchanges</a></li>
-                            <li><a href="#" className="footer-link">Size Guide</a></li>
+                            <li><Link to="/shipping-info" className="footer-link">Shipping Info</Link></li>
+                            <li><Link to="/returns-exchanges" className="footer-link">Returns & Exchanges</Link></li>
+                            <li><Link to="/size-guide" className="footer-link">Size Guide</Link></li>
                         </ul>
                     </div>
 

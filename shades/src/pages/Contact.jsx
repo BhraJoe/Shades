@@ -58,8 +58,17 @@ export default function Contact() {
             {/* ════════════════════════════════════════════
                 Dark Hero Header
             ════════════════════════════════════════════ */}
-            <div className="bg-[#0a0a0a] py-10 md:py-16">
-                <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="relative bg-[#0a0a0a] py-10 md:py-16 overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                    <img
+                        src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=1920&q=80&auto=format&fit=crop"
+                        alt=""
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+                </div>
+                <div className="relative max-w-7xl mx-auto px-4 md:px-8">
                     <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Get In Touch</span>
                     <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-white tracking-wider">Contact</h1>
                     <p className="text-white/50 mt-3 font-light text-sm md:text-base">

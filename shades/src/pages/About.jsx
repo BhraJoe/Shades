@@ -30,7 +30,7 @@ export default function About() {
             <section className="relative bg-[#0a0a0a] py-20 md:py-32 overflow-hidden">
                 <div className="absolute inset-0 opacity-30">
                     <img
-                        src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=1920&q=80&auto=format&fit=crop"
+                        src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1920&q=80&auto=format&fit=crop"
                         alt=""
                         className="w-full h-full object-cover"
                         loading="lazy"

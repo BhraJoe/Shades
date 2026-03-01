@@ -58,8 +58,17 @@ export default function FAQ() {
             {/* ════════════════════════════════════════════
                 Dark Hero Header
             ════════════════════════════════════════════ */}
-            <section className="bg-[#0a0a0a] py-14 md:py-20">
-                <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
+            <section className="relative bg-[#0a0a0a] py-14 md:py-20 overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                    <img
+                        src="https://images.unsplash.com/photo-1577803645773-f96470509666?w=1920&q=80&auto=format&fit=crop"
+                        alt=""
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+                </div>
+                <div className="relative max-w-7xl mx-auto px-4 md:px-8 text-center">
                     <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">Help Center</span>
                     <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-white tracking-wider mb-4">Frequently Asked Questions</h1>
                     <p className="text-white/40 max-w-2xl mx-auto font-light text-sm md:text-base">

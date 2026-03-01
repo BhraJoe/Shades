@@ -174,8 +174,17 @@ export default function Shop() {
             {/* ════════════════════════════════════════════
                 Dark Cinematic Header
             ════════════════════════════════════════════ */}
-            <div className="bg-[#0a0a0a] py-10 md:py-16">
-                <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="relative bg-[#0a0a0a] py-10 md:py-16 overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                    <img
+                        src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=1920&q=80&auto=format&fit=crop"
+                        alt=""
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+                </div>
+                <div className="relative max-w-7xl mx-auto px-4 md:px-8">
                     <span className="text-[#dc2626] text-xs font-bold tracking-[0.25em] uppercase block mb-3">
                         {filters.search ? 'Search Results' : 'Collection'}
                     </span>

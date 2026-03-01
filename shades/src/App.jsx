@@ -31,6 +31,9 @@ import AdminMessages from './pages/AdminMessages';
 import AdminLayout from './components/AdminLayout';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import ShippingInfo from './pages/ShippingInfo';
+import ReturnsExchanges from './pages/ReturnsExchanges';
+import SizeGuide from './pages/SizeGuide';
 
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -65,6 +68,9 @@ function AppContent() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/shipping-info" element={<ShippingInfo />} />
+          <Route path="/returns-exchanges" element={<ReturnsExchanges />} />
+          <Route path="/size-guide" element={<SizeGuide />} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
