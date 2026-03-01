@@ -20,8 +20,5 @@
             "maxDuration": 60,
             "memory": 2048
         }
-    },
-    "ignore": [
-        "shades/api/admin"
-    ]
+    }
 }

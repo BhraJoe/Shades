@@ -16,7 +16,7 @@ CREATE POLICY "Anyone can view categories" ON categories FOR
 SELECT USING (true);
 -- Policy: Authenticated users can manage categories
 CREATE POLICY "Authenticated users can manage categories" ON categories FOR ALL USING (auth.role() = 'authenticated');
--- Seed default categories
+-- Seed default categories (from local database)
 INSERT INTO categories (name, slug, description)
 VALUES (
           'Aviator',
@@ -47,13 +47,7 @@ VALUES (
           'Rectangular',
           'rectangular',
           'Modern rectangular frame sunglasses'
-     ),
-     (
-          'Oversized',
-          'oversized',
-          'Bold oversized frame sunglasses'
-     ),
-     ('Sport', 'sport', 'Athletic sport sunglasses') ON CONFLICT (name) DO NOTHING;
+     ) ON CONFLICT (name) DO NOTHING;
 -- ===========================================
 -- ORDERS TABLE
 -- ===========================================
