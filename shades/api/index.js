@@ -281,4 +281,51 @@ app.delete('/api/admin/orders/:id', async (req, res) => {
      }
 });
 
+// ============ ADMIN SUBSCRIBERS ============
+app.get('/api/admin/subscribers', async (req, res) => {
+     try {
+          const { data, error } = await supabase
+               .from('subscribers')
+               .select('*')
+               .order('created_at', { ascending: false });
+
+          if (error) throw error;
+          res.json(data || []);
+     } catch (error) {
+          console.error('Admin subscribers error:', error);
+          res.status(500).json({ error: error.message });
+     }
+});
+
+app.delete('/api/admin/subscribers/:id', async (req, res) => {
+     try {
+          const { id } = req.params;
+          const { error } = await supabase
+               .from('subscribers')
+               .delete()
+               .eq('id', id);
+
+          if (error) throw error;
+          res.json({ message: 'Subscriber deleted' });
+     } catch (error) {
+          console.error('Admin subscriber delete error:', error);
+          res.status(500).json({ error: error.message });
+     }
+});
+
+app.delete('/api/admin/subscribers', async (req, res) => {
+     try {
+          const { error } = await supabase
+               .from('subscribers')
+               .delete()
+               .neq('id', 0);
+
+          if (error) throw error;
+          res.json({ message: 'All subscribers deleted' });
+     } catch (error) {
+          console.error('Admin subscribers delete all error:', error);
+          res.status(500).json({ error: error.message });
+     }
+});
+
 export default app;
