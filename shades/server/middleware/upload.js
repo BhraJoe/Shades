@@ -36,21 +36,14 @@ if (useS3) {
         },
     });
 } else {
-    // Local Fallback
+    // Use memory storage for Supabase upload support
+    storage = multer.memoryStorage();
+
+    // Also keep local fallback for serving uploaded files
     const uploadDir = join(__dirname, '../uploads/products');
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
     }
-
-    storage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, uploadDir);
-        },
-        filename: (req, file, cb) => {
-            const ext = file.originalname.split('.').pop();
-            cb(null, `${uuidv4()}.${ext}`);
-        }
-    });
 }
 
 export const upload = multer({
@@ -62,5 +55,8 @@ export const upload = multer({
             cb(new Error('Only images are allowed'), false);
         }
     },
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit for files
+        fieldSize: 10 * 1024 * 1024 // 10MB limit for fields (base64 images)
+    },
 });

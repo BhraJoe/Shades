@@ -63,7 +63,8 @@ export default function AdminProductForm() {
     const fetchProduct = async () => {
         try {
             const token = localStorage.getItem('adminToken');
-            const res = await fetch(`http://localhost:3001/api/admin/products/${id}`, {
+            const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+            const res = await fetch(`${API_BASE}/admin/products/${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -76,8 +77,8 @@ export default function AdminProductForm() {
                     category_id: p.category || '',
                     stock: p.stock ?? '',
                     image: Array.isArray(p.images) ? (p.images[0] || '') : (p.image || ''),
-                    is_new: p.is_new || 0,
-                    is_bestseller: p.is_bestseller || 0,
+                    is_new: (p.is_new === true || p.is_new === 1 || p.is_new === 'true') ? 1 : 0,
+                    is_bestseller: (p.is_bestseller === true || p.is_bestseller === 1 || p.is_bestseller === 'true') ? 1 : 0,
                     colors: typeof p.colors === 'string' ? JSON.parse(p.colors) : (Array.isArray(p.colors) ? p.colors : []),
                     sizes: typeof p.sizes === 'string' ? JSON.parse(p.sizes) : (Array.isArray(p.sizes) ? p.sizes : ['M'])
                 });
@@ -92,46 +93,77 @@ export default function AdminProductForm() {
         setLoading(true);
         try {
             const token = localStorage.getItem('adminToken');
+            const isProduction = import.meta.env.PROD;
 
-            // Use FormData for file uploads
-            const formDataToSend = new FormData();
+            let url, method, body;
 
-            // Add all form fields
-            formDataToSend.append('name', formData.name);
-            formDataToSend.append('brand', formData.brand);
-            formDataToSend.append('price', formData.price);
-            formDataToSend.append('description', formData.description);
-            formDataToSend.append('category', formData.category_id);
-            formDataToSend.append('stock', formData.stock);
-            formDataToSend.append('is_bestseller', formData.is_bestseller || 0);
-            formDataToSend.append('is_new', formData.is_new || 0);
-            formDataToSend.append('colors', JSON.stringify(formData.colors));
-            formDataToSend.append('sizes', JSON.stringify(formData.sizes));
+            // Prepare the data - ensure all values are properly converted
+            const productData = {
+                name: formData.name || '',
+                brand: formData.brand || '',
+                price: formData.price ? String(formData.price) : '0',
+                description: formData.description || '',
+                category: formData.category_id || 'sunglasses',
+                stock: formData.stock ? String(formData.stock) : '0',
+                is_bestseller: formData.is_bestseller ? 'true' : 'false',
+                is_new: formData.is_new ? 'true' : 'false',
+                colors: JSON.stringify(formData.colors || []),
+                sizes: JSON.stringify(formData.sizes || ['M']),
+            };
 
-            // Add image file if selected (it's stored as base64 in formData.image)
+            // Handle image
             if (formData.image && formData.image.startsWith('data:')) {
-                // Convert base64 to blob and then to file
-                const response = await fetch(formData.image);
-                const blob = await response.blob();
-                const ext = blob.type.split('/')[1] || 'jpg';
-                const file = new File([blob], `product_${Date.now()}.${ext}`, { type: blob.type });
-                formDataToSend.append('images', file);
-            } else if (id && formData.image) {
-                // For editing without new image, send existing image URL
-                formDataToSend.append('images', formData.image);
+                // Send base64 image for production
+                productData.image = formData.image;
+            } else if (formData.image) {
+                // For editing or existing image, send URL
+                productData.image = formData.image;
             }
 
-            const url = id
-                ? `http://localhost:3001/api/admin/products/${id}`
-                : 'http://localhost:3001/api/admin/products';
-            const method = id ? 'PUT' : 'POST';
+            if (isProduction) {
+                // Use JSON for Vercel serverless
+                const API_BASE = '/api';
+                url = id
+                    ? `${API_BASE}/admin/products/${id}`
+                    : `${API_BASE}/admin/products`;
+                method = id ? 'PUT' : 'POST';
+                body = JSON.stringify(productData);
+            } else {
+                // Use FormData for local server
+                const API_BASE = 'http://localhost:3001/api';
+                const formDataToSend = new FormData();
+
+                Object.keys(productData).forEach(key => {
+                    formDataToSend.append(key, productData[key]);
+                });
+
+                // Add image file if selected
+                if (formData.image && formData.image.startsWith('data:')) {
+                    const response = await fetch(formData.image);
+                    const blob = await response.blob();
+                    const ext = blob.type.split('/')[1] || 'jpg';
+                    const file = new File([blob], `product_${Date.now()}.${ext}`, { type: blob.type });
+                    formDataToSend.append('images', file);
+                } else if (id && formData.image) {
+                    formDataToSend.append('images', formData.image);
+                }
+
+                url = id
+                    ? `${API_BASE}/admin/products/${id}`
+                    : `${API_BASE}/admin/products`;
+                method = id ? 'PUT' : 'POST';
+                body = formDataToSend;
+            }
 
             const res = await fetch(url, {
                 method,
-                headers: {
+                headers: isProduction ? {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                } : {
                     'Authorization': `Bearer ${token}`
                 },
-                body: formDataToSend
+                body
             });
 
             if (res.ok) {

@@ -75,20 +75,6 @@ export default function ProductCard({ product }) {
                     />
                 </Link>
 
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {product.is_new === 1 && (
-                        <span className="px-3 py-1 bg-[#dc2626] text-white text-[10px] tracking-widest uppercase font-bold">
-                            New
-                        </span>
-                    )}
-                    {product.is_bestseller === 1 && (
-                        <span className="px-3 py-1 bg-[#0a0a0a] text-white text-[10px] tracking-widest uppercase font-bold">
-                            Best Seller
-                        </span>
-                    )}
-                </div>
-
                 {/* Quick Actions */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2">
                     <button

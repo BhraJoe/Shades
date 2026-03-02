@@ -20,6 +20,8 @@ export default function Footer() {
             console.error('Subscribe error:', error);
             if (error.message.includes('Already subscribed')) {
                 setSubscribeError('This email is already subscribed.');
+            } else if (error.message) {
+                setSubscribeError(error.message);
             } else {
                 setSubscribeError('Something went wrong. Please try again.');
             }

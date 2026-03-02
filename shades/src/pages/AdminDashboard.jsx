@@ -26,7 +26,8 @@ const AdminDashboard = () => {
     const fetchProducts = async () => {
         try {
             console.log('Fetching products from /api/products...');
-            const res = await axios.get('/api/products?limit=100');
+            const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+            const res = await axios.get(`${API_BASE}/products?limit=100`);
             const productsData = res.data.products || res.data;
             console.log('Products loaded:', productsData.length);
             setProducts(productsData || []);
@@ -276,14 +277,11 @@ const AdminDashboard = () => {
                                         <div className="flex items-center gap-2">
                                             <div className={`w-1.5 h-1.5 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
                                             <span className="text-[9px] font-black tracking-widest text-[#0a0a0a] uppercase">{p.stock} Units</span>
-                                            {p.is_bestseller === 1 || p.is_bestseller === true ? (
-                                                <span className="text-[7px] font-black tracking-[0.2em] text-[#dc2626] uppercase ml-auto">High Covet</span>
-                                            ) : null}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button
+                                    {/* <button
                                         onClick={() => handleToggleBestseller(p.id, p.is_bestseller)}
                                         className={`flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase transition-all rounded border ${p.is_bestseller ? 'text-[#dc2626] border-[#dc2626] bg-red-50' : 'text-gray-500 border-gray-200 hover:text-[#0a0a0a] hover:bg-gray-50'}`}
                                         title={p.is_bestseller ? 'Remove from Best Sellers' : 'Add to Best Sellers'}
@@ -296,7 +294,7 @@ const AdminDashboard = () => {
                                         title={p.is_new ? 'Remove from New Arrivals' : 'Add to New Arrivals'}
                                     >
                                         {p.is_new ? '● New' : '○ New'}
-                                    </button>
+                                    </button> */}
                                     <Link
                                         to={`/admin/products/edit/${p.id}`}
                                         className="flex-1 py-3 flex items-center justify-center gap-2 text-[9px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-[#0a0a0a] hover:bg-gray-50 border border-gray-200 transition-all rounded"
@@ -389,17 +387,11 @@ const AdminDashboard = () => {
                                                 <div className={`w-2 h-2 rounded-full ${p.stock > 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
                                                 <span className="text-[11px] font-black tracking-[0.2em] uppercase text-[#0a0a0a]">{p.stock} Units</span>
                                             </div>
-                                            {p.is_bestseller === 1 || p.is_bestseller === true ? (
-                                                <span className="text-[9px] font-black tracking-[0.2em] text-[#dc2626] uppercase">High Covet</span>
-                                            ) : null}
-                                            {p.is_new === 1 || p.is_new === true ? (
-                                                <span className="text-[9px] font-black tracking-[0.2em] text-blue-500 uppercase">New Arrival</span>
-                                            ) : null}
                                         </div>
                                     </td>
                                     <td className="px-10 py-10 text-right">
                                         <div className="flex items-center justify-end gap-3">
-                                            <button
+                                            {/* <button
                                                 onClick={() => handleToggleBestseller(p.id, p.is_bestseller)}
                                                 className={`p-4 transition-all border group/btn ${p.is_bestseller ? 'text-[#dc2626] border-[#dc2626] bg-red-50' : 'text-gray-400 border-gray-200 hover:text-[#dc2626] hover:border-[#dc2626]'}`}
                                                 title={p.is_bestseller ? 'Remove from Best Sellers' : 'Add to Best Sellers'}
@@ -412,7 +404,7 @@ const AdminDashboard = () => {
                                                 title={p.is_new ? 'Remove from New Arrivals' : 'Add to New Arrivals'}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={p.is_new ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:scale-110 transition-transform"><path d="M12 2v4" /><path d="m16.2 7.8 2.9-2.9" /><path d="M18 12h4" /><path d="m16.2 16.2 2.9 2.9" /><path d="M12 18v4" /><path d="m4.9 19.1 2.9-2.9" /><path d="M2 12h4" /><path d="m4.9 4.9 2.9 2.9" /></svg>
-                                            </button>
+                                            </button> */}
                                             <Link
                                                 to={`/admin/products/edit/${p.id}`}
                                                 className="p-4 text-gray-400 hover:text-[#0a0a0a] hover:bg-gray-50 transition-all border border-gray-200 hover:border-[#0a0a0a] group/btn"

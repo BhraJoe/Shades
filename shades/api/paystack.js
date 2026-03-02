@@ -30,7 +30,7 @@ export default async function handler(req, res) {
      const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
      // Route: POST /api/paystack/initialize
-     if (method === 'POST' && pathParts[1] === 'initialize') {
+     if (method === 'POST' && pathParts[2] === 'initialize') {
           try {
                const { email, amount, currency = 'NGN', reference, metadata } = req.body;
 
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
      }
 
      // Route: GET /api/paystack/verify/:reference
-     if (method === 'GET' && pathParts[1] === 'verify' && pathParts[2]) {
+     if (method === 'GET' && pathParts[2] === 'verify' && pathParts[3]) {
           try {
                const reference = pathParts[2];
                const axios = (await import('axios')).default;

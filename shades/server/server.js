@@ -39,6 +39,32 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 const supabase = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
 const useSupabase = !!supabase;
 
+// Helper to upload image to Supabase Storage
+const uploadImageToSupabase = async (file) => {
+    if (!supabase || !file) return null;
+    try {
+        const fileExt = file.originalname.split('.').pop();
+        const fileName = `products/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { data, error } = await supabase.storage
+            .from('images')
+            .upload(fileName, file.buffer, {
+                contentType: file.mimetype,
+                upsert: false
+            });
+        if (error) {
+            console.error('Supabase Storage upload error:', error);
+            return null;
+        }
+        const { data: { publicUrl } } = supabase.storage
+            .from('images')
+            .getPublicUrl(fileName);
+        return publicUrl;
+    } catch (err) {
+        console.error('Upload to Supabase Storage failed:', err);
+        return null;
+    }
+};
+
 // Helper to timeout Supabase requests - increased to 30 seconds for reliability
 const supabaseWithTimeout = async (promise, timeoutMs = 30000) => {
     let timeoutId;
@@ -739,7 +765,26 @@ app.post('/api/admin/products', authenticateToken, authorize(['admin', 'editor']
         // Handle images - from files or from body
         let imageUrls = [];
         if (req.files && req.files.length > 0) {
-            imageUrls = req.files.map(f => f.location || `/uploads/products/${f.filename}`);
+            // Upload to Supabase Storage first, fallback to local
+            for (const file of req.files) {
+                const supabaseUrl = await uploadImageToSupabase(file);
+                if (supabaseUrl) {
+                    imageUrls.push(supabaseUrl);
+                } else {
+                    // Fallback to local storage - save buffer to file
+                    const uploadDir = join(__dirname, 'uploads/products');
+                    if (!fs.existsSync(uploadDir)) {
+                        fs.mkdirSync(uploadDir, { recursive: true });
+                    }
+                    const ext = file.originalname?.split('.').pop() || 'jpg';
+                    const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                    const filepath = join(uploadDir, filename);
+                    if (file.buffer) {
+                        fs.writeFileSync(filepath, file.buffer);
+                    }
+                    imageUrls.push(`/uploads/products/${filename}`);
+                }
+            }
         } else if (product.images) {
             // Try parsing as JSON array or use as single image
             try {
@@ -875,8 +920,26 @@ app.put('/api/admin/products/:id', authenticateToken, authorize(['admin', 'edito
         // Handle images - from files or from body
         let imageUrls = [];
         if (req.files && req.files.length > 0) {
-            // New files uploaded
-            imageUrls = req.files.map(f => f.location || `/uploads/products/${f.filename}`);
+            // Upload to Supabase Storage first, fallback to local
+            for (const file of req.files) {
+                const supabaseUrl = await uploadImageToSupabase(file);
+                if (supabaseUrl) {
+                    imageUrls.push(supabaseUrl);
+                } else {
+                    // Fallback to local storage - save buffer to file
+                    const uploadDir = join(__dirname, 'uploads/products');
+                    if (!fs.existsSync(uploadDir)) {
+                        fs.mkdirSync(uploadDir, { recursive: true });
+                    }
+                    const ext = file.originalname?.split('.').pop() || 'jpg';
+                    const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+                    const filepath = join(uploadDir, filename);
+                    if (file.buffer) {
+                        fs.writeFileSync(filepath, file.buffer);
+                    }
+                    imageUrls.push(`/uploads/products/${filename}`);
+                }
+            }
         } else if (product.images) {
             // Try parsing as JSON array or use as single image string
             try {

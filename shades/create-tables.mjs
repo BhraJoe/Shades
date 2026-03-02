@@ -1,108 +1,54 @@
-import https from 'https';
+// Run this script to create subscribers and messages tables in Supabase
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://rofkykdunbsnubguoukv.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvZmt5a2R1bmJzbnViZ3VvdWt2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTQ2MTY3NCwiZXhwIjoyMDg3MDM3Njc0fQ.49gxdzYRA8gtNUFe8GjdJabBWdv4Kge1XDz0qWtRVic';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://rofkykdunbsnubguoukv.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvZmt5a2R1bmJzbnViZ3VvdWt2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTQ2MTY3NCwiZXhwIjoyMDg3MDM3Njc0fQ.49gxdzYRA8gtNUFe8GjdJabBWdv4Kge1XDz0qWtRVic';
 
-function makeRequest(query) {
-     return new Promise((resolve, reject) => {
-          const postData = JSON.stringify({ query });
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-          const options = {
-               hostname: 'rofkykdunbsnubguoukv.supabase.co',
-               port: 443,
-               path: '/rest/v1/rpc/exec_sql',
-               method: 'POST',
-               headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': supabaseKey,
-                    'Authorization': `Bearer ${supabaseKey}`
-               }
-          };
+async function createTables() {
+     console.log('Creating subscribers table...');
 
-          const req = https.request(options, (res) => {
-               let data = '';
-               res.on('data', (chunk) => { data += chunk; });
-               res.on('end', () => {
-                    try {
-                         resolve(JSON.parse(data));
-                    } catch (e) {
-                         resolve(data);
-                    }
-               });
-          });
+     const { error: subsError } = await supabase.from('subscribers').insert([
+          { email: 'test@example.com' }
+     ]);
 
-          req.on('error', reject);
-          req.write(postData);
-          req.end();
-     });
-}
-
-async function main() {
-     console.log('Creating categories table...');
-
-     try {
-          const result = await makeRequest(`
-      CREATE TABLE IF NOT EXISTS categories (
-        id BIGSERIAL PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        slug TEXT NOT NULL UNIQUE,
-        description TEXT DEFAULT '',
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      
-      ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-      
-      CREATE POLICY "Anyone can view categories" ON categories FOR SELECT USING (true);
-      
-      INSERT INTO categories (name, slug, description) VALUES
-        ('Aviator', 'aviator', 'Classic aviator style sunglasses'),
-        ('Wayfarer', 'wayfarer', 'Iconic wayfarer style sunglasses'),
-        ('Clubmaster', 'clubmaster', 'Retro clubmaster browline sunglasses'),
-        ('Round', 'round', 'Vintage round frame sunglasses'),
-        ('Cat-Eye', 'cat-eye', 'Feminine cat-eye style sunglasses'),
-        ('Rectangular', 'rectangular', 'Modern rectangular frame sunglasses'),
-        ('Oversized', 'oversized', 'Bold oversized frame sunglasses'),
-        ('Sport', 'sport', 'Athletic sport sunglasses')
-      ON CONFLICT (name) DO NOTHING;
+     if (subsError && !subsError.message.includes('duplicate')) {
+          console.log('Subscribers table might need to be created manually:');
+          console.log(`
+CREATE TABLE IF NOT EXISTS subscribers (
+  id SERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
     `);
-          console.log('Categories result:', result);
-     } catch (error) {
-          console.log('Categories error:', error.message);
+     } else {
+          console.log('Subscribers table exists or created successfully');
      }
 
-     console.log('Creating orders table...');
+     console.log('Creating messages table...');
 
-     try {
-          const result = await makeRequest(`
-      CREATE TABLE IF NOT EXISTS orders (
-        id BIGSERIAL PRIMARY KEY,
-        order_number TEXT NOT NULL UNIQUE,
-        customer_email TEXT NOT NULL,
-        customer_name TEXT NOT NULL,
-        shipping_address TEXT,
-        shipping_city TEXT,
-        shipping_state TEXT,
-        shipping_zip TEXT,
-        shipping_country TEXT,
-        shipping_phone TEXT,
-        subtotal REAL NOT NULL DEFAULT 0,
-        shipping REAL NOT NULL DEFAULT 0,
-        tax REAL NOT NULL DEFAULT 0,
-        total REAL NOT NULL DEFAULT 0,
-        status TEXT DEFAULT 'confirmed',
-        items JSONB NOT NULL DEFAULT '[]',
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-      
-      ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-      
-      CREATE POLICY "Anyone can view orders" ON orders FOR SELECT USING (true);
-      CREATE POLICY "Anyone can insert orders" ON orders FOR INSERT WITH CHECK (true);
+     const { error: msgError } = await supabase.from('messages').insert([
+          { name: 'Test', email: 'test@example.com', subject: 'Test', message: 'Test message' }
+     ]);
+
+     if (msgError && !msgError.message.includes('duplicate')) {
+          console.log('Messages table might need to be created manually:');
+          console.log(`
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
     `);
-          console.log('Orders result:', result);
-     } catch (error) {
-          console.log('Orders error:', error.message);
+     } else {
+          console.log('Messages table exists or created successfully');
      }
+
+     console.log('Done!');
 }
 
-main().catch(console.error);
+createTables().catch(console.error);

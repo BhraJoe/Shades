@@ -6,6 +6,7 @@ export default function AdminSubscribers() {
      const [subscribers, setSubscribers] = useState([]);
      const [loading, setLoading] = useState(true);
      const [searchTerm, setSearchTerm] = useState('');
+     const [showActions, setShowActions] = useState(false);
 
      useEffect(() => {
           fetchSubscribers();
@@ -75,7 +76,7 @@ export default function AdminSubscribers() {
      };
 
      const handleDeleteAll = async () => {
-          if (!window.confirm('Are you sure you want to delete ALL subscribers? This will reset the ID counter to 1.')) return;
+          if (!window.confirm('Are you sure you want to delete ALL subscribers?')) return;
 
           try {
                const token = localStorage.getItem('adminToken');
@@ -106,91 +107,114 @@ export default function AdminSubscribers() {
 
      if (loading) {
           return (
-               <div className="flex items-center justify-center h-64">
+               <div className="flex items-center justify-center h-screen">
                     <div className="text-gray-500">Loading...</div>
                </div>
           );
      }
 
      return (
-          <div className="p-6">
-               <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">Newsletter Subscribers</h1>
-                    <div className="flex gap-2">
+          <div className="min-h-screen bg-gray-50">
+               {/* Header */}
+               <div className="bg-white shadow-sm sticky top-0 z-10">
+                    <div className="px-4 py-4">
+                         <h1 className="text-lg font-bold text-gray-900">Subscribers</h1>
+                         <p className="text-sm text-gray-500">{subscribers.length} total</p>
+                    </div>
+               </div>
+
+               {/* Search */}
+               <div className="px-4 py-3 bg-white">
+                    <input
+                         type="text"
+                         placeholder="Search by email..."
+                         value={searchTerm}
+                         onChange={(e) => setSearchTerm(e.target.value)}
+                         className="w-full px-4 py-2.5 bg-gray-100 border-0 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+               </div>
+
+               {/* Action Buttons */}
+               <div className="px-4 py-3 bg-white border-b">
+                    <div className="flex gap-2 overflow-x-auto pb-1">
                          <button
                               onClick={exportToCSV}
-                              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                              className="flex-shrink-0 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium"
                          >
-                              Export CSV
+                              Export
                          </button>
                          <button
                               onClick={handleSendEmail}
-                              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                              className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                          >
-                              Send Email
+                              Email All
                          </button>
                          <button
                               onClick={handleDeleteAll}
-                              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                              className="flex-shrink-0 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium"
                          >
-                              Delete All
+                              Clear All
                          </button>
                     </div>
                </div>
 
-               <div className="mb-4">
-                    <input
-                         type="text"
-                         placeholder="Search subscribers..."
-                         value={searchTerm}
-                         onChange={(e) => setSearchTerm(e.target.value)}
-                         className="w-full px-4 py-2 border rounded-lg"
-                    />
-               </div>
-
-               <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border">
-                         <thead>
-                              <tr className="bg-gray-100">
-                                   <th className="px-6 py-3 text-left">ID</th>
-                                   <th className="px-6 py-3 text-left">Email</th>
-                                   <th className="px-6 py-3 text-left">Subscribed At</th>
-                                   <th className="px-6 py-3 text-left">Actions</th>
-                              </tr>
-                         </thead>
-                         <tbody>
-                              {filteredSubscribers.length > 0 ? (
-                                   filteredSubscribers.map((subscriber) => (
-                                        <tr key={subscriber.id} className="border-t">
-                                             <td className="px-6 py-4">{subscriber.id}</td>
-                                             <td className="px-6 py-4">{subscriber.email}</td>
-                                             <td className="px-6 py-4">
-                                                  {new Date(subscriber.created_at).toLocaleString()}
-                                             </td>
-                                             <td className="px-6 py-4">
-                                                  <button
-                                                       onClick={() => handleDelete(subscriber.id)}
-                                                       className="text-red-600 hover:text-red-800"
-                                                  >
-                                                       Delete
-                                                  </button>
-                                             </td>
-                                        </tr>
-                                   ))
-                              ) : (
-                                   <tr>
-                                        <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
-                                             No subscribers found
-                                        </td>
-                                   </tr>
+               {/* Subscriber List - Mobile Card Style */}
+               <div className="p-4 space-y-3">
+                    {filteredSubscribers.length > 0 ? (
+                         filteredSubscribers.map((subscriber) => (
+                              <div
+                                   key={subscriber.id}
+                                   className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+                              >
+                                   <div className="flex justify-between items-start">
+                                        <div className="flex-1 min-w-0">
+                                             <p className="text-sm font-semibold text-gray-900 truncate">
+                                                  {subscriber.email}
+                                             </p>
+                                             <p className="text-xs text-gray-500 mt-1">
+                                                  #{subscriber.id} • {new Date(subscriber.created_at).toLocaleDateString()}
+                                             </p>
+                                        </div>
+                                        <button
+                                             onClick={() => handleDelete(subscriber.id)}
+                                             className="ml-3 p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                             title="Delete"
+                                        >
+                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                             </svg>
+                                        </button>
+                                   </div>
+                              </div>
+                         ))
+                    ) : (
+                         <div className="text-center py-12">
+                              <div className="text-gray-400 mb-2">
+                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                   </svg>
+                              </div>
+                              <p className="text-gray-500">No subscribers found</p>
+                              {searchTerm && (
+                                   <button
+                                        onClick={() => setSearchTerm('')}
+                                        className="mt-2 text-blue-600 text-sm"
+                                   >
+                                        Clear search
+                                   </button>
                               )}
-                         </tbody>
-                    </table>
+                         </div>
+                    )}
                </div>
 
-               <div className="mt-4 text-sm text-gray-600">
-                    Showing {filteredSubscribers.length} of {subscribers.length} subscribers
-               </div>
+               {/* Results Count */}
+               {filteredSubscribers.length > 0 && (
+                    <div className="px-4 pb-4">
+                         <p className="text-sm text-gray-500">
+                              Showing {filteredSubscribers.length} of {subscribers.length}
+                         </p>
+                    </div>
+               )}
           </div>
      );
 }
