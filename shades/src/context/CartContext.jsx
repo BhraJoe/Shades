@@ -7,29 +7,46 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
     const { user } = useAuth();
     const [cart, setCart] = useState(() => {
-        const savedCart = localStorage.getItem('shades-cart');
+        // Use user-specific key if logged in, otherwise use default
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        const key = userId ? `cart_${userId}` : 'shades-cart';
+        const savedCart = localStorage.getItem(key);
         return savedCart ? JSON.parse(savedCart) : [];
     });
     const [wishlist, setWishlist] = useState(() => {
-        const savedWishlist = localStorage.getItem('shades-wishlist');
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        const key = userId ? `wishlist_${userId}` : 'shades-wishlist';
+        const savedWishlist = localStorage.getItem(key);
         return savedWishlist ? JSON.parse(savedWishlist) : [];
     });
     const [isSyncing, setIsSyncing] = useState(false);
 
+    // Save user_uid to localStorage when user logs in
+    useEffect(() => {
+        if (user?.uid) {
+            localStorage.setItem('user_uid', user.uid);
+        }
+    }, [user]);
+
     // Save to localStorage always
     useEffect(() => {
-        localStorage.setItem('shades-cart', JSON.stringify(cart));
-    }, [cart]);
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        const key = userId ? `cart_${userId}` : 'shades-cart';
+        localStorage.setItem(key, JSON.stringify(cart));
+    }, [cart, user]);
 
     useEffect(() => {
-        localStorage.setItem('shades-wishlist', JSON.stringify(wishlist));
-    }, [wishlist]);
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        const key = userId ? `wishlist_${userId}` : 'shades-wishlist';
+        localStorage.setItem(key, JSON.stringify(wishlist));
+    }, [wishlist, user]);
 
     // Fetch cart from Supabase when user logs in
     useEffect(() => {
-        if (user?.uid) {
-            fetchCloudCart(user.uid);
-            fetchCloudWishlist(user.uid);
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        if (userId) {
+            fetchCloudCart(userId);
+            fetchCloudWishlist(userId);
         }
     }, [user?.uid]);
 
@@ -122,17 +139,19 @@ export function CartProvider({ children }) {
 
     // Sync cart to Supabase when it changes (for logged in users)
     useEffect(() => {
-        if (user?.uid && !isSyncing) {
-            syncCartToCloud(user.uid);
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        if (userId && !isSyncing) {
+            syncCartToCloud(userId);
         }
-    }, [cart, user?.uid]);
+    }, [cart, user, isSyncing]);
 
     // Sync wishlist to Supabase when it changes (for logged in users)
     useEffect(() => {
-        if (user?.uid && !isSyncing) {
-            syncWishlistToCloud(user.uid);
+        const userId = user?.uid || localStorage.getItem('user_uid');
+        if (userId && !isSyncing) {
+            syncWishlistToCloud(userId);
         }
-    }, [wishlist, user?.uid]);
+    }, [wishlist, user, isSyncing]);
 
     const syncCartToCloud = async (userId) => {
         if (!userId) return;
