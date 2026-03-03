@@ -180,7 +180,7 @@ export default function Profile() {
                                     {orders.slice(0, 3).map((o, index) => (
                                         <div key={o.id || o.order_number} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                             <div>
-                                                <p className="font-bold text-[#dc2626]">Order #{index + 1}</p>
+                                                <p className="font-bold text-[#dc2626]">{o.order_number || `Order #${index + 1}`}</p>
                                                 <p className="text-xs text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
                                             </div>
                                             <div className="text-right">
@@ -291,7 +291,7 @@ export default function Profile() {
                                     <div key={o.id || o.order_number} className="p-4 border border-gray-200 rounded-lg">
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <p className="font-bold text-[#dc2626] text-lg">Order #{index + 1}</p>
+                                                <p className="font-bold text-[#dc2626] text-lg">{o.order_number || `Order #${index + 1}`}</p>
                                                 <p className="text-sm text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
