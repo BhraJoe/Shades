@@ -1,8 +1,11 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
+import { supabase } from '../supabase';
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
+    const { user } = useAuth();
     const [cart, setCart] = useState(() => {
         const savedCart = localStorage.getItem('shades-cart');
         return savedCart ? JSON.parse(savedCart) : [];
@@ -11,7 +14,9 @@ export function CartProvider({ children }) {
         const savedWishlist = localStorage.getItem('shades-wishlist');
         return savedWishlist ? JSON.parse(savedWishlist) : [];
     });
+    const [isSyncing, setIsSyncing] = useState(false);
 
+    // Save to localStorage always
     useEffect(() => {
         localStorage.setItem('shades-cart', JSON.stringify(cart));
     }, [cart]);
@@ -19,6 +24,181 @@ export function CartProvider({ children }) {
     useEffect(() => {
         localStorage.setItem('shades-wishlist', JSON.stringify(wishlist));
     }, [wishlist]);
+
+    // Fetch cart from Supabase when user logs in
+    useEffect(() => {
+        if (user?.uid) {
+            fetchCloudCart(user.uid);
+            fetchCloudWishlist(user.uid);
+        }
+    }, [user?.uid]);
+
+    const fetchCloudCart = async (userId) => {
+        if (!userId) return;
+        setIsSyncing(true);
+        try {
+            const { data, error } = await supabase
+                .from('cart_items')
+                .select('*')
+                .eq('user_id', userId);
+
+            if (error) {
+                console.error('Error fetching cloud cart:', error);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                // Merge cloud cart with local cart (local takes priority for duplicates)
+                const cloudCart = data.map(item => ({
+                    id: item.product_id,
+                    name: item.name,
+                    brand: item.brand,
+                    price: item.price,
+                    image: item.image,
+                    color: item.color,
+                    size: item.size,
+                    quantity: item.quantity
+                }));
+
+                setCart(prevCart => {
+                    const mergedCart = [...cloudCart];
+                    // Add local-only items
+                    prevCart.forEach(localItem => {
+                        const exists = mergedCart.find(
+                            cloudItem => cloudItem.id === localItem.id &&
+                                cloudItem.color === localItem.color &&
+                                cloudItem.size === localItem.size
+                        );
+                        if (!exists) {
+                            mergedCart.push(localItem);
+                        }
+                    });
+                    return mergedCart;
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching cloud cart:', err);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    const fetchCloudWishlist = async (userId) => {
+        if (!userId) return;
+        try {
+            const { data, error } = await supabase
+                .from('wishlist_items')
+                .select('*')
+                .eq('user_id', userId);
+
+            if (error) {
+                console.error('Error fetching cloud wishlist:', error);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                const cloudWishlist = data.map(item => ({
+                    id: item.product_id,
+                    name: item.name,
+                    brand: item.brand,
+                    price: item.price,
+                    images: [item.image]
+                }));
+
+                setWishlist(prevWishlist => {
+                    const merged = [...cloudWishlist];
+                    prevWishlist.forEach(localItem => {
+                        if (!merged.find(w => w.id === localItem.id)) {
+                            merged.push(localItem);
+                        }
+                    });
+                    return merged;
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching cloud wishlist:', err);
+        }
+    };
+
+    // Sync cart to Supabase when it changes (for logged in users)
+    useEffect(() => {
+        if (user?.uid && !isSyncing) {
+            syncCartToCloud(user.uid);
+        }
+    }, [cart, user?.uid]);
+
+    // Sync wishlist to Supabase when it changes (for logged in users)
+    useEffect(() => {
+        if (user?.uid && !isSyncing) {
+            syncWishlistToCloud(user.uid);
+        }
+    }, [wishlist, user?.uid]);
+
+    const syncCartToCloud = async (userId) => {
+        if (!userId) return;
+        try {
+            // Clear existing cart items for this user and re-insert
+            await supabase
+                .from('cart_items')
+                .delete()
+                .eq('user_id', userId);
+
+            if (cart.length > 0) {
+                const cartItems = cart.map(item => ({
+                    user_id: userId,
+                    product_id: item.id,
+                    name: item.name,
+                    brand: item.brand || '',
+                    price: item.price,
+                    image: item.image || '',
+                    color: item.color || '',
+                    size: item.size || '',
+                    quantity: item.quantity
+                }));
+
+                const { error } = await supabase
+                    .from('cart_items')
+                    .insert(cartItems);
+
+                if (error) {
+                    console.error('Error syncing cart to cloud:', error);
+                }
+            }
+        } catch (err) {
+            console.error('Error syncing cart to cloud:', err);
+        }
+    };
+
+    const syncWishlistToCloud = async (userId) => {
+        if (!userId) return;
+        try {
+            await supabase
+                .from('wishlist_items')
+                .delete()
+                .eq('user_id', userId);
+
+            if (wishlist.length > 0) {
+                const wishlistItems = wishlist.map(item => ({
+                    user_id: userId,
+                    product_id: item.id,
+                    name: item.name,
+                    brand: item.brand || '',
+                    price: item.price,
+                    image: item.images?.[0] || ''
+                }));
+
+                const { error } = await supabase
+                    .from('wishlist_items')
+                    .insert(wishlistItems);
+
+                if (error) {
+                    console.error('Error syncing wishlist to cloud:', error);
+                }
+            }
+        } catch (err) {
+            console.error('Error syncing wishlist to cloud:', err);
+        }
+    };
 
     const addToCart = (product, color, size, quantity = 1) => {
         // Normalize color and size to strings for comparison
@@ -51,7 +231,7 @@ export function CartProvider({ children }) {
                 name: product.name,
                 brand: product.brand,
                 price: product.price,
-                image: product.images[0],
+                image: product.images?.[0] || product.image,
                 color: normalizedColor,
                 size: normalizedSize,
                 quantity: 1

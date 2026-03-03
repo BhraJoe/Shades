@@ -161,7 +161,7 @@ export default function AdminSubscribers() {
                {/* Subscriber List - Mobile Card Style */}
                <div className="p-4 space-y-3">
                     {filteredSubscribers.length > 0 ? (
-                         filteredSubscribers.map((subscriber) => (
+                         filteredSubscribers.map((subscriber, index) => (
                               <div
                                    key={subscriber.id}
                                    className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -172,7 +172,7 @@ export default function AdminSubscribers() {
                                                   {subscriber.email}
                                              </p>
                                              <p className="text-xs text-gray-500 mt-1">
-                                                  #{subscriber.id} • {new Date(subscriber.created_at).toLocaleDateString()}
+                                                  #{String(index + 1).padStart(3, '0')} • {new Date(subscriber.created_at).toLocaleDateString()}
                                              </p>
                                         </div>
                                         <button

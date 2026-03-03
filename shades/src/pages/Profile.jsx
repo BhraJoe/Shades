@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { User, Package, Heart, MapPin, LogOut, Trash2, Plus, ArrowLeft, Edit3, Bell, Mail, Eye, MessageSquare, Settings, ChevronRight } from 'lucide-react';
+
+const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
 
 export default function Profile() {
     const { user, logout: authLogout, loading: authLoading } = useAuth();
@@ -33,6 +36,26 @@ export default function Profile() {
         load(`newsletter_${user.uid}`, setNewsletter);
         load(`recentlyViewed_${user.uid}`, setRecentlyViewed);
         load(`notifications_${user.uid}`, setNotifications);
+
+        // Fetch orders from Supabase API
+        const fetchUserOrders = async () => {
+            try {
+                const response = await axios.get(`${API_BASE}/orders?email=${user.email}`);
+                console.log('Orders from API:', response.data);
+                if (response.data && response.data.length > 0) {
+                    // Add displayNumber to each order based on position
+                    const ordersWithDisplayNumber = response.data.map((order, index) => ({
+                        ...order,
+                        displayNumber: index + 1
+                    }));
+                    setOrders(ordersWithDisplayNumber);
+                    localStorage.setItem(`orders_${user.uid}`, JSON.stringify(ordersWithDisplayNumber));
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
+        };
+        fetchUserOrders();
 
         (async () => {
             try {
@@ -83,12 +106,12 @@ export default function Profile() {
                         <ArrowLeft size={20} />
                         <span className="font-medium">Back</span>
                     </button>
-                    <div className="flex items-center gap-4">
+                    {/* <div className="flex items-center gap-4">
                         <span className="text-gray-600 text-sm">{user.email}</span>
                         <button onClick={logoutUser} className="text-gray-500 hover:text-red-500 transition-colors">
                             <LogOut size={20} />
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
@@ -154,11 +177,11 @@ export default function Profile() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {orders.slice(0, 3).map(o => (
-                                        <div key={o.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                    {orders.slice(0, 3).map((o, index) => (
+                                        <div key={o.id || o.order_number} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                             <div>
-                                                <p className="font-bold text-[#dc2626]">#{o.id}</p>
-                                                <p className="text-xs text-gray-500">{new Date(o.date).toLocaleDateString()}</p>
+                                                <p className="font-bold text-[#dc2626]">Order #{index + 1}</p>
+                                                <p className="text-xs text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
                                             </div>
                                             <div className="text-right">
                                                 <p className="font-bold">₵{o.total?.toFixed(2) || '0.00'}</p>
@@ -264,12 +287,12 @@ export default function Profile() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {orders.map(o => (
-                                    <div key={o.id} className="p-4 border border-gray-200 rounded-lg">
+                                {orders.map((o, index) => (
+                                    <div key={o.id || o.order_number} className="p-4 border border-gray-200 rounded-lg">
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <p className="font-bold text-[#dc2626] text-lg">Order #{o.id}</p>
-                                                <p className="text-sm text-gray-500">{new Date(o.date).toLocaleDateString()}</p>
+                                                <p className="font-bold text-[#dc2626] text-lg">Order #{index + 1}</p>
+                                                <p className="text-sm text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                                 {o.status}

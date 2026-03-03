@@ -320,6 +320,7 @@ const AdminDashboard = () => {
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
                             <tr className="border-b border-gray-100">
+                                <th className="px-6 py-8 text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400 w-16">#</th>
                                 <th className="px-10 py-8 text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400">Object Identification</th>
                                 <th className="px-10 py-8 text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400">Classification</th>
                                 <th className="px-10 py-8 text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400">Valuation</th>
@@ -330,7 +331,7 @@ const AdminDashboard = () => {
                         <tbody className="divide-y divide-gray-50">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan="5" className="px-10 py-24 text-center">
+                                    <td colSpan="6" className="px-10 py-24 text-center">
                                         <div className="animate-pulse flex flex-col items-center gap-4">
                                             <div className="w-12 h-1 bg-gray-100" />
                                             <span className="text-[10px] font-bold tracking-[0.5em] text-gray-300 uppercase">Synchronizing...</span>
@@ -339,12 +340,15 @@ const AdminDashboard = () => {
                                 </tr>
                             ) : filteredProducts.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-10 py-24 text-center">
+                                    <td colSpan="6" className="px-10 py-24 text-center">
                                         <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300">Archive matches zero nodes.</p>
                                     </td>
                                 </tr>
-                            ) : filteredProducts.map((p) => (
+                            ) : filteredProducts.map((p, index) => (
                                 <tr key={p.id} className="group hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-6 py-10">
+                                        <span className="text-[11px] font-bold tracking-widest text-gray-300">{(index + 1).toString().padStart(3, '0')}</span>
+                                    </td>
                                     <td className="px-10 py-10">
                                         <div className="flex items-center gap-10">
                                             <div className="w-20 h-24 bg-gray-50 border border-gray-100 relative overflow-hidden group/img">

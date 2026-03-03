@@ -27,6 +27,12 @@ export default async function handler(req, res) {
 
      // Get Paystack secret key
      const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+
+     if (!PAYSTACK_SECRET_KEY) {
+          console.error('Paystack secret key is not configured');
+          return res.status(500).json({ error: 'Payment service not configured' });
+     }
+
      const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
      // Route: POST /api/paystack/initialize

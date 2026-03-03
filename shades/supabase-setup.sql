@@ -264,6 +264,56 @@ VALUES (
         false
     ) ON CONFLICT (sku) DO NOTHING;
 -- ===========================================
+-- CART TABLE (for user cart sync across devices)
+-- ===========================================
+CREATE TABLE IF NOT EXISTS cart_items (
+    id BIGSERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    -- Firebase UID
+    product_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    brand TEXT,
+    price REAL NOT NULL,
+    image TEXT,
+    color TEXT,
+    size TEXT,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+-- Enable RLS for cart_items
+ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
+-- Policy: Users can only see their own cart
+CREATE POLICY "Users can view own cart" ON cart_items FOR
+SELECT USING (user_id = (auth.uid())::text);
+CREATE POLICY "Users can insert own cart" ON cart_items FOR
+INSERT WITH CHECK (user_id = (auth.uid())::text);
+CREATE POLICY "Users can update own cart" ON cart_items FOR
+UPDATE USING (user_id = (auth.uid())::text);
+CREATE POLICY "Users can delete own cart" ON cart_items FOR DELETE USING (user_id = (auth.uid())::text);
+-- ===========================================
+-- WISHLIST TABLE (for user wishlist sync across devices)
+-- ===========================================
+CREATE TABLE IF NOT EXISTS wishlist_items (
+    id BIGSERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    -- Firebase UID
+    product_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    brand TEXT,
+    price REAL NOT NULL,
+    image TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+-- Enable RLS for wishlist_items
+ALTER TABLE wishlist_items ENABLE ROW LEVEL SECURITY;
+-- Policy: Users can only see their own wishlist
+CREATE POLICY "Users can view own wishlist" ON wishlist_items FOR
+SELECT USING (user_id = (auth.uid())::text);
+CREATE POLICY "Users can insert own wishlist" ON wishlist_items FOR
+INSERT WITH CHECK (user_id = (auth.uid())::text);
+CREATE POLICY "Users can delete own wishlist" ON wishlist_items FOR DELETE USING (user_id = (auth.uid())::text);
+-- ===========================================
 -- STORAGE SETUP (for product images)
 -- ===========================================
 -- Create storage bucket for product images

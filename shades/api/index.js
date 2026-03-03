@@ -210,13 +210,38 @@ app.get('/api/orders', async (req, res) => {
 
 app.post('/api/orders', async (req, res) => {
      try {
+          console.log('POST /api/orders - Received order:', JSON.stringify(req.body, null, 2));
           const order = req.body;
+
+          // Only include fields that exist in the database
+          const orderData = {
+               order_number: order.order_number,
+               customer_email: order.customer_email,
+               customer_name: order.customer_name,
+               shipping_address: order.shipping_address,
+               shipping_city: order.shipping_city,
+               shipping_state: order.shipping_state,
+               shipping_zip: order.shipping_zip,
+               shipping_country: order.shipping_country,
+               shipping_phone: order.shipping_phone,
+               subtotal: order.subtotal,
+               shipping: order.shipping,
+               tax: order.tax,
+               total: order.total,
+               status: order.status,
+               items: order.items
+          };
+
           const { data, error } = await supabase
                .from('orders')
-               .insert([order])
+               .insert([orderData])
                .select();
 
-          if (error) throw error;
+          if (error) {
+               console.error('Supabase insert error:', error);
+               throw error;
+          }
+          console.log('Order saved successfully:', data);
           res.status(201).json(data[0]);
      } catch (error) {
           console.error('Order error:', error);
@@ -522,12 +547,17 @@ app.delete('/api/admin/categories/:id', async (req, res) => {
 // ============ ADMIN ORDERS ============
 app.get('/api/admin/orders', async (req, res) => {
      try {
+          console.log('GET /api/admin/orders - Fetching all orders');
           const { data, error } = await supabase
                .from('orders')
                .select('*')
                .order('created_at', { ascending: false });
 
-          if (error) throw error;
+          if (error) {
+               console.error('Supabase select error:', error);
+               throw error;
+          }
+          console.log('Found orders:', data?.length || 0);
           res.json(data || []);
      } catch (error) {
           console.error('Admin orders error:', error);

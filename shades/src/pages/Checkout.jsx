@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, CreditCard, Check, ArrowLeft, Lock, Truck } from 'lucide-react';
@@ -20,6 +21,7 @@ export default function Checkout() {
 
     // Check for payment success from Paystack redirect
     const paymentStatus = searchParams.get('payment');
+    const paymentRefFromUrl = searchParams.get('reference') || searchParams.get('ref');
 
     const shipping = 0; // Always free shipping
     const estimatedTax = 0;
@@ -34,10 +36,11 @@ export default function Checkout() {
 
     // Check for payment success and verify
     useEffect(() => {
-        if (paymentStatus === 'success' && paymentRef) {
-            verifyPaystackPayment(paymentRef);
+        const ref = paymentRefFromUrl || paymentRef;
+        if (paymentStatus === 'success' && ref) {
+            verifyPaystackPayment(ref);
         }
-    }, [paymentStatus, paymentRef]);
+    }, [paymentStatus, paymentRef, paymentRefFromUrl]);
 
     // Verify Paystack payment
     const verifyPaystackPayment = async (ref) => {
@@ -61,39 +64,57 @@ export default function Checkout() {
     };
 
     // Complete the order after successful payment
-    const completeOrder = (paymentReference = null) => {
+    const completeOrder = async (paymentReference = null) => {
         const newOrderNumber = 'ORD-' + Date.now().toString().slice(-8);
         setOrderNumber(newOrderNumber);
         setOrderComplete(true);
 
         if (user) {
             const order = {
-                id: newOrderNumber,
+                order_number: newOrderNumber,
                 date: new Date().toISOString(),
                 status: 'processing',
                 total: orderTotal,
                 paymentMethod: paymentMethod,
                 paymentReference: paymentReference,
+                customer_email: user.email,
+                customer_name: `${formData.firstName} ${formData.lastName}`,
+                shipping_address: formData.address,
+                shipping_city: formData.city,
+                shipping_state: formData.state,
+                shipping_zip: formData.zip,
+                shipping_country: formData.country,
+                shipping_phone: formData.phone,
                 items: cart.map(item => ({
                     id: item.id,
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity,
-                    image: item.image
+                    image: item.image,
+                    color: item.color,
+                    size: item.size
                 })),
-                shipping: {
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    address: formData.address,
-                    city: formData.city,
-                    state: formData.state,
-                    zip: formData.zip
-                }
+                subtotal: orderTotal,
+                shipping: 0,
+                tax: 0
             };
 
+            // Save to localStorage for user's order history
             const existingOrders = JSON.parse(localStorage.getItem(`orders_${user.uid}`) || '[]');
             existingOrders.unshift(order);
             localStorage.setItem(`orders_${user.uid}`, JSON.stringify(existingOrders));
+
+            // Save to Supabase database
+            try {
+                const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+                console.log('Saving order to API:', `${API_BASE}/orders`);
+                console.log('Order data:', JSON.stringify(order, null, 2));
+                const response = await axios.post(`${API_BASE}/orders`, order);
+                console.log('Order saved successfully:', response.data);
+            } catch (err) {
+                console.error('Error saving order to database:', err);
+                console.error('Error response:', err.response?.data);
+            }
         }
 
         clearCart();
@@ -137,6 +158,48 @@ export default function Checkout() {
             const data = await response.json();
 
             if (data.authorization_url) {
+                // Save order to database BEFORE redirecting to Paystack
+                if (user) {
+                    const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                    const order = {
+                        order_number: newOrderNumber,
+                        date: new Date().toISOString(),
+                        status: 'pending_payment',
+                        total: orderTotal,
+                        paymentMethod: paymentMethod,
+                        paymentReference: ref,
+                        customer_email: user.email,
+                        customer_name: `${formData.firstName} ${formData.lastName}`,
+                        shipping_address: formData.address,
+                        shipping_city: formData.city,
+                        shipping_state: formData.state,
+                        shipping_zip: formData.zip,
+                        shipping_country: formData.country,
+                        shipping_phone: formData.phone,
+                        items: cart.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity,
+                            image: item.image,
+                            color: item.color,
+                            size: item.size
+                        })),
+                        subtotal: orderTotal,
+                        shipping: 0,
+                        tax: 0
+                    };
+
+                    // Save to Supabase
+                    try {
+                        const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+                        await axios.post(`${API_BASE}/orders`, order);
+                        localStorage.setItem('pending_order_ref', ref);
+                    } catch (err) {
+                        console.error('Error saving order:', err);
+                    }
+                }
+
                 // Redirect to Paystack payment page
                 window.location.href = data.authorization_url;
             } else {
@@ -144,6 +207,48 @@ export default function Checkout() {
             }
         } catch (error) {
             console.error('Paystack error:', error);
+
+            // Even if payment fails, save the order to database
+            if (user) {
+                const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                const order = {
+                    order_number: newOrderNumber,
+                    date: new Date().toISOString(),
+                    status: 'pending_payment',
+                    total: orderTotal,
+                    paymentMethod: paymentMethod,
+                    paymentReference: 'payment_failed',
+                    customer_email: user.email,
+                    customer_name: `${formData.firstName} ${formData.lastName}`,
+                    shipping_address: formData.address,
+                    shipping_city: formData.city,
+                    shipping_state: formData.state,
+                    shipping_zip: formData.zip,
+                    shipping_country: formData.country,
+                    shipping_phone: formData.phone,
+                    items: cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        image: item.image,
+                        color: item.color,
+                        size: item.size
+                    })),
+                    subtotal: orderTotal,
+                    shipping: 0,
+                    tax: 0
+                };
+
+                try {
+                    const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+                    await axios.post(`${API_BASE}/orders`, order);
+                    alert('Order saved! Payment failed but you can retry payment later.');
+                } catch (err) {
+                    console.error('Error saving order:', err);
+                }
+            }
+
             alert('Payment initialization failed: ' + error.message);
             setLoading(false);
         }
@@ -195,18 +300,21 @@ export default function Checkout() {
 
             // Handle other payment methods (mock)
             setLoading(true);
-            setTimeout(() => {
-                const newOrderNumber = 'ORD-' + Date.now().toString().slice(-8);
+            setTimeout(async () => {
+                const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
                 setOrderNumber(newOrderNumber);
                 setOrderComplete(true);
 
                 // Save order to localStorage for logged-in users
                 if (user) {
                     const order = {
-                        id: newOrderNumber,
+                        order_number: newOrderNumber,
                         date: new Date().toISOString(),
                         status: 'processing',
                         total: orderTotal,
+                        paymentMethod: paymentMethod,
+                        customer_email: user.email,
+                        customer_name: `${formData.firstName} ${formData.lastName}`,
                         items: cart.map(item => ({
                             id: item.id,
                             name: item.name,
@@ -227,6 +335,14 @@ export default function Checkout() {
                     const existingOrders = JSON.parse(localStorage.getItem(`orders_${user.uid}`) || '[]');
                     existingOrders.unshift(order);
                     localStorage.setItem(`orders_${user.uid}`, JSON.stringify(existingOrders));
+
+                    // Save to Supabase database
+                    try {
+                        const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+                        await axios.post(`${API_BASE}/orders`, order);
+                    } catch (err) {
+                        console.error('Error saving order to database:', err);
+                    }
                 }
 
                 clearCart();
