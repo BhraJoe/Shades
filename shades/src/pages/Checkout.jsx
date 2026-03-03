@@ -65,7 +65,7 @@ export default function Checkout() {
 
     // Complete the order after successful payment
     const completeOrder = async (paymentReference = null) => {
-        const newOrderNumber = 'ORD-' + Date.now().toString().slice(-8);
+        const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         setOrderNumber(newOrderNumber);
         setOrderComplete(true);
 
@@ -160,7 +160,7 @@ export default function Checkout() {
             if (data.authorization_url) {
                 // Save order to database BEFORE redirecting to Paystack
                 if (user) {
-                    const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                    const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
                     const order = {
                         order_number: newOrderNumber,
                         date: new Date().toISOString(),
@@ -301,7 +301,7 @@ export default function Checkout() {
             // Handle other payment methods (mock)
             setLoading(true);
             setTimeout(async () => {
-                const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
                 setOrderNumber(newOrderNumber);
                 setOrderComplete(true);
 
