@@ -28,5 +28,8 @@
             "maxDuration": 60,
             "memory": 2048
         }
-    }
+    },
+    "regions": [
+        "iad1"
+    ]
 }

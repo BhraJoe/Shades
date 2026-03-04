@@ -203,6 +203,7 @@ export default function Checkout() {
                 // Redirect to Paystack payment page
                 window.location.href = data.authorization_url;
             } else {
+                console.error('Payment init error:', data);
                 throw new Error(data.error || 'Failed to initialize payment');
             }
         } catch (error) {
