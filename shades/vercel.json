@@ -31,5 +31,10 @@
     },
     "regions": [
         "iad1"
-    ]
+    ],
+    "env": {
+        "VITE_PAYSTACK_PUBLIC_KEY": "pk_test_a68e26ef9e1637c263b49bc49cdef6e18cb282f9",
+        "PAYSTACK_SECRET_KEY": "sk_test_bde739aec1a54f5266a40fa1ef1d1ed4ef12e825",
+        "FRONTEND_URL": "https://shades-ruddy.vercel.app"
+    }
 }

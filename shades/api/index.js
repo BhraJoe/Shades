@@ -228,7 +228,7 @@ app.post('/api/orders', async (req, res) => {
                shipping: order.shipping,
                tax: order.tax,
                total: order.total,
-               status: order.status,
+               status: order.status || 'processing',
                items: order.items
           };
 

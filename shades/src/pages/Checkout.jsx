@@ -21,7 +21,7 @@ export default function Checkout() {
 
     // Check for payment success from Paystack redirect
     const paymentStatus = searchParams.get('payment');
-    const paymentRefFromUrl = searchParams.get('reference') || searchParams.get('ref');
+    const paymentRefFromUrl = searchParams.get('reference') || searchParams.get('ref') || searchParams.get('trxref');
 
     const shipping = 0; // Always free shipping
     const estimatedTax = 0;
@@ -36,24 +36,32 @@ export default function Checkout() {
 
     // Check for payment success and verify
     useEffect(() => {
+        console.log('Payment redirect detected:', { paymentStatus, paymentRefFromUrl, paymentRef, user });
         const ref = paymentRefFromUrl || paymentRef;
         if (paymentStatus === 'success' && ref) {
             verifyPaystackPayment(ref);
         }
-    }, [paymentStatus, paymentRef, paymentRefFromUrl]);
+    }, [paymentStatus, paymentRef, paymentRefFromUrl, user]);
 
     // Verify Paystack payment
     const verifyPaystackPayment = async (ref) => {
+        console.log('Verifying payment for reference:', ref);
         setLoading(true);
         try {
             const response = await fetch(`/api/paystack/verify/${ref}`);
             const data = await response.json();
+            console.log('Payment verification response:', data);
 
             if (data.verified) {
                 // Payment successful, complete the order
                 completeOrder(ref);
             } else {
-                alert('Payment verification failed. Please contact support.');
+                // Check if it's a pending mobile money transaction
+                if (data.status === 'pending' || data.status === 'send_otp') {
+                    alert('Payment is being processed. You will receive an OTP on your mobile money account. Please complete the payment and try again, or contact support.');
+                } else {
+                    alert(`Payment verification failed: ${data.message || 'Please contact support.'}`);
+                }
                 setLoading(false);
             }
         } catch (error) {
@@ -67,7 +75,6 @@ export default function Checkout() {
     const completeOrder = async (paymentReference = null) => {
         const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         setOrderNumber(newOrderNumber);
-        setOrderComplete(true);
 
         if (user) {
             const order = {
@@ -119,6 +126,9 @@ export default function Checkout() {
 
         clearCart();
         setLoading(false);
+
+        // Redirect to home page after successful payment
+        navigate('/', { replace: true });
     };
 
     // Handle Paystack payment
@@ -131,14 +141,20 @@ export default function Checkout() {
         setLoading(true);
 
         try {
-            // Generate payment reference
-            const ref = generatePaymentReference();
+            // Generate our own reference to track
+            const ref = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
             setPaymentRef(ref);
 
             // Convert amount to pesewas (smallest currency unit for GHS)
             const amountInKobo = convertToSmallestUnit(orderTotal, 'GHS'); // Ghana Cedis
 
-            // Initialize payment with backend
+            // Initialize payment with backend - send our reference
+            console.log('Initializing payment with:', {
+                email: formData.email,
+                amount: amountInKobo,
+                currency: 'GHS',
+                reference: ref
+            });
             const response = await fetch('/api/paystack/initialize', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -156,50 +172,9 @@ export default function Checkout() {
             });
 
             const data = await response.json();
+            console.log('Payment init response:', data);
 
             if (data.authorization_url) {
-                // Save order to database BEFORE redirecting to Paystack
-                if (user) {
-                    const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                    const order = {
-                        order_number: newOrderNumber,
-                        date: new Date().toISOString(),
-                        status: 'pending_payment',
-                        total: orderTotal,
-                        paymentMethod: paymentMethod,
-                        paymentReference: ref,
-                        customer_email: user.email,
-                        customer_name: `${formData.firstName} ${formData.lastName}`,
-                        shipping_address: formData.address,
-                        shipping_city: formData.city,
-                        shipping_state: formData.state,
-                        shipping_zip: formData.zip,
-                        shipping_country: formData.country,
-                        shipping_phone: formData.phone,
-                        items: cart.map(item => ({
-                            id: item.id,
-                            name: item.name,
-                            price: item.price,
-                            quantity: item.quantity,
-                            image: item.image,
-                            color: item.color,
-                            size: item.size
-                        })),
-                        subtotal: orderTotal,
-                        shipping: 0,
-                        tax: 0
-                    };
-
-                    // Save to Supabase
-                    try {
-                        const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
-                        await axios.post(`${API_BASE}/orders`, order);
-                        localStorage.setItem('pending_order_ref', ref);
-                    } catch (err) {
-                        console.error('Error saving order:', err);
-                    }
-                }
-
                 // Redirect to Paystack payment page
                 window.location.href = data.authorization_url;
             } else {
@@ -353,7 +328,7 @@ export default function Checkout() {
     };
 
     const paymentMethods = [
-        { id: 'paystack', name: 'Paystack' },
+        { id: 'paystack', name: 'Paystack (Test Mode)' },
     ];
 
     const countries = [

@@ -294,8 +294,8 @@ export default function Profile() {
                                                 <p className="font-bold text-[#dc2626] text-lg">{o.order_number || `Order #${index + 1}`}</p>
                                                 <p className="text-sm text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                                {o.status}
+                                            <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : o.status === 'pending_payment' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                {o.status === 'pending_payment' ? 'Payment Pending' : o.status}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">

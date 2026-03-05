@@ -73,7 +73,7 @@ const AdminOrders = () => {
           order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase())
-     ).map((order, index) => ({ ...order, displayNumber: index + 1 }));
+     ).filter(order => order.status !== 'pending_payment').map((order, index) => ({ ...order, displayNumber: index + 1 }));
 
      const getStatusColor = (status) => {
           switch (status) {

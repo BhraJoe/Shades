@@ -1,7 +1,8 @@
 // Paystack payment service
 // Uses the Paystack inline script loaded in index.html
 
-const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+// Use test key
+const PAYSTACK_PUBLIC_KEY = 'pk_test_a68e26ef9e1637c263b49bc49cdef6e18cb282f9';
 
 /**
  * Initialize Paystack payment

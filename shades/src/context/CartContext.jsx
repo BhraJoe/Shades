@@ -42,6 +42,8 @@ export function CartProvider({ children }) {
     }, [wishlist, user]);
 
     // Fetch cart from Supabase when user logs in
+    // Cloud sync disabled - re-enable after RLS fix in Supabase
+    /*
     useEffect(() => {
         const userId = user?.uid || localStorage.getItem('user_uid');
         if (userId) {
@@ -49,6 +51,7 @@ export function CartProvider({ children }) {
             fetchCloudWishlist(userId);
         }
     }, [user?.uid]);
+    */
 
     const fetchCloudCart = async (userId) => {
         if (!userId) return;
@@ -138,20 +141,26 @@ export function CartProvider({ children }) {
     };
 
     // Sync cart to Supabase when it changes (for logged in users)
+    // Cloud sync disabled - re-enable after RLS fix in Supabase
+    /*
     useEffect(() => {
         const userId = user?.uid || localStorage.getItem('user_uid');
         if (userId && !isSyncing) {
             syncCartToCloud(userId);
         }
     }, [cart, user, isSyncing]);
+    */
 
     // Sync wishlist to Supabase when it changes (for logged in users)
+    // Cloud sync disabled - re-enable after RLS fix in Supabase
+    /*
     useEffect(() => {
         const userId = user?.uid || localStorage.getItem('user_uid');
         if (userId && !isSyncing) {
             syncWishlistToCloud(userId);
         }
     }, [wishlist, user, isSyncing]);
+    */
 
     const syncCartToCloud = async (userId) => {
         if (!userId) return;

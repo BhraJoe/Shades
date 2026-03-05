@@ -21,6 +21,7 @@ export default function Home() {
     // Check for payment success and clear cart
     useEffect(() => {
         const paymentStatus = searchParams.get('payment');
+        const ref = searchParams.get('reference') || searchParams.get('ref') || searchParams.get('trxref');
         if (paymentStatus === 'success' && !hasProcessedPayment.current) {
             hasProcessedPayment.current = true;
             // Clear cart both in state and localStorage
@@ -31,10 +32,15 @@ export default function Home() {
             setTimeout(() => {
                 setShowOrderSuccess(false);
             }, 5000);
-            // Clean up URL after a short delay
-            setTimeout(() => {
-                window.history.replaceState({}, document.title, '/');
-            }, 100);
+            // Redirect to checkout to complete the order
+            if (ref) {
+                window.location.href = `/checkout?payment=success&reference=${ref}`;
+            } else {
+                // Clean up URL after a short delay
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, '/');
+                }, 100);
+            }
         }
     }, [searchParams]);
 
