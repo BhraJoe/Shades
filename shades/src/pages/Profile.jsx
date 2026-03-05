@@ -22,9 +22,12 @@ export default function Profile() {
     const [recentlyViewed, setRecentlyViewed] = useState([]);
     const [notifications, setNotifications] = useState({ email: true, sms: false, orders: true, promotions: true });
     const [activeTab, setActiveTab] = useState('overview');
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
         if (!user) return;
+
+        // Load data from localStorage
         const load = (k, s) => {
             const v = localStorage.getItem(`${k}_${user.uid}`);
             if (v) s(JSON.parse(v));
@@ -39,6 +42,10 @@ export default function Profile() {
 
         // Fetch orders from Supabase API
         const fetchUserOrders = async () => {
+            if (!user || !user.email) {
+                console.log('No user email available for fetching orders');
+                return;
+            }
             try {
                 const response = await axios.get(`${API_BASE}/orders?email=${user.email}`);
                 console.log('Orders from API:', response.data);
@@ -95,7 +102,18 @@ export default function Profile() {
     const toggleNewsletter = () => { const v = !newsletter; setNewsletter(v); save('newsletter', v); };
     const toggleNotification = (key) => { const n = { ...notifications, [key]: !notifications[key] }; setNotifications(n); save('notifications', n); };
 
-    if (authLoading || !user) return null;
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#dc2626] mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) return null;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -149,7 +167,7 @@ export default function Profile() {
 
                 {/* Navigation Tabs */}
                 <div className="flex gap-2 mb-6 overflow-x-auto">
-                    {['overview', 'orders', 'wishlist', 'addresses', 'settings'].map(tab => (
+                    {['overview', 'orders', 'addresses', 'settings'].map(tab => (
                         <button key={tab} onClick={() => setActiveTab(tab)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${activeTab === tab ? 'bg-[#dc2626] text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}>
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -187,39 +205,6 @@ export default function Profile() {
                                                 <p className="font-bold">₵{o.total?.toFixed(2) || '0.00'}</p>
                                                 <span className={`text-xs px-2 py-0.5 rounded-full ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{o.status}</span>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Wishlist */}
-                        <div className="bg-white rounded-2xl p-6 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="font-bold text-lg flex items-center gap-2">
-                                    <Heart className="text-[#dc2626]" size={20} /> Wishlist
-                                </h2>
-                                <button onClick={() => setActiveTab('wishlist')} className="text-[#dc2626] text-sm font-medium hover:underline flex items-center gap-1">
-                                    View All <ChevronRight size={16} />
-                                </button>
-                            </div>
-                            {wishlist.length === 0 ? (
-                                <div className="text-center py-6">
-                                    <p className="text-gray-400 mb-3">Your wishlist is empty</p>
-                                    <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Browse products</Link>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {wishlist.slice(0, 4).map(item => (
-                                        <div key={item.id} className="relative group">
-                                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                                <img src={item.image || '/images/products/wayfarer.svg'} alt={item.name} className="w-full h-full object-cover" />
-                                            </div>
-                                            <button onClick={() => removeWishlist(item.id)} className="absolute top-2 right-2 p-1 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Trash2 size={12} className="text-red-500" />
-                                            </button>
-                                            <p className="text-xs font-medium mt-1 truncate">{item.name}</p>
-                                            <p className="text-[#dc2626] font-bold text-sm">₵{item.price?.toFixed(2) || '0.00'}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -276,70 +261,137 @@ export default function Profile() {
                 {/* Orders Tab */}
                 {activeTab === 'orders' && (
                     <div className="bg-white rounded-2xl p-6 shadow-sm">
-                        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
-                            <Package className="text-[#dc2626]" size={20} /> My Orders
-                        </h2>
-                        {orders.length === 0 ? (
-                            <div className="text-center py-12">
-                                <Package className="mx-auto text-gray-300 mb-4" size={48} />
-                                <p className="text-gray-400 mb-3">No orders yet</p>
-                                <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Start shopping</Link>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {orders.map((o, index) => (
-                                    <div key={o.id || o.order_number} className="p-4 border border-gray-200 rounded-lg">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <p className="font-bold text-[#dc2626] text-lg">{o.order_number || `Order #${index + 1}`}</p>
-                                                <p className="text-sm text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
-                                            </div>
-                                            <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : o.status === 'pending_payment' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                                {o.status === 'pending_payment' ? 'Payment Pending' : o.status}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className="font-bold text-lg">₵{o.total?.toFixed(2) || '0.00'}</p>
-                                            <button onClick={() => navigate(`/orders`)} className="text-[#dc2626] text-sm font-medium hover:underline">
-                                                View Details
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
+                        {selectedOrder ? (
+                            <div>
+                                <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[#dc2626] font-medium mb-4 hover:underline">
+                                    <ArrowLeft size={18} /> Back to Orders
+                                </button>
+                                <h2 className="font-bold text-xl mb-4">Order Details</h2>
 
-                {/* Wishlist Tab */}
-                {activeTab === 'wishlist' && (
-                    <div className="bg-white rounded-2xl p-6 shadow-sm">
-                        <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
-                            <Heart className="text-[#dc2626]" size={20} /> My Wishlist
-                        </h2>
-                        {wishlist.length === 0 ? (
-                            <div className="text-center py-12">
-                                <Heart className="mx-auto text-gray-300 mb-4" size={48} />
-                                <p className="text-gray-400 mb-3">Your wishlist is empty</p>
-                                <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Browse products</Link>
+                                {/* Order Header */}
+                                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <p className="font-bold text-[#dc2626] text-lg">{selectedOrder.order_number || `Order #${selectedOrder.displayNumber}`}</p>
+                                            <p className="text-sm text-gray-500">{selectedOrder.date ? new Date(selectedOrder.date).toLocaleDateString() : selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleDateString() : 'N/A'}</p>
+                                        </div>
+                                        <span className={`px-3 py-1 rounded-full text-sm ${selectedOrder.status === 'delivered' ? 'bg-green-100 text-green-700' : selectedOrder.status === 'processing' ? 'bg-blue-100 text-blue-700' : selectedOrder.status === 'pending_payment' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                            {selectedOrder.status === 'pending_payment' ? 'Payment Pending' : selectedOrder.status}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Customer Information */}
+                                <div className="mb-4">
+                                    <h3 className="font-bold text-lg mb-3">Customer Information</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Name</p>
+                                            <p className="font-medium">{selectedOrder.customer_name || selectedOrder.shipping_name || selectedOrder.name || 'N/A'}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <p className="text-sm text-gray-500 mb-1">Phone</p>
+                                            <p className="font-medium">{selectedOrder.shipping_phone || selectedOrder.phone || 'N/A'}</p>
+                                        </div>
+                                        <div className="p-4 bg-gray-50 rounded-lg md:col-span-2">
+                                            <p className="text-sm text-gray-500 mb-1">Email</p>
+                                            <p className="font-medium">{selectedOrder.customer_email || selectedOrder.email || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Shipping Address */}
+                                <div className="mb-4">
+                                    <h3 className="font-bold text-lg mb-3">Shipping Address</h3>
+                                    <div className="p-4 bg-gray-50 rounded-lg">
+                                        <p className="font-medium">{selectedOrder.shipping_address || selectedOrder.address || 'N/A'}</p>
+                                        <p className="text-gray-500">{selectedOrder.shipping_city ? `${selectedOrder.shipping_city}, ${selectedOrder.shipping_state || ''} ${selectedOrder.shipping_zip || ''}` : 'N/A'}</p>
+                                        <p className="text-gray-500">{selectedOrder.shipping_country || 'Ghana'}</p>
+                                    </div>
+                                </div>
+
+                                {/* Order Items */}
+                                <div className="mb-4">
+                                    <h3 className="font-bold text-lg mb-3">Order Items</h3>
+                                    <div className="space-y-3">
+                                        {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                                            selectedOrder.items.map((item, idx) => (
+                                                <div key={idx} className="p-4 border border-gray-200 rounded-lg flex items-center gap-4">
+                                                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                                        {item.image ? (
+                                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <Package className="text-gray-400" size={24} />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-medium">{item.name || 'Product'}</p>
+                                                        <p className="text-sm text-gray-500">Qty: {item.quantity || 1}</p>
+                                                    </div>
+                                                    <p className="font-bold">₵{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500">No items found</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Order Summary */}
+                                <div className="border-t pt-4">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Subtotal</span>
+                                        <span>₵{(selectedOrder.subtotal || selectedOrder.total || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Shipping</span>
+                                        <span>₵{(selectedOrder.shipping || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-gray-600">Tax</span>
+                                        <span>₵{(selectedOrder.tax || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                                        <span>Total</span>
+                                        <span className="text-[#dc2626]">₵{(selectedOrder.total || selectedOrder.subtotal || 0).toFixed(2)}</span>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {wishlist.map(item => (
-                                    <div key={item.id} className="relative group">
-                                        <Link to={`/product/${item.id}`}>
-                                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                                <img src={item.image || '/images/products/wayfarer.svg'} alt={item.name} className="w-full h-full object-cover" />
-                                            </div>
-                                            <p className="text-sm font-medium mt-2 truncate">{item.name}</p>
-                                            <p className="text-[#dc2626] font-bold">₵{item.price?.toFixed(2) || '0.00'}</p>
-                                        </Link>
-                                        <button onClick={() => removeWishlist(item.id)} className="absolute top-2 right-2 p-2 bg-white rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Trash2 size={16} className="text-red-500" />
-                                        </button>
+                            <>
+                                <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <Package className="text-[#dc2626]" size={20} /> My Orders
+                                </h2>
+                                {orders.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <Package className="mx-auto text-gray-300 mb-4" size={48} />
+                                        <p className="text-gray-400 mb-3">No orders yet</p>
+                                        <Link to="/shop" className="text-[#dc2626] font-medium hover:underline">Start shopping</Link>
                                     </div>
-                                ))}
-                            </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {orders.map((o, index) => (
+                                            <div key={o.id || o.order_number} className="p-4 border border-gray-200 rounded-lg">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <p className="font-bold text-[#dc2626] text-lg">{o.order_number || `Order #${index + 1}`}</p>
+                                                        <p className="text-sm text-gray-500">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A'}</p>
+                                                    </div>
+                                                    <span className={`px-3 py-1 rounded-full text-sm ${o.status === 'delivered' ? 'bg-green-100 text-green-700' : o.status === 'processing' ? 'bg-blue-100 text-blue-700' : o.status === 'pending_payment' ? 'bg-orange-100 text-orange-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                        {o.status === 'pending_payment' ? 'Payment Pending' : o.status}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <p className="font-bold text-lg">₵{o.total?.toFixed(2) || '0.00'}</p>
+                                                    <button onClick={() => setSelectedOrder(o)} className="text-[#dc2626] text-sm font-medium hover:underline flex items-center gap-1">
+                                                        <Eye size={16} /> View Details
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 )}

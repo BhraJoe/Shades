@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { Plus, Search, Filter, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Edit2, Trash2, Package } from 'lucide-react';
 
 const AdminDashboard = () => {
     const [products, setProducts] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +14,7 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         fetchProducts();
+        fetchOrders();
     }, []);
 
     // Timeout after 10 seconds
@@ -38,6 +40,20 @@ const AdminDashboard = () => {
             setError('Failed to load products - API may be unreachable');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchOrders = async () => {
+        try {
+            const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api';
+            const token = localStorage.getItem('adminToken');
+            const res = await axios.get(`${API_BASE}/admin/orders`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Get only recent 5 orders
+            setOrders((res.data || []).slice(0, 5));
+        } catch (err) {
+            console.error('Error loading orders:', err);
         }
     };
 
@@ -205,6 +221,92 @@ const AdminDashboard = () => {
                         <p className="text-4xl sm:text-5xl font-display text-[#0a0a0a] leading-none">{stat.value.toString().padStart(2, '0')}</p>
                     </div>
                 ))}
+            </div>
+
+            {/* Recent Orders */}
+            <div className="bg-white border border-gray-100 shadow-sm">
+                <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+                    <h3 className="text-lg font-display">Recent Orders</h3>
+                    <Link to="/admin/orders" className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#dc2626] hover:underline">
+                        View All
+                    </Link>
+                </div>
+                {orders.length === 0 ? (
+                    <div className="px-8 py-12 text-center">
+                        <Package className="mx-auto text-gray-300 mb-4" size={32} />
+                        <p className="text-gray-400 text-sm">No orders yet</p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                        {orders.map((order) => (
+                            <div key={order.id} className="p-6">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div>
+                                        <h4 className="text-sm font-bold">{order.order_number}</h4>
+                                        <p className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                    <span className={`px-2 py-1 text-[10px] font-bold uppercase ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'processing' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                        {order.status || 'pending'}
+                                    </span>
+                                </div>
+
+                                {/* Customer Info */}
+                                <div className="grid grid-cols-3 gap-4 mb-4 text-sm">
+                                    <div>
+                                        <p className="text-gray-400 text-xs">Name</p>
+                                        <p className="font-medium">{order.customer_name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs">Email</p>
+                                        <p className="font-medium">{order.customer_email}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs">Phone</p>
+                                        <p className="font-medium">{order.shipping_phone || order.phone || 'N/A'}</p>
+                                    </div>
+                                </div>
+
+                                {/* Shipping Address */}
+                                <div className="mb-4 text-sm">
+                                    <p className="text-gray-400 text-xs">Shipping Address</p>
+                                    <p>{order.shipping_address}, {order.shipping_city}, {order.shipping_state} {order.shipping_zip}</p>
+                                    <p>{order.shipping_country}</p>
+                                </div>
+
+                                {/* Order Items */}
+                                <div className="border-t border-gray-100 pt-4">
+                                    <p className="text-gray-400 text-xs mb-2">Items</p>
+                                    {order.items?.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between text-sm mb-2">
+                                            <span>{item.name} {item.size ? `(Size: ${item.size})` : ''} x{item.quantity}</span>
+                                            <span>₵{parseFloat(item.price || 0).toFixed(2)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Totals */}
+                                <div className="border-t border-gray-100 mt-4 pt-4 space-y-1 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Subtotal</span>
+                                        <span>₵{parseFloat(order.subtotal || order.total || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Shipping</span>
+                                        <span>₵{parseFloat(order.shipping || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Tax</span>
+                                        <span>₵{parseFloat(order.tax || 0).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-100">
+                                        <span>Total</span>
+                                        <span className="text-[#dc2626]">₵{parseFloat(order.total || 0).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Inventory List */}

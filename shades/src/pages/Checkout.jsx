@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
 import { ChevronDown, CreditCard, Check, ArrowLeft, Lock, Truck } from 'lucide-react';
 import { initializePaystackPayment, generatePaymentReference, convertToSmallestUnit, isPaystackAvailable } from '../paystack';
 
@@ -36,12 +37,38 @@ export default function Checkout() {
 
     // Check for payment success and verify
     useEffect(() => {
-        console.log('Payment redirect detected:', { paymentStatus, paymentRefFromUrl, paymentRef, user });
+        console.log('Payment redirect detected:', { paymentStatus, paymentRefFromUrl, paymentRef, user, authLoading });
+
+        // Restore form data from localStorage if available
+        const savedFormData = localStorage.getItem('checkout_form_data');
+        if (savedFormData) {
+            try {
+                const parsed = JSON.parse(savedFormData);
+                setFormData(prev => ({ ...prev, ...parsed }));
+                console.log('Restored form data from localStorage');
+            } catch (e) {
+                console.error('Error restoring form data:', e);
+            }
+        }
+
+        // Wait for auth to load before processing payment
+        if (authLoading) {
+            console.log('Auth still loading, waiting...');
+            return;
+        }
+
+        // If no user after auth loads, redirect to login
+        if (!user && !authLoading) {
+            console.log('No user found after payment redirect');
+            navigate('/login', { state: { from: '/checkout', message: 'Please login to complete your order' } });
+            return;
+        }
+
         const ref = paymentRefFromUrl || paymentRef;
         if (paymentStatus === 'success' && ref) {
             verifyPaystackPayment(ref);
         }
-    }, [paymentStatus, paymentRef, paymentRefFromUrl, user]);
+    }, [paymentStatus, paymentRef, paymentRefFromUrl, user, authLoading, navigate]);
 
     // Verify Paystack payment
     const verifyPaystackPayment = async (ref) => {
@@ -73,10 +100,41 @@ export default function Checkout() {
 
     // Complete the order after successful payment
     const completeOrder = async (paymentReference = null) => {
+        console.log('completeOrder called with paymentReference:', paymentReference, 'user:', user);
+
         const newOrderNumber = 'ORD-' + Date.now().toString() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         setOrderNumber(newOrderNumber);
 
-        if (user) {
+        // Even if user is temporarily null after redirect, try to get the current user
+        let currentUser = user;
+        if (!currentUser && auth) {
+            // Try to get current user from Firebase auth
+            try {
+                const currentAuthUser = auth.currentUser;
+                if (currentAuthUser) {
+                    currentUser = { uid: currentAuthUser.uid, email: currentAuthUser.email };
+                    console.log('Got user from auth.currentUser:', currentUser);
+                }
+            } catch (e) {
+                console.error('Error getting current user:', e);
+            }
+        }
+
+        if (!currentUser) {
+            console.error('No user available for order - saving order reference for later recovery');
+            // Save order reference to localStorage so it can be recovered after login
+            const pendingOrderRef = {
+                orderNumber: newOrderNumber,
+                paymentReference,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('pending_order', JSON.stringify(pendingOrderRef));
+            alert('Order payment verified but session expired. Please log in to complete your order.');
+            navigate('/login', { state: { from: '/profile', message: 'Your order was completed but please log in to view it' } });
+            return;
+        }
+
+        if (currentUser) {
             const order = {
                 order_number: newOrderNumber,
                 date: new Date().toISOString(),
@@ -84,7 +142,7 @@ export default function Checkout() {
                 total: orderTotal,
                 paymentMethod: paymentMethod,
                 paymentReference: paymentReference,
-                customer_email: user.email,
+                customer_email: currentUser.email,
                 customer_name: `${formData.firstName} ${formData.lastName}`,
                 shipping_address: formData.address,
                 shipping_city: formData.city,
@@ -107,9 +165,9 @@ export default function Checkout() {
             };
 
             // Save to localStorage for user's order history
-            const existingOrders = JSON.parse(localStorage.getItem(`orders_${user.uid}`) || '[]');
+            const existingOrders = JSON.parse(localStorage.getItem(`orders_${currentUser.uid}`) || '[]');
             existingOrders.unshift(order);
-            localStorage.setItem(`orders_${user.uid}`, JSON.stringify(existingOrders));
+            localStorage.setItem(`orders_${currentUser.uid}`, JSON.stringify(existingOrders));
 
             // Save to Supabase database
             try {
@@ -251,6 +309,7 @@ export default function Checkout() {
             if (!formData.email) errors.email = 'Email is required';
             if (!formData.firstName) errors.firstName = 'First name is required';
             if (!formData.lastName) errors.lastName = 'Last name is required';
+            if (!formData.phone) errors.phone = 'Phone number is required for delivery';
             if (!formData.address) errors.address = 'Address is required';
             if (!formData.city) errors.city = 'City is required';
             if (!formData.state) errors.state = 'State is required';
@@ -264,6 +323,8 @@ export default function Checkout() {
         e.preventDefault();
         if (step === 'shipping') {
             if (validateForm()) {
+                // Save form data to localStorage for recovery after payment redirect
+                localStorage.setItem('checkout_form_data', JSON.stringify(formData));
                 setStep('payment');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -492,8 +553,16 @@ export default function Checkout() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2 text-gray-400">Phone (Optional)</label>
-                                        <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors" placeholder="Phone number" />
+                                        <label className="block text-xs font-bold tracking-[0.2em] uppercase mb-2">Phone <span className="text-red-500">*</span></label>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-3.5 border border-gray-200 bg-transparent text-sm focus:outline-none focus:border-[#0a0a0a] transition-colors"
+                                            placeholder="Phone number"
+                                            required
+                                        />
                                     </div>
 
                                     <button type="submit" className="w-full py-4 bg-[#0a0a0a] text-white text-sm font-bold tracking-[0.15em] uppercase hover:bg-[#dc2626] transition-colors duration-300 mt-4">

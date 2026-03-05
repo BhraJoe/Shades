@@ -151,7 +151,7 @@ const AdminOrders = () => {
                                                   </span>
                                              </div>
                                              <div className="text-sm text-gray-500 mb-1">
-                                                  {order.customer_name} • {order.customer_email}
+                                                  {order.customer_name} • {order.customer_email} • {order.shipping_phone || order.phone || 'No phone'}
                                              </div>
                                              <div className="flex items-center gap-4 text-xs text-gray-400">
                                                   <span>{order.items?.length || 0} items</span>
@@ -209,7 +209,7 @@ const AdminOrders = () => {
                                              </div>
                                              <div>
                                                   <span className="text-gray-400 block text-xs">Phone</span>
-                                                  <span className="font-medium">{selectedOrder.shipping_phone || 'N/A'}</span>
+                                                  <span className="font-medium">{selectedOrder.shipping_phone || selectedOrder.phone || 'N\/A'}</span>
                                              </div>
                                         </div>
                                    </div>
