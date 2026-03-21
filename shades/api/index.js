@@ -497,7 +497,8 @@ app.post('/api/admin/products', async (req, res) => {
                     // Base64 image from JSON - upload to Supabase Storage
                     try {
                          const base64Data = imageField.split(',')[1];
-                         // Store base64 directly - frontend will handle displaying it\n                         product.images = [imageField];
+                         // Store base64 directly
+                    product.images = [imageField];
                          const mimeType = imageField.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
                          const ext = mimeType.split('/')[1] || 'jpg';
                          const fileName = `products/${Date.now()}.${ext}`;
@@ -585,7 +586,8 @@ app.put('/api/admin/products/:id', async (req, res) => {
                     // Base64 image from JSON - upload to Supabase Storage
                     try {
                          const base64Data = imageField.split(',')[1];
-                         // Store base64 directly - frontend will handle displaying it\n                         product.images = [imageField];
+                         // Store base64 directly
+                    product.images = [imageField];
                          const mimeType = imageField.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
                          const ext = mimeType.split('/')[1] || 'jpg';
                          const fileName = `products/${Date.now()}.${ext}`;
