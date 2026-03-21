@@ -35,8 +35,18 @@ export default function Checkout() {
         }
     }, [user, authLoading, navigate]);
 
-    // Check for payment success and verify
+    // Check for payment success and redirect to home immediately
     useEffect(() => {
+        // If payment was successful, redirect to home immediately
+        if (paymentStatus === 'success' && paymentRefFromUrl) {
+            console.log('Payment successful, redirecting to home...');
+            // Clear cart and redirect to home
+            clearCart();
+            localStorage.removeItem('shades-cart');
+            navigate('/', { replace: true });
+            return;
+        }
+
         console.log('Payment redirect detected:', { paymentStatus, paymentRefFromUrl, paymentRef, user, authLoading });
 
         // Restore form data from localStorage if available
