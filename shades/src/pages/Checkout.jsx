@@ -35,15 +35,23 @@ export default function Checkout() {
         }
     }, [user, authLoading, navigate]);
 
-    // Check for payment success and redirect to home immediately
+    // Check for payment success and verify
     useEffect(() => {
-        // If payment was successful, redirect to home immediately
+        // If payment was successful, verify and complete the order, then redirect to home
         if (paymentStatus === 'success' && paymentRefFromUrl) {
-            console.log('Payment successful, redirecting to home...');
-            // Clear cart and redirect to home
-            clearCart();
-            localStorage.removeItem('shades-cart');
-            navigate('/', { replace: true });
+            console.log('Payment successful, processing order...');
+            // Get saved form data to complete the order
+            const savedFormData = localStorage.getItem('checkout_form_data');
+            if (savedFormData) {
+                try {
+                    const parsed = JSON.parse(savedFormData);
+                    setFormData(prev => ({ ...prev, ...parsed }));
+                } catch (e) {
+                    console.error('Error restoring form data:', e);
+                }
+            }
+            // Verify payment and complete order - it will redirect to home
+            verifyPaystackPayment(paymentRefFromUrl);
             return;
         }
 
