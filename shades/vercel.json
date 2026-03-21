@@ -35,6 +35,10 @@
     "env": {
         "VITE_PAYSTACK_PUBLIC_KEY": "pk_test_a68e26ef9e1637c263b49bc49cdef6e18cb282f9",
         "PAYSTACK_SECRET_KEY": "sk_test_bde739aec1a54f5266a40fa1ef1d1ed4ef12e825",
-        "FRONTEND_URL": "https://shades-ruddy.vercel.app"
+        "FRONTEND_URL": "https://shades-ruddy.vercel.app",
+        "RESEND_API_KEY": "re_UeVFEnVw_L1651hBZTH1VQcF6vMcNjhHw",
+        "ADMIN_EMAIL": "josephatanga25@gmail.com",
+        "FROM_EMAIL": "Shades Store <onboarding@resend.dev>",
+        "STORE_NAME": "Shades"
     }
 }

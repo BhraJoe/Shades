@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
+import { Resend } from 'resend';
 
 const app = express();
 
@@ -24,6 +25,155 @@ const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANO
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'shades_secret_2024_vision';
+
+// Resend configuration for emails
+const resend = new Resend(process.env.RESEND_API_KEY);
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'josephatanga25@gmail.com';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'Shades Store <onboarding@resend.dev>';
+const STORE_NAME = process.env.STORE_NAME || 'Shades';
+
+console.log('Email config:', { ADMIN_EMAIL, FROM_EMAIL, STORE_NAME, hasResendKey: !!process.env.RESEND_API_KEY });
+
+// Email sending function
+async function sendOrderEmails(order) {
+     console.log('sendOrderEmails called with order:', order.order_number);
+
+     if (!process.env.RESEND_API_KEY) {
+          console.error('RESEND_API_KEY is not set!');
+          return { success: false, error: 'RESEND_API_KEY not configured' };
+     }
+
+     const { customer_email, customer_name, order_number, total, items, shipping_address, shipping_city, shipping_phone } = order;
+     console.log('Sending emails to:', customer_email, 'and admin:', ADMIN_EMAIL);
+
+     // Format items for email
+     const itemsList = items.map(item => `${item.name} x${item.quantity} - ₵${(item.price * item.quantity).toFixed(2)}`).join('\n');
+
+     // Customer email confirmation
+     const customerEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - ${STORE_NAME}</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+    <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0;">${STORE_NAME}</h1>
+        <p style="color: white; margin: 10px 0 0 0;">Order Confirmation</p>
+    </div>
+    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+        <p>Hello ${customer_name},</p>
+        <p>Thank you for your order! We've received your purchase and are processing it now.</p>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #dc2626;">Order Details</h3>
+            <p><strong>Order Number:</strong> ${order_number}</p>
+            <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Items Ordered</h3>
+            <pre style="white-space: pre-wrap; font-family: Arial, sans-serif;">${itemsList}</pre>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Shipping Address</h3>
+            <p>${shipping_address}</p>
+            <p>${shipping_city}</p>
+            <p>Phone: ${shipping_phone}</p>
+        </div>
+        
+        <div style="background: #dc2626; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 24px; font-weight: bold;">Total: ₵${parseFloat(total).toFixed(2)}</p>
+        </div>
+        
+        <p>We'll notify you once your order has been shipped. Thank you for shopping with ${STORE_NAME}!</p>
+        
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+        <p style="color: #666; font-size: 12px; text-align: center;">
+            ${STORE_NAME} - Quality Eyewear<br>
+            This is an automated confirmation email. Please don't reply to this message.
+        </p>
+    </div>
+</body>
+</html>
+    `;
+
+     // Admin email notification
+     const adminEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Order - ${STORE_NAME}</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+    <div style="background: #dc2626; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0;">${STORE_NAME}</h1>
+        <p style="color: white; margin: 10px 0 0 0;">🚨 NEW ORDER RECEIVED!</p>
+    </div>
+    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #dc2626;">Order #${order_number}</h3>
+            <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Customer Information</h3>
+            <p><strong>Name:</strong> ${customer_name}</p>
+            <p><strong>Email:</strong> ${customer_email}</p>
+            <p><strong>Phone:</strong> ${shipping_phone}</p>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Shipping Address</h3>
+            <p>${shipping_address}</p>
+            <p>${shipping_city}</p>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Items Ordered</h3>
+            <pre style="white-space: pre-wrap; font-family: Arial, sans-serif;">${itemsList}</pre>
+        </div>
+        
+        <div style="background: #dc2626; color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 24px; font-weight: bold;">Total: ₵${parseFloat(total).toFixed(2)}</p>
+        </div>
+        
+        <p style="color: #666;">Please process this order as soon as possible.</p>
+    </div>
+</body>
+</html>
+    `;
+
+     try {
+          // Send customer confirmation email
+          await resend.emails.send({
+               from: FROM_EMAIL,
+               to: customer_email,
+               subject: `Order Confirmed - ${order_number} | ${STORE_NAME}`,
+               html: customerEmailHtml
+          });
+          console.log('Customer confirmation email sent to:', customer_email);
+
+          // Send admin notification email
+          await resend.emails.send({
+               from: FROM_EMAIL,
+               to: ADMIN_EMAIL,
+               subject: `🛒 New Order - ${order_number} - ₵${parseFloat(total).toFixed(2)}`,
+               html: adminEmailHtml
+          });
+          console.log('Admin notification email sent to:', ADMIN_EMAIL);
+
+          return { success: true };
+     } catch (error) {
+          console.error('Email sending error:', error);
+          return { success: false, error: error.message };
+     }
+}
 
 // ============ AUTH ============
 app.post('/api/auth/login', async (req, res) => {
@@ -242,6 +392,10 @@ app.post('/api/orders', async (req, res) => {
                throw error;
           }
           console.log('Order saved successfully:', data);
+
+          // Send order confirmation emails (non-blocking)
+          sendOrderEmails(order).catch(err => console.error('Email sending failed:', err));
+
           res.status(201).json(data[0]);
      } catch (error) {
           console.error('Order error:', error);
