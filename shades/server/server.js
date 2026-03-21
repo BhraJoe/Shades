@@ -189,28 +189,19 @@ async function sendOrderEmails(order) {
     }
 }
 
-// Helper to upload image to Supabase Storage
+// Helper to convert image to base64 data URL
+// Stores image directly in database as base64 (no external storage needed)
 const uploadImageToSupabase = async (file) => {
-    if (!supabase || !file) return null;
+    if (!file) return null;
     try {
-        const fileExt = file.originalname.split('.').pop();
-        const fileName = `products/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const { data, error } = await supabase.storage
-            .from('images')
-            .upload(fileName, file.buffer, {
-                contentType: file.mimetype,
-                upsert: false
-            });
-        if (error) {
-            console.error('Supabase Storage upload error:', error);
-            return null;
-        }
-        const { data: { publicUrl } } = supabase.storage
-            .from('images')
-            .getPublicUrl(fileName);
-        return publicUrl;
+        // Convert buffer to base64
+        const base64 = file.buffer.toString('base64');
+        // Create data URL
+        const dataUrl = `data:${file.mimetype};base64,${base64}`;
+        console.log('Image converted to base64, size:', base64.length, 'bytes');
+        return dataUrl;
     } catch (err) {
-        console.error('Upload to Supabase Storage failed:', err);
+        console.error('Image base64 conversion failed:', err);
         return null;
     }
 };

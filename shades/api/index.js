@@ -510,12 +510,8 @@ app.post('/api/admin/products', async (req, res) => {
 
                          if (uploadError) {
                               console.error('Image upload error:', uploadError);
-                         } else {
-                              const { data: { publicUrl } } = supabase.storage
-                                   .from('images')
-                                   .getPublicUrl(fileName);
-                              product.images = [publicUrl];
                          }
+                         // Keep base64 - no external storage needed
                     } catch (imgErr) {
                          console.error('Image handling error:', imgErr);
                     }
@@ -602,12 +598,8 @@ app.put('/api/admin/products/:id', async (req, res) => {
 
                          if (uploadError) {
                               console.error('Image upload error:', uploadError);
-                         } else {
-                              const { data: { publicUrl } } = supabase.storage
-                                   .from('images')
-                                   .getPublicUrl(fileName);
-                              product.images = [publicUrl];
                          }
+                         // Keep base64 - no external storage needed
                     } catch (imgErr) {
                          console.error('Image handling error:', imgErr);
                     }
