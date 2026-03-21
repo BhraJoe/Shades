@@ -70,34 +70,18 @@ export default function Shop() {
                 if (filters.bestseller) params.bestseller = 'true';
                 if (filters.new) params.new = 'true';
                 if (filters.sort) params.sort = filters.sort;
+                if (filters.search) params.search = filters.search;
                 params.page = 1;
                 params.limit = PRODUCTS_PER_PAGE;
 
                 let data = await fetchProducts(params);
-
-                // Client-side search filtering
-                if (filters.search) {
-                    const searchLower = filters.search.toLowerCase();
-                    const filteredData = data.products || data;
-                    const filtered = filteredData.filter(product =>
-                        product.name.toLowerCase().includes(searchLower) ||
-                        product.brand.toLowerCase().includes(searchLower) ||
-                        product.category.toLowerCase().includes(searchLower) ||
-                        product.subcategory?.toLowerCase().includes(searchLower)
-                    );
-                    // For search, we need to update the displayed products
-                    setDisplayedProducts(filtered);
-                    setProducts(filtered);
-                    setHasMore(false); // Disable pagination for search results
-                    setLoading(false);
-                    return;
-                }
 
                 // Check if response is paginated
                 if (data.pagination) {
                     setDisplayedProducts(data.products);
                     setPagination(data.pagination);
                     setProducts(data.products);
+                    setHasMore(data.pagination.page < data.pagination.totalPages);
                 } else {
                     // Fallback for non-paginated response
                     setProducts(data);
@@ -121,6 +105,7 @@ export default function Shop() {
             if (filters.bestseller) params.bestseller = 'true';
             if (filters.new) params.new = 'true';
             if (filters.sort) params.sort = filters.sort;
+            if (filters.search) params.search = filters.search;
             params.page = nextPage;
             params.limit = PRODUCTS_PER_PAGE;
 

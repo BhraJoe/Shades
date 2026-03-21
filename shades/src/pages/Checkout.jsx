@@ -35,11 +35,16 @@ export default function Checkout() {
         }
     }, [user, authLoading, navigate]);
 
+    // Track if order has been processed to prevent duplicates
+    const [orderProcessed, setOrderProcessed] = useState(false);
+
     // Check for payment success and verify
     useEffect(() => {
-        // If payment was successful, verify and complete the order, then redirect to home
-        if (paymentStatus === 'success' && paymentRefFromUrl) {
+        // If payment was successful and order not yet processed, verify and complete the order
+        if (paymentStatus === 'success' && paymentRefFromUrl && !orderProcessed) {
             console.log('Payment successful, processing order...');
+            setOrderProcessed(true);
+
             // Get saved form data to complete the order
             const savedFormData = localStorage.getItem('checkout_form_data');
             if (savedFormData) {
@@ -50,8 +55,14 @@ export default function Checkout() {
                     console.error('Error restoring form data:', e);
                 }
             }
+
             // Verify payment and complete order - it will redirect to home
             verifyPaystackPayment(paymentRefFromUrl);
+            return;
+        }
+
+        // Skip other processing if order already processed
+        if (orderProcessed) {
             return;
         }
 
@@ -81,12 +92,7 @@ export default function Checkout() {
             navigate('/login', { state: { from: '/checkout', message: 'Please login to complete your order' } });
             return;
         }
-
-        const ref = paymentRefFromUrl || paymentRef;
-        if (paymentStatus === 'success' && ref) {
-            verifyPaystackPayment(ref);
-        }
-    }, [paymentStatus, paymentRef, paymentRefFromUrl, user, authLoading, navigate]);
+    }, [paymentStatus, paymentRef, paymentRefFromUrl, user, authLoading, navigate, orderProcessed, setOrderProcessed]);
 
     // Verify Paystack payment
     const verifyPaystackPayment = async (ref) => {
@@ -136,6 +142,22 @@ export default function Checkout() {
             } catch (e) {
                 console.error('Error getting current user:', e);
             }
+        }
+
+        // If still no user, try to get email from localStorage (saved before redirect to Paystack)
+        if (!currentUser) {
+            const savedUserEmail = localStorage.getItem('checkout_user_email');
+            const savedUserUid = localStorage.getItem('checkout_user_uid');
+            if (savedUserEmail) {
+                currentUser = { uid: savedUserUid, email: savedUserEmail };
+                console.log('Got user from localStorage:', currentUser);
+            }
+        }
+
+        // Last resort: try to get email from formData
+        if (!currentUser && formData?.email) {
+            currentUser = { uid: 'unknown', email: formData.email };
+            console.log('Got user from formData:', currentUser);
         }
 
         if (!currentUser) {
@@ -200,6 +222,10 @@ export default function Checkout() {
                 console.log('Order data:', JSON.stringify(order, null, 2));
                 const response = await axios.post(`${API_BASE}/orders`, order);
                 console.log('Order saved successfully:', response.data);
+
+                // Clean up localStorage saved user data
+                localStorage.removeItem('checkout_user_email');
+                localStorage.removeItem('checkout_user_uid');
             } catch (err) {
                 console.error('Error saving order to database:', err);
                 console.error('Error response:', err.response?.data);
@@ -257,6 +283,22 @@ export default function Checkout() {
             console.log('Payment init response:', data);
 
             if (data.authorization_url) {
+                // Save user info to localStorage before redirect - needed for mobile to recover session after redirect
+                let userEmail = user?.email;
+                let userUid = user?.uid;
+
+                // Try to get from Firebase auth directly if not available from useAuth
+                if (!userEmail && auth?.currentUser) {
+                    userEmail = auth.currentUser.email;
+                    userUid = auth.currentUser.uid;
+                }
+
+                if (userEmail) {
+                    localStorage.setItem('checkout_user_email', userEmail);
+                    localStorage.setItem('checkout_user_uid', userUid);
+                    console.log('Saved user to localStorage:', userEmail);
+                }
+
                 // Redirect to Paystack payment page
                 window.location.href = data.authorization_url;
             } else {
@@ -414,9 +456,10 @@ export default function Checkout() {
 
                 clearCart();
                 setLoading(false);
-                // Redirect to home page after successful payment
+                // Redirect to home page immediately after successful payment
                 navigate('/', { replace: true });
-            }, 2000);
+            }
+            );
         }
     };
 

@@ -37,9 +37,11 @@ console.log('Email config:', { ADMIN_EMAIL, FROM_EMAIL, STORE_NAME, hasResendKey
 // Email sending function
 async function sendOrderEmails(order) {
      console.log('sendOrderEmails called with order:', order.order_number);
+     console.log('RESEND_API_KEY available:', !!process.env.RESEND_API_KEY);
 
      if (!process.env.RESEND_API_KEY) {
-          console.error('RESEND_API_KEY is not set!');
+          console.error('RESEND_API_KEY is not set! Emails will not be sent.');
+          console.log('To enable emails, set RESEND_API_KEY in Vercel environment variables.');
           return { success: false, error: 'RESEND_API_KEY not configured' };
      }
 
@@ -151,21 +153,23 @@ async function sendOrderEmails(order) {
 
      try {
           // Send customer confirmation email
-          await resend.emails.send({
+          const customerResult = await resend.emails.send({
                from: FROM_EMAIL,
                to: customer_email,
                subject: `Order Confirmed - ${order_number} | ${STORE_NAME}`,
                html: customerEmailHtml
           });
+          console.log('Customer email result:', JSON.stringify(customerResult));
           console.log('Customer confirmation email sent to:', customer_email);
 
           // Send admin notification email
-          await resend.emails.send({
+          const adminResult = await resend.emails.send({
                from: FROM_EMAIL,
                to: ADMIN_EMAIL,
                subject: `🛒 New Order - ${order_number} - ₵${parseFloat(total).toFixed(2)}`,
                html: adminEmailHtml
           });
+          console.log('Admin email result:', JSON.stringify(adminResult));
           console.log('Admin notification email sent to:', ADMIN_EMAIL);
 
           return { success: true };
@@ -261,13 +265,54 @@ app.get('/api/auth/me', async (req, res) => {
 // ============ PRODUCTS ============
 app.get('/api/products', async (req, res) => {
      try {
-          const { data, error } = await supabase
-               .from('products')
-               .select('*')
-               .order('created_at', { ascending: false });
+          const { page = 1, limit = 20, category, search, sort, bestseller, is_new } = req.query;
+
+          let query = supabase.from('products').select('*', { count: 'exact' });
+
+          // Apply category filter
+          if (category && category !== 'all') {
+               query = query.eq('category', category);
+          }
+
+          // Apply bestseller filter
+          if (bestseller === 'true') {
+               query = query.eq('is_bestseller', true);
+          }
+
+          // Apply new arrival filter
+          if (is_new === 'true') {
+               query = query.eq('is_new', true);
+          }
+
+          // Apply search filter
+          if (search) {
+               query = query.ilike('name', `%${search}%`);
+          }
+
+          // Apply sorting
+          const sortOrder = sort === 'price-low' ? 'asc' : sort === 'price-high' ? 'desc' : 'desc';
+          const sortField = sort === 'price-low' || sort === 'price-high' ? 'price' : 'created_at';
+          query = query.order(sortField, { ascending: sortOrder === 'asc' });
+
+          // Apply pagination
+          const pageNum = parseInt(page) || 1;
+          const limitNum = parseInt(limit) || 20;
+          const start = (pageNum - 1) * limitNum;
+          query = query.range(start, start + limitNum - 1);
+
+          const { data, error, count } = await query;
 
           if (error) throw error;
-          res.json(data || []);
+
+          res.json({
+               products: data || [],
+               pagination: {
+                    page: pageNum,
+                    limit: limitNum,
+                    total: count || 0,
+                    totalPages: Math.ceil((count || 0) / limitNum)
+               }
+          });
      } catch (error) {
           console.error('Products error:', error);
           res.status(500).json({ error: error.message });
@@ -498,7 +543,7 @@ app.post('/api/admin/products', async (req, res) => {
                     try {
                          const base64Data = imageField.split(',')[1];
                          // Store base64 directly
-                    product.images = [imageField];
+                         product.images = [imageField];
                          const mimeType = imageField.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
                          const ext = mimeType.split('/')[1] || 'jpg';
                          const fileName = `products/${Date.now()}.${ext}`;
@@ -587,7 +632,7 @@ app.put('/api/admin/products/:id', async (req, res) => {
                     try {
                          const base64Data = imageField.split(',')[1];
                          // Store base64 directly
-                    product.images = [imageField];
+                         product.images = [imageField];
                          const mimeType = imageField.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
                          const ext = mimeType.split('/')[1] || 'jpg';
                          const fileName = `products/${Date.now()}.${ext}`;
