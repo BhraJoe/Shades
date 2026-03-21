@@ -32,10 +32,8 @@ export default function Home() {
             setTimeout(() => {
                 setShowOrderSuccess(false);
             }, 5000);
-            // Redirect to checkout to complete the order
+            // Clean up URL - stay on home page after payment
             if (ref) {
-                window.location.href = `/checkout?payment=success&reference=${ref}`;
-            } else {
                 // Clean up URL after a short delay
                 setTimeout(() => {
                     window.history.replaceState({}, document.title, '/');
