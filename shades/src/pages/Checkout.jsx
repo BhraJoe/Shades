@@ -167,7 +167,13 @@ export default function Checkout() {
             // Save to localStorage for user's order history
             const existingOrders = JSON.parse(localStorage.getItem(`orders_${currentUser.uid}`) || '[]');
             existingOrders.unshift(order);
-            localStorage.setItem(`orders_${currentUser.uid}`, JSON.stringify(existingOrders));
+            // Keep only last 50 orders to prevent localStorage quota exceeded
+            const trimmedOrders = existingOrders.slice(0, 50);
+            try {
+                localStorage.setItem(`orders_${currentUser.uid}`, JSON.stringify(trimmedOrders));
+            } catch (e) {
+                console.error('localStorage quota exceeded:', e);
+            }
 
             // Save to Supabase database
             try {
@@ -371,7 +377,13 @@ export default function Checkout() {
 
                     const existingOrders = JSON.parse(localStorage.getItem(`orders_${user.uid}`) || '[]');
                     existingOrders.unshift(order);
-                    localStorage.setItem(`orders_${user.uid}`, JSON.stringify(existingOrders));
+                    // Keep only last 50 orders to prevent localStorage quota exceeded
+                    const trimmedOrders = existingOrders.slice(0, 50);
+                    try {
+                        localStorage.setItem(`orders_${user.uid}`, JSON.stringify(trimmedOrders));
+                    } catch (e) {
+                        console.error('localStorage quota exceeded:', e);
+                    }
 
                     // Save to Supabase database
                     try {
