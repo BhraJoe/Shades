@@ -384,6 +384,8 @@ export default function Checkout() {
 
                 clearCart();
                 setLoading(false);
+                // Redirect to home page after successful payment
+                navigate('/', { replace: true });
             }, 2000);
         }
     };
